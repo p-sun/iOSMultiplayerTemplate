@@ -17,8 +17,8 @@ public class PeersController: NSObject {
 
     private let startTime = Date().timeIntervalSince1970
 
-    private var advertiser: MCNearbyServiceAdvertiser?
-    private var browser: MCNearbyServiceBrowser?
+    private var advertiser: MCNearbyServiceAdvertiser
+    private var browser: MCNearbyServiceBrowser
 
     public var peerState = [PeerName: MCSessionState]()
     public var hasPeers = false
@@ -42,10 +42,13 @@ public class PeersController: NSObject {
     }()
     
     override init() {
+        advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: nil, serviceType: PeerServiceType)
+        browser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: PeerServiceType)
         super.init()
         startAdvertising()
         startBrowsing()
     }
+    
     deinit {
         stopServices()
         session.disconnect()
@@ -53,23 +56,21 @@ public class PeersController: NSObject {
     }
 
     func startBrowsing() {
-        browser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: PeerServiceType)
-        browser?.delegate = self
-        browser?.startBrowsingForPeers()
+        browser.delegate = self
+        browser.startBrowsingForPeers()
     }
 
     func startAdvertising() {
-        advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: nil, serviceType: PeerServiceType)
-        advertiser?.delegate = self
-        advertiser?.startAdvertisingPeer()
+        advertiser.delegate = self
+        advertiser.startAdvertisingPeer()
     }
 
     private func stopServices() {
-        advertiser?.stopAdvertisingPeer()
-        advertiser?.delegate = nil
+        advertiser.stopAdvertisingPeer()
+        advertiser.delegate = nil
 
-        browser?.stopBrowsingForPeers()
-        browser?.delegate = nil
+        browser.stopBrowsingForPeers()
+        browser.delegate = nil
     }
     private func elapsedTime() -> TimeInterval {
         Date().timeIntervalSince1970 - startTime
