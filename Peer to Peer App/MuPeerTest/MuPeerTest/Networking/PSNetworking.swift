@@ -8,6 +8,19 @@
 import Combine
 import Foundation
 
+/**
+ Make sure to add in Info.list:
+     Bonjour Services
+        _deepmuse_tcp
+        _deepmuse._udp
+     NSLocalNetworkUsageDescription
+        This application will use local networking to discover nearby device (or whatever you'd like)
+ 
+ Every device in the same room should be able to see each other, whether they're on bluetooth or wifi.
+ */
+
+public let PSChannelName = "deepmuse"
+
 protocol PSSendable: Codable {
     var sender: String { get }
     var timeSince1970: Double {get }

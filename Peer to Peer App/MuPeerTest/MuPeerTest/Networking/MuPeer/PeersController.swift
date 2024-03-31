@@ -14,7 +14,7 @@ public class PeersController: NSObject {
 
     public static var shared = PeersController()
     private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
-
+    
     private let startTime = Date().timeIntervalSince1970
 
     private var advertiser: MCNearbyServiceAdvertiser
@@ -23,6 +23,7 @@ public class PeersController: NSObject {
     public var peerState = [PeerName: MCSessionState]()
     public var hasPeers = false
     public var peersDelegates = [PeersControllerDelegate]()
+    
     public func remove(peersDelegate: PeersControllerDelegate) {
         peersDelegates = peersDelegates.filter { return $0 !== peersDelegate }
     }
@@ -34,16 +35,16 @@ public class PeersController: NSObject {
     }()
     
     public lazy var myName: PeerName = {
-        return session.myPeerID.displayName
+        return  session.myPeerID.displayName + UIDevice.current.identifierForVendor!.uuidString
     }()
     
     public lazy var mySessionId: Int = {
-        return myName.hash + Int(Date().timeIntervalSince1970)
+        return myName.combineHash(with: myPeerID)
     }()
     
     override init() {
-        advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: nil, serviceType: PeerServiceType)
-        browser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: PeerServiceType)
+        advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: nil, serviceType: PSChannelName)
+        browser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: PSChannelName)
         super.init()
         startAdvertising()
         startBrowsing()
@@ -72,14 +73,15 @@ public class PeersController: NSObject {
         browser.stopBrowsingForPeers()
         browser.delegate = nil
     }
+    
     private func elapsedTime() -> TimeInterval {
         Date().timeIntervalSince1970 - startTime
     }
 
     func logPeer(_ body: PeerName) {
-        #if false
+        #if true
         let logTime = String(format: "%.2f", elapsedTime())
-        print("⚡️ \(logTime) \(myName): \(body)")
+        print("⚡️ \(logTime): \(body)")
         #endif
     }
 }
@@ -121,7 +123,7 @@ extension PeersController {
                 }
             } else {
                 // via session
-                try session.send(data, toPeers: session.connectedPeers, with: .reliable)
+                try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
                 logPeer("⚡️send toPeers")
             }
         } catch {
@@ -138,5 +140,13 @@ extension PeersController {
 
     func fixConnectedState(for peerName: String) {
        // peerState[peerName] = .connected
+    }
+}
+
+extension Hashable {
+    func combineHash(with hashableOther: any Hashable) -> Int {
+        let ownHash = self.hashValue
+        let otherHash = hashableOther.hashValue
+        return (ownHash << 5) &+ ownHash &+ otherHash
     }
 }

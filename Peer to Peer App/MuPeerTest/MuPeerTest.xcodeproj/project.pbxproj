@@ -11,7 +11,6 @@
 		804109D72A83559A0051C403 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804109D62A83559A0051C403 /* ContentView.swift */; };
 		804109D92A83559C0051C403 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 804109D82A83559C0051C403 /* Assets.xcassets */; };
 		804109DD2A83559C0051C403 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 804109DC2A83559C0051C403 /* Preview Assets.xcassets */; };
-		9B91FBD22BB8E8760082D1AA /* PeerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBCA2BB8E8760082D1AA /* PeerService.swift */; };
 		9B91FBD32BB8E8760082D1AA /* PeersC+Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBCB2BB8E8760082D1AA /* PeersC+Stream.swift */; };
 		9B91FBD42BB8E8760082D1AA /* PeersC+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBCC2BB8E8760082D1AA /* PeersC+Session.swift */; };
 		9B91FBD52BB8E8760082D1AA /* PeersC+Advertiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBCD2BB8E8760082D1AA /* PeersC+Advertiser.swift */; };
@@ -34,7 +33,6 @@
 		804109D82A83559C0051C403 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		804109DA2A83559C0051C403 /* MuPeerTest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MuPeerTest.entitlements; sourceTree = "<group>"; };
 		804109DC2A83559C0051C403 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		9B91FBCA2BB8E8760082D1AA /* PeerService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PeerService.swift; sourceTree = "<group>"; };
 		9B91FBCB2BB8E8760082D1AA /* PeersC+Stream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PeersC+Stream.swift"; sourceTree = "<group>"; };
 		9B91FBCC2BB8E8760082D1AA /* PeersC+Session.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PeersC+Session.swift"; sourceTree = "<group>"; };
 		9B91FBCD2BB8E8760082D1AA /* PeersC+Advertiser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PeersC+Advertiser.swift"; sourceTree = "<group>"; };
@@ -133,7 +131,6 @@
 			isa = PBXGroup;
 			children = (
 				9B91FBDA2BB8E89F0082D1AA /* MuExtensions */,
-				9B91FBCA2BB8E8760082D1AA /* PeerService.swift */,
 				9B91FBCB2BB8E8760082D1AA /* PeersC+Stream.swift */,
 				9B91FBCC2BB8E8760082D1AA /* PeersC+Session.swift */,
 				9B91FBCD2BB8E8760082D1AA /* PeersC+Advertiser.swift */,
@@ -247,7 +244,6 @@
 				9B91FBDC2BB8E8AC0082D1AA /* MCSessionState+ext.swift in Sources */,
 				9B91FBEC2BB9CECB0082D1AA /* SendablePlayer.swift in Sources */,
 				9B91FBD42BB8E8760082D1AA /* PeersC+Session.swift in Sources */,
-				9B91FBD22BB8E8760082D1AA /* PeerService.swift in Sources */,
 				9B91FBD82BB8E8760082D1AA /* PeersController.swift in Sources */,
 				9B91FBD32BB8E8760082D1AA /* PeersC+Stream.swift in Sources */,
 				9B91FBE32BB92AA00082D1AA /* PSNetworking.swift in Sources */,
@@ -385,7 +381,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MuPeerTest/Info.plist;
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Pretty please we need access to your network!!";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This application will use local networking to discover nearby devices.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -426,7 +422,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MuPeerTest/Info.plist;
-				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Pretty please we need access to your network!!";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This application will use local networking to discover nearby devices.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
