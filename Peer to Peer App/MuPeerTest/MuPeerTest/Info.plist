@@ -4,8 +4,8 @@
 <dict>
 	<key>NSBonjourServices</key>
 	<array>
-		<string>deepmuse-peer.udp</string>
-		<string>deepmuse-peer.tcp</string>
+		<string>_deepmuse-peer._udp</string>
+		<string>_deepmuse-peer._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>This application will use local networking to discover nearby devices.</string>

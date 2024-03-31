@@ -14,8 +14,8 @@ public typealias PeerName = String
 public class PeersController: NSObject {
 
     public static var shared = PeersController()
-
     private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
+
     private let startTime = Date().timeIntervalSince1970
 
     private var advertiser: MCNearbyServiceAdvertiser?
@@ -28,7 +28,7 @@ public class PeersController: NSObject {
         peersDelegates = peersDelegates.filter { return $0 !== peersDelegate }
     }
     public lazy var session: MCSession = {
-        let session = MCSession(peer: self.myPeerID)
+        let session = MCSession(peer: myPeerID)
         session.delegate = self
         return session
     }()
@@ -76,7 +76,7 @@ public class PeersController: NSObject {
     func logPeer(_ body: PeerName) {
         #if false
         let logTime = String(format: "%.2f", timeElapsed())
-        print("⚡️ \(logTime) \(myName): \(body)")
+        print("⚡️ \(logTime) \(playerId): \(body)")
         #endif
     }
 }

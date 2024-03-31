@@ -13,36 +13,13 @@ struct SendablePeer: Codable {
 }
 
 struct SendableEntity: Codable {
-    var peerName: String
+    let owner: String
     var point: CGPoint
-}
-
-struct DotPoint: Codable {
-    let x : Double
-    let y : Double
+    let timeSince1970: Double
     
-    init(_ point:CGPoint) {
-        x = Double(point.x)
-        y = Double(point.y)
+    init(owner: String, point: CGPoint) {
+        self.owner = owner
+        self.point = point
+        self.timeSince1970 = Date().timeIntervalSince1970
     }
 }
-
-//extension CGPoint: Codable {
-//    public func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(x, forKey: .x)
-//        try container.encode(y, forKey: .y)
-//    }
-//    
-//    public init(from decoder: Decoder) throws {
-//        let values = try decoder.container(keyedBy: CodingKeys.self)
-//        let x = try values.decode(CGFloat.self, forKey: .x)
-//        let y = try values.decode(CGFloat.self, forKey: .y)
-//        self.init(x: x, y: y)
-//    }
-//    
-//    private enum CodingKeys: String, CodingKey {
-//        case x
-//        case y
-//    }
-//}

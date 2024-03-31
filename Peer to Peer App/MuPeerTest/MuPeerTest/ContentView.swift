@@ -11,29 +11,30 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             PeersView(peersVm)
-            DraggableCircle(circlePosition: $peersVm.circleLocation)
+            DraggableCircle(circle: $peersVm.circle)
         }
         .padding()
     }
 }
 
 struct DraggableCircle: View {
-    @Binding var circlePosition: CGPoint
+    @Binding var circle: SendableEntity
+    
     
     var body: some View {
         Circle()
             .frame(width: 50, height: 50)
             .foregroundColor(.blue)
-            .position(circlePosition)
+            .position(circle.point)
             .gesture(
                 DragGesture()
                     .onChanged { value in
-                        self.circlePosition = value.location
+                        self.circle = SendableEntity(owner: PeersVm.shared.playerId, point: value.location)
                     }
             )
-  
     }
 }
+
 
 //#Preview {
 //    ContentView()
