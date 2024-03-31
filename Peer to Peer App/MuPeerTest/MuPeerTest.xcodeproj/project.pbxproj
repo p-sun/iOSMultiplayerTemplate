@@ -22,6 +22,7 @@
 		9B91FBDC2BB8E8AC0082D1AA /* MCSessionState+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBDB2BB8E8AC0082D1AA /* MCSessionState+ext.swift */; };
 		9B91FBDE2BB8E8D60082D1AA /* Data+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBDD2BB8E8D60082D1AA /* Data+ext.swift */; };
 		9B91FBE12BB8F1C30082D1AA /* SendableEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBE02BB8F1C30082D1AA /* SendableEntity.swift */; };
+		9B91FBE32BB92AA00082D1AA /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBE22BB92AA00082D1AA /* Networking.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		9B91FBDB2BB8E8AC0082D1AA /* MCSessionState+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MCSessionState+ext.swift"; sourceTree = "<group>"; };
 		9B91FBDD2BB8E8D60082D1AA /* Data+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+ext.swift"; sourceTree = "<group>"; };
 		9B91FBE02BB8F1C30082D1AA /* SendableEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendableEntity.swift; sourceTree = "<group>"; };
+		9B91FBE22BB92AA00082D1AA /* Networking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
 		D7D930AD2BB8CC3A00FE3ACF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -124,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				9B91FBE02BB8F1C30082D1AA /* SendableEntity.swift */,
+				9B91FBE22BB92AA00082D1AA /* Networking.swift */,
 			);
 			path = SendableEntity;
 			sourceTree = "<group>";
@@ -215,6 +218,7 @@
 				9B91FBD22BB8E8760082D1AA /* PeerService.swift in Sources */,
 				9B91FBD82BB8E8760082D1AA /* PeersController.swift in Sources */,
 				9B91FBD32BB8E8760082D1AA /* PeersC+Stream.swift in Sources */,
+				9B91FBE32BB92AA00082D1AA /* Networking.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

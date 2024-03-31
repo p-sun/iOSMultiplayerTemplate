@@ -13,15 +13,7 @@ public class PeersVm: ObservableObject {
 
     /// list of connected peers and their counter
     @Published var peersList = ""
-        
-    @Published var circle = SendableEntity(owner: "", point: CGPoint(x: 200, y: 200)) {
-        didSet {
-            if circle.owner == playerId {
-                peersController.sendMessage(circle, viaStream: false)
-            }
-        }
-    }
-    
+
     public lazy var playerId: String = {
         return peersController.myName
     }()
@@ -37,6 +29,10 @@ public class PeersVm: ObservableObject {
     }
     deinit {
         peersController.remove(peersDelegate: self)
+    }
+    
+    public func sendMessage(_ message: Encodable) {
+        peersController.sendMessage(message, viaStream: false)
     }
 
     /// create a 1 second counter and send my count to all of my peers
@@ -58,9 +54,18 @@ public class PeersVm: ObservableObject {
     }
 }
 extension PeersVm: PeersControllerDelegate {
+    public func received(data: Data, viaStream: Bool) -> Bool {
+        if let sendable = try? JSONDecoder().decode(SendablePeer.self, from: data) {
+            peersController.fixConnectedState(for: sendable.peerName)
+            peerCounter[sendable.peerName] = sendable.count
+            peerStreamed[sendable.peerName] = viaStream
+            setPeersList()
+            return true
+        }
+        return false
+    }
 
-    public func didChange() {
-
+    private func setPeersList() {
         var peerList = ""
 
         for (name,state) in peersController.peerState {
@@ -76,21 +81,4 @@ extension PeersVm: PeersControllerDelegate {
         }
         self.peersList = peerList
     }
-
-    public func received(data: Data, viaStream: Bool) -> Bool {
-        if let sendable = try? JSONDecoder().decode(SendablePeer.self, from: data) {
-            peersController.fixConnectedState(for: sendable.peerName)
-            peerCounter[sendable.peerName] = sendable.count
-            peerStreamed[sendable.peerName] = viaStream
-            didChange()
-            return true
-        } else if let sendableEntity = try? JSONDecoder().decode(SendableEntity.self, from: data) {
-            if sendableEntity.owner != playerId {
-                circle = sendableEntity
-            }
-            return true
-        }
-        return false
-    }
-
 }

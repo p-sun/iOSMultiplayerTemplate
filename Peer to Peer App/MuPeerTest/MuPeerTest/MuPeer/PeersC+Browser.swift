@@ -25,10 +25,6 @@ extension PeersController: MCNearbyServiceBrowserDelegate {
         } else {
             logPeer("Not inviting \"\(peerName)\"")
         }
-
-        for delegate in peersDelegates {
-            delegate.didChange()
-        }
     }
 
     public func browser(_ browser: MCNearbyServiceBrowser,

@@ -8,6 +8,11 @@
 import Foundation
 import simd
 
+protocol NetworkedEntity: Codable {
+    var sender: String { get }
+    var timeSince1970: Double {get }
+}
+
 struct SendablePeer: Codable {
     let peerName: String
     let count: Int
@@ -18,15 +23,15 @@ struct PlayerState: Codable {
     let playerTransform: simd_float4x4
 }
 
-struct SendableEntity: Codable {
-    let owner: String
+struct SendableEntity: NetworkedEntity {
     var point: CGPoint
+    let sender: String
     let timeSince1970: Double
     
-    init(owner: String, point: CGPoint) {
-        self.owner = owner
-        self.point = point
+    init(sender: String, point: CGPoint) {
+        self.sender = sender
         self.timeSince1970 = Date().timeIntervalSince1970
+        self.point = point
     }
 }
 

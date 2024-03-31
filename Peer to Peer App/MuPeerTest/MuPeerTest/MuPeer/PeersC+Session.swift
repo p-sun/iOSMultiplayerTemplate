@@ -23,12 +23,6 @@ extension PeersController: MCSessionDelegate {
                 }
             }
         }
-
-        DispatchQueue.main.async {
-            for peersDelegate in self.peersDelegates {
-                peersDelegate.didChange()
-            }
-        }
     }
 
     /// receive message via session

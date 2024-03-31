@@ -4,7 +4,6 @@ import UIKit
 import MultipeerConnectivity
 
 public protocol PeersControllerDelegate: AnyObject {
-    func didChange()
     func received(data: Data, viaStream: Bool) -> Bool
 }
 
@@ -23,8 +22,8 @@ public class PeersController: NSObject {
 
     public var peerState = [PeerName: MCSessionState]()
     public var hasPeers = false
-    public var peersDelegates = [any PeersControllerDelegate]()
-    public func remove(peersDelegate: any PeersControllerDelegate) {
+    public var peersDelegates = [PeersControllerDelegate]()
+    public func remove(peersDelegate: PeersControllerDelegate) {
         peersDelegates = peersDelegates.filter { return $0 !== peersDelegate }
     }
     
