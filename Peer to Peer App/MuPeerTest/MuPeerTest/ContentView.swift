@@ -20,7 +20,6 @@ struct ContentView: View {
 struct DraggableCircle: View {
     @Binding var circle: SendableEntity
     
-    
     var body: some View {
         Circle()
             .frame(width: 50, height: 50)
