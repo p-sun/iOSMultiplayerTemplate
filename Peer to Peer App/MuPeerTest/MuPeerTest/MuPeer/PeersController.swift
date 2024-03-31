@@ -27,14 +27,17 @@ public class PeersController: NSObject {
     public func remove(peersDelegate: any PeersControllerDelegate) {
         peersDelegates = peersDelegates.filter { return $0 !== peersDelegate }
     }
+    
     public lazy var session: MCSession = {
         let session = MCSession(peer: myPeerID)
         session.delegate = self
         return session
     }()
+    
     public lazy var myName: PeerName = {
         return session.myPeerID.displayName
     }()
+    
     public lazy var mySessionId: Int = {
         return myName.hash + Int(Date().timeIntervalSince1970)
     }()
@@ -91,12 +94,9 @@ extension PeersController {
             return
         }
         do {
-            if let obj = try? JSONEncoder().encode(message) {
-                //            let data = try JSONSerialization.data(withJSONObject: message)
-                sendMessage(obj, viaStream: viaStream)
-            }
+            let obj = try JSONEncoder().encode(message)
+            sendMessage(obj, viaStream: viaStream)
         } catch {
-            print("PAIGE sendMessage error", error)
             logPeer("\(#function) error: \(error.localizedDescription)")
             return
         }
@@ -139,5 +139,4 @@ extension PeersController {
     func fixConnectedState(for peerName: String) {
         peerState[peerName] = .connected
     }
-
 }
