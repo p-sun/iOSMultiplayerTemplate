@@ -8,7 +8,7 @@
 import Foundation
 import simd
 
-struct SendablePlayer: PSNetworkable {
+struct SendablePlayer: PSSendable {
     var sender: String
     var timeSince1970: Double
     let playerTransform: simd_float4x4

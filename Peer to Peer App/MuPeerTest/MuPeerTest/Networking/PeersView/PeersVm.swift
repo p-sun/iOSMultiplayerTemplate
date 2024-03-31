@@ -44,7 +44,7 @@ public class PeersVm: ObservableObject {
 
             // viaStream: false will use MCSessionDelegate
             // viaStream: true  will use StreamDelegate
-            let sendable = SendablePeer(peerName: myName, count: count)
+            let sendable = PeerInfo(peerName: myName, count: count)
             peersController.sendMessage(sendable, viaStream: false)
             peersTitle = "\(myName): \(count)"
         }
@@ -55,7 +55,7 @@ public class PeersVm: ObservableObject {
 }
 extension PeersVm: PeersControllerDelegate {
     public func received(data: Data, viaStream: Bool) -> Bool {
-        if let sendable = try? JSONDecoder().decode(SendablePeer.self, from: data) {
+        if let sendable = try? JSONDecoder().decode(PeerInfo.self, from: data) {
             peersController.fixConnectedState(for: sendable.peerName)
             peerCounter[sendable.peerName] = sendable.count
             peerStreamed[sendable.peerName] = viaStream

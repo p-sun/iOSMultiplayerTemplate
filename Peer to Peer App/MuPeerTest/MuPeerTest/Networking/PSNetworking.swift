@@ -8,12 +8,12 @@
 import Combine
 import Foundation
 
-protocol PSNetworkable: Codable {
+protocol PSSendable: Codable {
     var sender: String { get }
     var timeSince1970: Double {get }
 }
 
-class PSNetworking<Sendable: PSNetworkable>: ObservableObject {
+class PSNetworking<Sendable: PSSendable>: ObservableObject {
 
     public lazy var myName: PeerName = {
         return peersController.myName

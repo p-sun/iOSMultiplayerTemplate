@@ -1,5 +1,5 @@
 //
-//  SendablePeer.swift
+//  PeerInfo.swift
 //  MuPeerTest
 //
 //  Created by Paige Sun on 3/30/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SendableCircle: PSNetworkable {
+struct SendableCircle: PSSendable {
     var point: CGPoint
     let sender: String
     let timeSince1970: Double

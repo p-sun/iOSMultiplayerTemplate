@@ -23,7 +23,7 @@
 		9B91FBDE2BB8E8D60082D1AA /* Data+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBDD2BB8E8D60082D1AA /* Data+ext.swift */; };
 		9B91FBE12BB8F1C30082D1AA /* SendableCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBE02BB8F1C30082D1AA /* SendableCircle.swift */; };
 		9B91FBE32BB92AA00082D1AA /* PSNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBE22BB92AA00082D1AA /* PSNetworking.swift */; };
-		9B91FBE92BB9CD890082D1AA /* SendablePeer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBE82BB9CD890082D1AA /* SendablePeer.swift */; };
+		9B91FBE92BB9CD890082D1AA /* PeerInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBE82BB9CD890082D1AA /* PeerInfo.swift */; };
 		9B91FBEC2BB9CECB0082D1AA /* SendablePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B91FBEB2BB9CECB0082D1AA /* SendablePlayer.swift */; };
 /* End PBXBuildFile section */
 
@@ -46,7 +46,7 @@
 		9B91FBDD2BB8E8D60082D1AA /* Data+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+ext.swift"; sourceTree = "<group>"; };
 		9B91FBE02BB8F1C30082D1AA /* SendableCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendableCircle.swift; sourceTree = "<group>"; };
 		9B91FBE22BB92AA00082D1AA /* PSNetworking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PSNetworking.swift; sourceTree = "<group>"; };
-		9B91FBE82BB9CD890082D1AA /* SendablePeer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendablePeer.swift; sourceTree = "<group>"; };
+		9B91FBE82BB9CD890082D1AA /* PeerInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerInfo.swift; sourceTree = "<group>"; };
 		9B91FBEB2BB9CECB0082D1AA /* SendablePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendablePlayer.swift; sourceTree = "<group>"; };
 		D7D930AD2BB8CC3A00FE3ACF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -121,7 +121,6 @@
 		9B91FBDF2BB8F17D0082D1AA /* Sendables */ = {
 			isa = PBXGroup;
 			children = (
-				9B91FBE82BB9CD890082D1AA /* SendablePeer.swift */,
 				9B91FBE02BB8F1C30082D1AA /* SendableCircle.swift */,
 				9B91FBEB2BB9CECB0082D1AA /* SendablePlayer.swift */,
 			);
@@ -132,8 +131,8 @@
 			isa = PBXGroup;
 			children = (
 				9B91FBE22BB92AA00082D1AA /* PSNetworking.swift */,
-				9B91FBE72BB9CD5C0082D1AA /* PeersList */,
 				9B91FBDF2BB8F17D0082D1AA /* Sendables */,
+				9B91FBE72BB9CD5C0082D1AA /* PeersView */,
 				9B91FBC92BB8E8760082D1AA /* MuPeer */,
 			);
 			path = Networking;
@@ -152,13 +151,14 @@
 			path = PeersControllerService;
 			sourceTree = "<group>";
 		};
-		9B91FBE72BB9CD5C0082D1AA /* PeersList */ = {
+		9B91FBE72BB9CD5C0082D1AA /* PeersView */ = {
 			isa = PBXGroup;
 			children = (
+				9B91FBE82BB9CD890082D1AA /* PeerInfo.swift */,
 				9B91FBD12BB8E8760082D1AA /* PeersVm.swift */,
 				9B91FBCE2BB8E8760082D1AA /* PeersView.swift */,
 			);
-			path = PeersList;
+			path = PeersView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -242,7 +242,7 @@
 				9B91FBDE2BB8E8D60082D1AA /* Data+ext.swift in Sources */,
 				804109D52A83559A0051C403 /* MuPeerTestApp.swift in Sources */,
 				9B91FBD92BB8E8760082D1AA /* PeersVm.swift in Sources */,
-				9B91FBE92BB9CD890082D1AA /* SendablePeer.swift in Sources */,
+				9B91FBE92BB9CD890082D1AA /* PeerInfo.swift in Sources */,
 				9B91FBD52BB8E8760082D1AA /* PeersC+Advertiser.swift in Sources */,
 				9B91FBDC2BB8E8AC0082D1AA /* MCSessionState+ext.swift in Sources */,
 				9B91FBEC2BB9CECB0082D1AA /* SendablePlayer.swift in Sources */,
