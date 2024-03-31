@@ -1,5 +1,5 @@
 //
-//  Networking.swift
+//  PSNetworking.swift
 //  MuPeerTest
 //
 //  Created by Paige Sun on 3/30/24.
@@ -8,14 +8,12 @@
 import Combine
 import Foundation
 
-class Weather {
-    @Published var temperature: Double
-    init(temperature: Double) {
-        self.temperature = temperature
-    }
+protocol PSNetworkable: Codable {
+    var sender: String { get }
+    var timeSince1970: Double {get }
 }
 
-class PlayerNetworking<Sendable: NetworkedEntity>: ObservableObject {
+class PSNetworking<Sendable: PSNetworkable>: ObservableObject {
 
     public lazy var myName: PeerName = {
         return peersController.myName
@@ -53,7 +51,7 @@ class PlayerNetworking<Sendable: NetworkedEntity>: ObservableObject {
     }
 }
 
-extension PlayerNetworking: PeersControllerDelegate {
+extension PSNetworking: PeersControllerDelegate {
     public func received(data: Data, viaStream: Bool) -> Bool {
        if let receivedEntity = try? JSONDecoder().decode(Sendable.self, from: data) {
             if receivedEntity.sender != myName {

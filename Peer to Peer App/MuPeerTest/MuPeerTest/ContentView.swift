@@ -5,7 +5,7 @@ import Combine
 
 struct ContentView: View {
     @StateObject public var peersVm = PeersVm.shared
-    @StateObject private var playerNetworking = PlayerNetworking<SendableEntity>(defaultSendable: SendableEntity(sender: "", point: CGPoint(x: 200, y: 200)))
+    @StateObject private var networkedCircle = PSNetworking<SendableCircle>(defaultSendable: SendableCircle(sender: "", point: CGPoint(x: 200, y: 200)))
 
     var body: some View {
         VStack {
@@ -13,12 +13,12 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             PeersView(peersVm)
-            DraggableCircle(entity: $playerNetworking.entity)
+            DraggableCircle(entity: $networkedCircle.entity)
         }
         .padding()
         .task {
             // Get new entity
-            playerNetworking.listen { entity in
+            networkedCircle.listen { entity in
                 //  print("Received new entity", entity)
             }
         }
@@ -26,7 +26,7 @@ struct ContentView: View {
 }
 
 struct DraggableCircle: View {
-    @Binding var entity: SendableEntity
+    @Binding var entity: SendableCircle
     
     var body: some View {
         Circle()
@@ -36,7 +36,7 @@ struct DraggableCircle: View {
             .gesture(
                 DragGesture()
                     .onChanged { value in
-                        entity = SendableEntity(sender: PeersVm.shared.playerId, point: value.location)
+                        entity = SendableCircle(sender: PeersVm.shared.playerId, point: value.location)
                     }
             )
             

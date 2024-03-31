@@ -1,37 +1,22 @@
 //
-//  SendablePeer.swift
+//  SendablePlayer.swift
 //  MuPeerTest
 //
-//  Created by Paige Sun on 3/30/24.
+//  Created by Paige Sun on 3/31/24.
 //
 
 import Foundation
 import simd
 
-protocol NetworkedEntity: Codable {
-    var sender: String { get }
-    var timeSince1970: Double {get }
-}
-
-struct SendablePeer: Codable {
-    let peerName: String
-    let count: Int
-}
-
-struct PlayerState: Codable {
-    let playerId: String
+struct SendablePlayer: PSNetworkable {
+    var sender: String
+    var timeSince1970: Double
     let playerTransform: simd_float4x4
-}
-
-struct SendableEntity: NetworkedEntity {
-    var point: CGPoint
-    let sender: String
-    let timeSince1970: Double
     
-    init(sender: String, point: CGPoint) {
+    init(sender: String, playerTransform: simd_float4x4) {
         self.sender = sender
         self.timeSince1970 = Date().timeIntervalSince1970
-        self.point = point
+        self.playerTransform = playerTransform
     }
 }
 
