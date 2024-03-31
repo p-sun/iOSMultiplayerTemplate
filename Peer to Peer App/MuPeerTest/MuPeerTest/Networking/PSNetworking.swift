@@ -67,9 +67,13 @@ class PSNetworking<Sendable: PSSendable>: ObservableObject {
 extension PSNetworking: PeersControllerDelegate {
     public func received(data: Data, viaStream: Bool) -> Bool {
        if let receivedEntity = try? JSONDecoder().decode(Sendable.self, from: data) {
-            if receivedEntity.sender != myName {
-                entity = receivedEntity
-            }
+           Task {
+               await MainActor.run {
+                   if receivedEntity.sender != myName {
+                       entity = receivedEntity
+                   }
+               }
+           }
             return true
         }
         return false
