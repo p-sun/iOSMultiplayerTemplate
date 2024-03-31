@@ -81,6 +81,7 @@
 		804109D32A83559A0051C403 /* MuPeerTest */ = {
 			isa = PBXGroup;
 			children = (
+				9B91FBF22BB9D41C0082D1AA /* Sendables */,
 				9B91FBE42BB9C7C80082D1AA /* Networking */,
 				D7D930AD2BB8CC3A00FE3ACF /* Info.plist */,
 				804109D42A83559A0051C403 /* MuPeerTestApp.swift */,
@@ -118,20 +119,10 @@
 			path = MuExtensions;
 			sourceTree = "<group>";
 		};
-		9B91FBDF2BB8F17D0082D1AA /* Sendables */ = {
-			isa = PBXGroup;
-			children = (
-				9B91FBE02BB8F1C30082D1AA /* SendableCircle.swift */,
-				9B91FBEB2BB9CECB0082D1AA /* SendablePlayer.swift */,
-			);
-			path = Sendables;
-			sourceTree = "<group>";
-		};
 		9B91FBE42BB9C7C80082D1AA /* Networking */ = {
 			isa = PBXGroup;
 			children = (
 				9B91FBE22BB92AA00082D1AA /* PSNetworking.swift */,
-				9B91FBDF2BB8F17D0082D1AA /* Sendables */,
 				9B91FBE72BB9CD5C0082D1AA /* PeersView */,
 				9B91FBC92BB8E8760082D1AA /* MuPeer */,
 			);
@@ -159,6 +150,15 @@
 				9B91FBCE2BB8E8760082D1AA /* PeersView.swift */,
 			);
 			path = PeersView;
+			sourceTree = "<group>";
+		};
+		9B91FBF22BB9D41C0082D1AA /* Sendables */ = {
+			isa = PBXGroup;
+			children = (
+				9B91FBE02BB8F1C30082D1AA /* SendableCircle.swift */,
+				9B91FBEB2BB9CECB0082D1AA /* SendablePlayer.swift */,
+			);
+			path = Sendables;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
