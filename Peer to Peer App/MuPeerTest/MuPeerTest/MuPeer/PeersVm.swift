@@ -14,7 +14,14 @@ public class PeersVm: ObservableObject {
     /// list of connected peers and their counter
     @Published var peersList = ""
     
-    @Published var circleLocation = CGPoint(x: 200, y: 200)
+    @Published var circleLocation = CGPoint(x: 200, y: 200) {
+        didSet {
+            if circleLocation != oldValue {
+                let sendable = SendableEntity(peerName: peersController.myName, point: circleLocation)
+                peersController.sendMessage(sendable, viaStream: false)
+            }
+        }
+    }
 
     private var peersController: PeersController
     private var peerCounter = [String: Int]()
@@ -38,7 +45,9 @@ public class PeersVm: ObservableObject {
 
             // viaStream: false will use MCSessionDelegate
             // viaStream: true  will use StreamDelegate
-            peersController.sendMessage(["peerName": myName, "count": count],//, "position": circleLocation],
+            let sendable = SendablePeer(peerName: myName, count: count)
+            // ["peerName": myName, "count": count, "position": DotPoint(circleLocation)]
+            peersController.sendMessage(sendable,
                                         viaStream: false)
             peersTitle = "\(myName): \(count)"
         }
@@ -67,29 +76,23 @@ extension PeersVm: PeersControllerDelegate {
         self.peersList = peerList
     }
 
-
     public func received(data: Data, viaStream: Bool) -> Bool {
-
-        do {
-            let message = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as! [String : Any]
-
-            // filter for internal 1 second counter
-            // other delegates may capture other messages
-
-            if  let peerName = message["peerName"] as? String,
-                let count = message["count"] as? Int {
-
-                peersController.fixConnectedState(for: peerName)
-
-                peerCounter[peerName] = count
-                peerStreamed[peerName] = viaStream
+//        do {
+            if let sendable = try? JSONDecoder().decode(SendablePeer.self, from: data) {
+                peersController.fixConnectedState(for: sendable.peerName)
+                peerCounter[sendable.peerName] = sendable.count
+                peerStreamed[sendable.peerName] = viaStream
                 didChange()
                 return true
+            } else if let sendableEntity = try? JSONDecoder().decode(SendableEntity.self, from: data) {
+                if sendableEntity.peerName != peersController.myName {
+                    circleLocation = sendableEntity.point
+                }
+                return true
             }
-        }
-        catch {
-
-        }
+//        } catch {
+//            print("Received error. Can't decode. ", error)
+//        }
         return false
     }
 

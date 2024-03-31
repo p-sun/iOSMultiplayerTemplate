@@ -84,16 +84,19 @@ public class PeersController: NSObject {
 extension PeersController {
 
     /// send message to peers
-    public func sendMessage(_ message: [String : Any],
+    public func sendMessage(_ message: Encodable,
                             viaStream: Bool) {
         if session.connectedPeers.isEmpty {
             //print("⁉️", terminator: "")
             return
         }
         do {
-            let data = try JSONSerialization.data(withJSONObject: message, options: .prettyPrinted)
-            sendMessage(data, viaStream: viaStream)
+            if let obj = try? JSONEncoder().encode(message) {
+                //            let data = try JSONSerialization.data(withJSONObject: message)
+                sendMessage(obj, viaStream: viaStream)
+            }
         } catch {
+            print("PAIGE sendMessage error", error)
             logPeer("\(#function) error: \(error.localizedDescription)")
             return
         }
