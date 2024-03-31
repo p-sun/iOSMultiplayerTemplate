@@ -78,8 +78,8 @@ public class PeersController: NSObject {
 
     func logPeer(_ body: PeerName) {
         #if false
-        let logTime = String(format: "%.2f", timeElapsed())
-        print("⚡️ \(logTime) \(playerId): \(body)")
+        let logTime = String(format: "%.2f", elapsedTime())
+        print("⚡️ \(logTime) \(myName): \(body)")
         #endif
     }
 }
@@ -137,6 +137,6 @@ extension PeersController {
     ///     // not sure if this is related to false .nonConnected
 
     func fixConnectedState(for peerName: String) {
-        peerState[peerName] = .connected
+       // peerState[peerName] = .connected
     }
 }

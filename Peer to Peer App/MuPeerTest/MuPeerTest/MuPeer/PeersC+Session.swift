@@ -11,7 +11,12 @@ extension PeersController: MCSessionDelegate {
         let peerName = peerID.displayName
         logPeer("session \"\(peerName)\" \(state.description())")
         peerState[peerName] = state
-
+        
+        if state == .notConnected {
+            session.disconnect()
+            peerState[peerName] = nil
+        }
+        
         if state == .connected {
             hasPeers = true
         } else {
@@ -32,7 +37,7 @@ extension PeersController: MCSessionDelegate {
 
         let peerName = peerID.displayName
         logPeer("⚡️didReceive: \"\(peerName)\"")
-        fixConnectedState(for: peerName)
+        //fixConnectedState(for: peerName)
 
         DispatchQueue.main.async {
             for delegate in self.peersDelegates {

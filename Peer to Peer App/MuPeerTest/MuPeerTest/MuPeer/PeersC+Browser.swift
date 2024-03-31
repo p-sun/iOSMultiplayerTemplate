@@ -13,18 +13,25 @@ extension PeersController: MCNearbyServiceBrowserDelegate {
     public func browser(_ browser: MCNearbyServiceBrowser,
                         foundPeer peerID: MCPeerID,
                         withDiscoveryInfo info: [String : String]?) {
-
         let peerName = peerID.displayName
-        let shouldInvite = ((myName != peerName) &&
-                            (peerState[peerName] == nil ||
-                             peerState[peerName] != .connected))
+        logPeer("Browser found peer \"\(peerName)\" who is \(peerState[peerName] == .connected ? "connected" : "no connected")")
+        let shouldInvite = myName != peerName
+            && (peerState[peerName] == nil || peerState[peerName] != .connected)
 
         if shouldInvite {
             logPeer("Inviting \"\(peerName)\"")
-            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30.0)
+            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10.0)
         } else {
             logPeer("Not inviting \"\(peerName)\"")
         }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard let self = self else { return }
+            logPeer("Retrying invite \"\(peerName)\"")
+            if self.peerState[peerName] != .connected {
+                browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10.0)
+            }
+         }
     }
 
     public func browser(_ browser: MCNearbyServiceBrowser,
