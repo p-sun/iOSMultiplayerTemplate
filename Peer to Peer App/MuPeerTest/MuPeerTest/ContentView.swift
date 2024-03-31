@@ -1,24 +1,24 @@
 //  created by musesum on 8/9/23.
 
 import SwiftUI
-import MuPeer
 
 struct ContentView: View {
-    public var peersVm = PeersVm.shared
+    @StateObject public var peersVm = PeersVm.shared
+    
     var body: some View {
         VStack {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             PeersView(peersVm)
-            DraggableCircle()
+            DraggableCircle(circlePosition: $peersVm.circleLocation)
         }
         .padding()
     }
 }
 
 struct DraggableCircle: View {
-    @State private var circlePosition = CGPoint(x: 200, y: 200)
+    @Binding var circlePosition: CGPoint
     
     var body: some View {
         Circle()
@@ -31,6 +31,7 @@ struct DraggableCircle: View {
                         self.circlePosition = value.location
                     }
             )
+  
     }
 }
 
