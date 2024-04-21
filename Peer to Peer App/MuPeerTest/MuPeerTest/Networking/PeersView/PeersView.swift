@@ -6,20 +6,16 @@ public struct PeersView: View {
     @ObservedObject public var peersVm: PeersVm
     var peersTitle: String { peersVm.peersTitle }
     var peersList: String { peersVm.peersList }
-    public init(_ peersVm: PeersVm) {self.peersVm = peersVm}
+    public init(_ peersVm: PeersVm) { self.peersVm = peersVm }
     public var body: some View {
         VStack(alignment: .leading) {
+            Text("Current Device").font(.headline)
             HStack {
-                Image(systemName: "globe")
-                    .imageScale(.medium)
-                    .foregroundColor(.white)
                 Text(peersTitle)
-                    .foregroundColor(.white)
-                    .shadow(color: .black, radius: 1.0)
             }
+            Spacer().frame(height: 16)
+            Text("Detected Peers").font(.headline)
             Text(peersList)
-                .foregroundColor(.white)
-                .shadow(color: .black, radius: 1.0)
         }
         .padding()
     }

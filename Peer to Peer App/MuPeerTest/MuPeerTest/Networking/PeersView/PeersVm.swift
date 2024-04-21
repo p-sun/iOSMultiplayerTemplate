@@ -9,7 +9,7 @@ public class PeersVm: ObservableObject {
     public static let shared = PeersVm()
 
     /// myName and one second counter
-    @Published var peersTitle = "Hello"
+    @Published var peersTitle = "Loading"
 
     /// list of connected peers and their counter
     @Published var peersList = ""
@@ -46,7 +46,7 @@ public class PeersVm: ObservableObject {
             // viaStream: true  will use StreamDelegate
             let sendable = PeerInfo(peerName: myName, count: count)
             peersController.sendMessage(sendable, viaStream: false)
-            peersTitle = "\(myName): \(count)"
+            peersTitle = "\(myName)\nCount: \(count)"
         }
         _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true)  {_ in
             loopNext()
@@ -70,7 +70,7 @@ extension PeersVm: PeersControllerDelegate {
 
         for (name,state) in peersController.peerState {
 
-            peerList += "\n \(state.icon()) \(name)"
+            peerList += "\(state.icon()) \(name) \n"
 
             if let count = peerCounter[name]  {
                 peerList += ": \(count)"
