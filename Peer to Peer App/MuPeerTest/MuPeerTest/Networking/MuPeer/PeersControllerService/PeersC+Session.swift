@@ -16,18 +16,6 @@ extension PeersController: MCSessionDelegate {
             session.disconnect()
             peerState[peerName] = nil
         }
-        
-        if state == .connected {
-            hasPeers = true
-        } else {
-            // test if no longer connected
-            for state in peerState.values {
-                if state == .connected {
-                    hasPeers = true
-                    break
-                }
-            }
-        }
     }
 
     /// receive message via session
@@ -37,7 +25,6 @@ extension PeersController: MCSessionDelegate {
 
         let peerName = peerID.displayName
         logPeer("⚡️didReceive: \"\(peerName)\"")
-        //fixConnectedState(for: peerName)
 
         DispatchQueue.main.async {
             for delegate in self.peersDelegates {

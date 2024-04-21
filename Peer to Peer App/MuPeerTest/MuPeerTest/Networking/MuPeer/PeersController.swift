@@ -13,38 +13,36 @@ public typealias PeerName = String
 public class PeersController: NSObject {
 
     public static var shared = PeersController()
-    private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
     
     private let startTime = Date().timeIntervalSince1970
 
-    private var advertiser: MCNearbyServiceAdvertiser
-    private var browser: MCNearbyServiceBrowser
-
     public var peerState = [PeerName: MCSessionState]()
-    public var hasPeers = false
     public var peersDelegates = [PeersControllerDelegate]()
     
     public func remove(peersDelegate: PeersControllerDelegate) {
         peersDelegates = peersDelegates.filter { return $0 !== peersDelegate }
     }
+        
+    lazy var myName: PeerName =  {
+        return UIDevice.current.name + " | " + UIDevice.current.identifierForVendor!.uuidString
+    }()
     
-    public lazy var session: MCSession = {
-        let session = MCSession(peer: myPeerID)
+    lazy var session: MCSession = {
+        let myPeerId = MCPeerID(displayName: myName)
+        let session = MCSession(peer: myPeerId)
         session.delegate = self
         return session
     }()
-    
-    public lazy var myName: PeerName = {
-        return  session.myPeerID.displayName + UIDevice.current.identifierForVendor!.uuidString
+
+    private lazy var advertiser: MCNearbyServiceAdvertiser = {
+        return MCNearbyServiceAdvertiser(peer: session.myPeerID, discoveryInfo: nil, serviceType: PSChannelName)
     }()
     
-    public lazy var mySessionId: Int = {
-        return myName.combineHash(with: myPeerID)
+    private lazy var browser: MCNearbyServiceBrowser = {
+        return MCNearbyServiceBrowser(peer: session.myPeerID, serviceType: PSChannelName)
     }()
     
     override init() {
-        advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: nil, serviceType: PSChannelName)
-        browser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: PSChannelName)
         super.init()
         startAdvertising()
         startBrowsing()
@@ -129,17 +127,6 @@ extension PeersController {
         } catch {
             logPeer("\(#function) error: \(error.localizedDescription)")
         }
-    }
-
-    /// Sometimes a .notConnect state is sent from peer and yet still receiving messaages.
-    ///
-    /// There is a long standing GCKSession issue that throws up a NSLog:
-    ///
-    ///     [GCKSession] Not in connected state, so giving up for participant ...
-    ///     // not sure if this is related to false .nonConnected
-
-    func fixConnectedState(for peerName: String) {
-       // peerState[peerName] = .connected
     }
 }
 

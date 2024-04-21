@@ -46,7 +46,7 @@ public class PeersVm: ObservableObject {
             // viaStream: true  will use StreamDelegate
             let sendable = PeerInfo(peerName: myName, count: count)
             peersController.sendMessage(sendable, viaStream: false)
-            peersTitle = "\(myName)\nCount: \(count)"
+            peersTitle = "\(myName): \(count)"
         }
         _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true)  {_ in
             loopNext()
@@ -56,7 +56,6 @@ public class PeersVm: ObservableObject {
 extension PeersVm: PeersControllerDelegate {
     public func received(data: Data, viaStream: Bool) -> Bool {
         if let sendable = try? JSONDecoder().decode(PeerInfo.self, from: data) {
-            peersController.fixConnectedState(for: sendable.peerName)
             peerCounter[sendable.peerName] = sendable.count
             peerStreamed[sendable.peerName] = viaStream
             setPeersList()
@@ -68,9 +67,8 @@ extension PeersVm: PeersControllerDelegate {
     private func setPeersList() {
         var peerList = ""
 
-        for (name,state) in peersController.peerState {
-
-            peerList += "\(state.icon()) \(name) \n"
+        for (name, state) in peersController.peerState {
+            peerList += "\(state.icon()) \(name)"
 
             if let count = peerCounter[name]  {
                 peerList += ": \(count)"
@@ -78,6 +76,7 @@ extension PeersVm: PeersControllerDelegate {
             if let streamed = peerStreamed[name] {
                 peerList += streamed ? "💧" : "⚡️"
             }
+            peerList += "\n"
         }
         self.peersList = peerList
     }
