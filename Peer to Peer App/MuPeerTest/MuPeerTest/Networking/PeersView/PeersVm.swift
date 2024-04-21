@@ -63,6 +63,10 @@ extension PeersVm: PeersControllerDelegate {
         }
         return false
     }
+    
+    public func sessionDidUpdate() {
+        setPeersList()
+    }
 
     private func setPeersList() {
         var peerList = ""
@@ -78,6 +82,8 @@ extension PeersVm: PeersControllerDelegate {
             }
             peerList += "\n"
         }
-        self.peersList = peerList
+        DispatchQueue.main.async {
+            self.peersList = peerList
+        }
     }
 }

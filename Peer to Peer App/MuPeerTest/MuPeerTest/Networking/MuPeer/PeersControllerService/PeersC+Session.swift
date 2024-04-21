@@ -16,6 +16,9 @@ extension PeersController: MCSessionDelegate {
             session.disconnect()
             peerState[peerName] = nil
         }
+        for delegate in self.peersDelegates {
+            delegate.sessionDidUpdate()
+        }
     }
 
     /// receive message via session

@@ -65,6 +65,9 @@ class PSNetworking<Sendable: PSSendable>: ObservableObject {
 }
 
 extension PSNetworking: PeersControllerDelegate {
+    func sessionDidUpdate() {
+    }
+    
     public func received(data: Data, viaStream: Bool) -> Bool {
        if let receivedEntity = try? JSONDecoder().decode(Sendable.self, from: data) {
            Task {

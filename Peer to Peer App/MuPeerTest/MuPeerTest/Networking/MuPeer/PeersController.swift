@@ -5,6 +5,7 @@ import MultipeerConnectivity
 
 public protocol PeersControllerDelegate: AnyObject {
     func received(data: Data, viaStream: Bool) -> Bool
+    func sessionDidUpdate()
 }
 
 public typealias PeerName = String
