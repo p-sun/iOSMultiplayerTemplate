@@ -5,6 +5,8 @@ import Combine
 
 struct ContentView: View {
     @StateObject public var peersVm = PeersVm.shared
+    @StateObject var blueCircle = PSNetworkingObservable(name: "blue", initial: SendableCircle(point: CGPoint(x: 100, y: 100)))
+    @StateObject var greenCircle = PSNetworkingObservable(name: "green", initial: SendableCircle(point: CGPoint(x: 240, y: 240)))
 
     var body: some View {
         VStack {
@@ -12,8 +14,10 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             PeersView(peersVm)
-            DraggableCircle(name: "blue", color: .blue)
-            DraggableCircle(name: "green", color: .green)
+            ZStack {
+                DraggableCircle(color: .blue, networking: blueCircle)
+                DraggableCircle(color: .green, networking: greenCircle)
+            }
         }
         .padding()
     }
@@ -21,31 +25,20 @@ struct ContentView: View {
 
 struct DraggableCircle: View {
     let color: Color
-    let networking: PSNetworking<SendableCircle>
-    @State var position: CGPoint = CGPoint(x: 200, y: 200)
-    
-    init(name: String, color: Color) {
-        self.networking = PSNetworking(name: name)
-        self.color = color
-    }
+    @ObservedObject var networking: PSNetworkingObservable<SendableCircle>
     
     var body: some View {
         VStack {
             Circle()
-                .frame(width: 50, height: 50)
+                .frame(width: 80, height: 80)
                 .foregroundColor(color)
-                .position(position)
+                .position(networking.value.point)
                 .gesture(
                     DragGesture()
                         .onChanged { value in
-                            position = value.location
                             networking.send(SendableCircle(point: value.location))
                         }
-                ).task {
-                    networking.listen { entity in
-                        position = entity.point
-                    }
-                }
+                )
         }
     }
 }

@@ -26,7 +26,7 @@ private struct PSMessage<T: Codable>: Codable {
     let sendable: T
 }
 
-private struct PSMessageInfo: Codable {
+struct PSMessageInfo: Codable {
     let name: String
     let sender: String
     let sendTime: Double
@@ -38,15 +38,40 @@ private struct PSMessageInfo: Codable {
     }
 }
 
+class PSNetworkingObservable<T: Codable>: ObservableObject {
+    @Published private (set) var value: T
+    private let networking: PSNetworking<T>
+    private var lastUpdated = Date().timeIntervalSince1970
+    
+    init(name: String, initial: T) {
+        networking = PSNetworking(name: name)
+        value = initial
+        
+        networking.listen { [weak self] newValue, info in
+            guard let self = self else { return }
+            if lastUpdated < info.sendTime {
+                value = newValue
+                lastUpdated = info.sendTime
+            }
+        }
+    }
+    
+    func send(_ sendable: T) {
+        value = sendable
+        lastUpdated = networking.send(sendable).sendTime
+    }
+}
+
+
 class PSNetworking<T: Codable> {
+    let name: String
+
     public lazy var myName: PeerName = {
         return peersController.myName
     }()
     
     private let peersController = PeersController.shared
-    
-    let name: String
-    var listeners: [(T) -> Void] = []
+    private var callbacks: [(T, PSMessageInfo) -> Void] = []
     
     init(name: String) {
         self.name = name
@@ -54,13 +79,16 @@ class PSNetworking<T: Codable> {
         peersController.peersDelegates.append(self)
     }
 
-    func send(_ sendable: T) {
-        let message = PSMessage(info: PSMessageInfo(name: name, sender: myName), sendable: sendable)
+    @discardableResult
+    func send(_ sendable: T) -> PSMessageInfo {
+        let info = PSMessageInfo(name: name, sender: myName)
+        let message = PSMessage(info: info, sendable: sendable)
         peersController.sendMessage(message, viaStream: false)
+        return info
     }
     
-    func listen(_ callback: @escaping (T) -> Void) {
-        listeners.append(callback)
+    func listen(_ callback: @escaping (T, PSMessageInfo) -> Void) {
+        callbacks.append(callback)
     }
 }
 
@@ -71,8 +99,8 @@ extension PSNetworking: PeersControllerDelegate {
     public func received(data: Data, viaStream: Bool) -> Bool {
        if let message = try? JSONDecoder().decode(PSMessage<T>.self, from: data) {
             if message.info.sender != self.myName && message.info.name == name {
-                for listener in listeners {
-                   listener(message.sendable)
+                for callback in callbacks {
+                    callback(message.sendable, message.info)
                 }
                 return true
             }
