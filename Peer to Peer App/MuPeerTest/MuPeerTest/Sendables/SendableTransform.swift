@@ -8,16 +8,8 @@
 import Foundation
 import simd
 
-struct SendablePlayer: PSSendable {
-    var sender: String
-    var timeSince1970: Double
-    let playerTransform: simd_float4x4
-    
-    init(sender: String, playerTransform: simd_float4x4) {
-        self.sender = sender
-        self.timeSince1970 = Date().timeIntervalSince1970
-        self.playerTransform = playerTransform
-    }
+struct SendableTransform: Codable {
+    var transform: simd_float4x4
 }
 
 extension simd_float4x4: Codable {

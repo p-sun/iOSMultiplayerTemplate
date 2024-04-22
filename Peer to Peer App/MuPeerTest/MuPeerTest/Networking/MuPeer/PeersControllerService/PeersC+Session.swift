@@ -31,7 +31,16 @@ extension PeersController: MCSessionDelegate {
 
         DispatchQueue.main.async {
             for delegate in self.peersDelegates {
-                if delegate.received(data: data, viaStream: false) { return }
+                if delegate.received(data: data, viaStream: false) {
+                    return
+                }
+            }
+            
+            do {
+                let json = try JSONSerialization.data(withJSONObject: data).base64EncodedString()
+                self.logPeer("WARN: Data has no listener to receive it: \(json)")
+            } catch {
+                self.logPeer("WARN: Data is not a JSON: \(error)")
             }
         }
     }
