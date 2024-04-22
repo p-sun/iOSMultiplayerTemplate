@@ -21,46 +21,46 @@ import Foundation
 
 public let PSChannelName = "deepmuse"
 
-protocol PSSendable: Codable {
-    var sender: String { get }
-    var timeSince1970: Double {get }
+private struct PSMessage<T: Codable>: Codable {
+    let info: PSMessageInfo
+    let sendable: T
 }
 
-class PSNetworking<Sendable: PSSendable>: ObservableObject {
+private struct PSMessageInfo: Codable {
+    let name: String
+    let sender: String
+    let sendTime: Double
+    
+    init(name: String, sender: String) {
+        self.name = name
+        self.sender = sender
+        self.sendTime = Date().timeIntervalSince1970
+    }
+}
 
+class PSNetworking<T: Codable> {
     public lazy var myName: PeerName = {
         return peersController.myName
     }()
     
     private let peersController = PeersController.shared
     
-    private var cancellables = Set<AnyCancellable>()
-
-    @Published var entity: Sendable {
-        didSet {
-            send(entity)
-        }
-    }
+    let name: String
+    var listeners: [(T) -> Void] = []
     
-    init(defaultSendable: Sendable) {
-        self.entity = defaultSendable
-        
+    init(name: String) {
+        self.name = name
         myName = peersController.myName
         peersController.peersDelegates.append(self)
     }
 
-    func send(_ sendable: Sendable) {
-        if sendable.sender == myName {
-            peersController.sendMessage(sendable, viaStream: false)
-        }
+    func send(_ sendable: T) {
+        let message = PSMessage(info: PSMessageInfo(name: name, sender: myName), sendable: sendable)
+        peersController.sendMessage(message, viaStream: false)
     }
     
-    func listen(_ callback: @escaping (Sendable) -> Void) {
-        $entity.sink { [weak self] recievedSendable in
-            if let self = self, recievedSendable.sender != myName {
-                callback(recievedSendable)
-            }
-        }.store(in: &cancellables)
+    func listen(_ callback: @escaping (T) -> Void) {
+        listeners.append(callback)
     }
 }
 
@@ -69,17 +69,14 @@ extension PSNetworking: PeersControllerDelegate {
     }
     
     public func received(data: Data, viaStream: Bool) -> Bool {
-       if let receivedEntity = try? JSONDecoder().decode(Sendable.self, from: data) {
-           Task {
-               await MainActor.run {
-                   if receivedEntity.sender != myName {
-                       entity = receivedEntity
-                   }
-               }
-           }
-            return true
+       if let message = try? JSONDecoder().decode(PSMessage<T>.self, from: data) {
+            if message.info.sender != self.myName && message.info.name == name {
+                for listener in listeners {
+                   listener(message.sendable)
+                }
+                return true
+            }
         }
         return false
     }
-
 }

@@ -5,7 +5,6 @@ import Combine
 
 struct ContentView: View {
     @StateObject public var peersVm = PeersVm.shared
-    @StateObject private var networkedCircle = PSNetworking<SendableCircle>(defaultSendable: SendableCircle(sender: "", point: CGPoint(x: 200, y: 200)))
 
     var body: some View {
         VStack {
@@ -13,36 +12,44 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             PeersView(peersVm)
-            DraggableCircle(entity: $networkedCircle.entity)
+            DraggableCircle(name: "blue", color: .blue)
+            DraggableCircle(name: "green", color: .green)
         }
         .padding()
-        .task {
-            // Get new entity
-            networkedCircle.listen { entity in
-                //  print("Received new entity", entity)
-            }
-        }
     }
 }
 
 struct DraggableCircle: View {
-    @Binding var entity: SendableCircle
+    let color: Color
+    let networking: PSNetworking<SendableCircle>
+    @State var position: CGPoint = CGPoint(x: 200, y: 200)
+    
+    init(name: String, color: Color) {
+        self.networking = PSNetworking(name: name)
+        self.color = color
+    }
     
     var body: some View {
-        Circle()
-            .frame(width: 50, height: 50)
-            .foregroundColor(.blue)
-            .position(entity.point)
-            .gesture(
-                DragGesture()
-                    .onChanged { value in
-                        entity = SendableCircle(sender: PeersVm.shared.playerId, point: value.location)
+        VStack {
+            Circle()
+                .frame(width: 50, height: 50)
+                .foregroundColor(color)
+                .position(position)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            position = value.location
+                            networking.send(SendableCircle(point: value.location))
+                        }
+                ).task {
+                    networking.listen { entity in
+                        position = entity.point
                     }
-            )
-            
+                }
+        }
     }
 }
 
-//#Preview {
-//    ContentView()
-//}
+#Preview {
+    ContentView()
+}

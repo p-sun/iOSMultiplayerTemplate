@@ -95,8 +95,8 @@ extension PeersController {
             return
         }
         do {
-            let obj = try JSONEncoder().encode(message)
-            sendMessage(obj, viaStream: viaStream)
+            let data = try JSONEncoder().encode(message)
+            sendMessage(data, viaStream: viaStream)
         } catch {
             logPeer("\(#function) error: \(error.localizedDescription)")
             return
