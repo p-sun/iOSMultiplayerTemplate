@@ -32,16 +32,10 @@ extension Player {
             let peerID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data) {
             return Player(peerID)
         } else {
-            let peerID = MCPeerID(displayName: UIDevice.current.name + " " + UIDevice.current.identifierForVendor!.uuidString)
+            let peerID = MCPeerID(displayName: UIDevice.current.name)
             let data = try? NSKeyedArchiver.archivedData(withRootObject: peerID, requiringSecureCoding: true)
             UserDefaults.standard.set(data, forKey: UserDefaultsKeys.myPeerId)
             return Player(peerID)
         }
     }()
-}
-
-extension MCPeerID: Identifiable {
-//    var id: ObjectIdentifier {
-//        peerID
-//    }
 }

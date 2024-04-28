@@ -45,8 +45,8 @@ struct PeerListView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     ForEach(model.playerList, id: \.peerID) { peer in
                         let connectionState = model.p2pSession.connectionState(for: peer.peerID)
-                        let connectionStateStr = connectionState != nil ? connectionState!.debugDescription : "None"
-                        Text("\(peer.peerID.displayName) \nSession: \(connectionStateStr)")
+                        let connectionStateStr = connectionState != nil ? connectionState!.debugDescription : "No Session"
+                        Text("\(peer.peerID.displayName) \n--- \(connectionStateStr)")
                     }
                 }
                 

@@ -236,5 +236,6 @@ extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
     }
     
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
+        prettyPrint(level:.error, "Error: \(error.localizedDescription)")
     }
 }
