@@ -14,6 +14,12 @@
 		9BD2AC4A2BD6C5EF0086AC78 /* P2PKitExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC492BD6C5EF0086AC78 /* P2PKitExampleTests.swift */; };
 		9BD2AC542BD6C5EF0086AC78 /* P2PKitExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC532BD6C5EF0086AC78 /* P2PKitExampleUITests.swift */; };
 		9BD2AC562BD6C5EF0086AC78 /* P2PKitExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC552BD6C5EF0086AC78 /* P2PKitExampleUITestsLaunchTests.swift */; };
+		9BD2AC642BD962D20086AC78 /* P2PNetworkSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC632BD962D20086AC78 /* P2PNetworkSession.swift */; };
+		9BD2AC662BD963F80086AC78 /* P2PUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC652BD963F80086AC78 /* P2PUtils.swift */; };
+		9BD2AC692BD96CED0086AC78 /* PeerListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC682BD96CED0086AC78 /* PeerListView.swift */; };
+		9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC6A2BD972810086AC78 /* Player.swift */; };
+		9BD2AC6F2BDBE1010086AC78 /* P2PLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC6E2BDBE1010086AC78 /* P2PLogger.swift */; };
+		9BD2AC712BDE94F10086AC78 /* CounterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC702BDE94F10086AC78 /* CounterView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +50,13 @@
 		9BD2AC4F2BD6C5EF0086AC78 /* P2PKitExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = P2PKitExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BD2AC532BD6C5EF0086AC78 /* P2PKitExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PKitExampleUITests.swift; sourceTree = "<group>"; };
 		9BD2AC552BD6C5EF0086AC78 /* P2PKitExampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PKitExampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		9BD2AC632BD962D20086AC78 /* P2PNetworkSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PNetworkSession.swift; sourceTree = "<group>"; };
+		9BD2AC652BD963F80086AC78 /* P2PUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PUtils.swift; sourceTree = "<group>"; };
+		9BD2AC682BD96CED0086AC78 /* PeerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerListView.swift; sourceTree = "<group>"; };
+		9BD2AC6A2BD972810086AC78 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		9BD2AC6C2BD98F9A0086AC78 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		9BD2AC6E2BDBE1010086AC78 /* P2PLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PLogger.swift; sourceTree = "<group>"; };
+		9BD2AC702BDE94F10086AC78 /* CounterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +107,9 @@
 		9BD2AC372BD6C5ED0086AC78 /* P2PKitExample */ = {
 			isa = PBXGroup;
 			children = (
+				9BD2AC6C2BD98F9A0086AC78 /* Info.plist */,
+				9BD2AC672BD96C8D0086AC78 /* ExampleViews */,
+				9BD2AC622BD962990086AC78 /* P2PService */,
 				9BD2AC382BD6C5ED0086AC78 /* P2PKitExampleApp.swift */,
 				9BD2AC3A2BD6C5ED0086AC78 /* ContentView.swift */,
 				9BD2AC3C2BD6C5EE0086AC78 /* Assets.xcassets */,
@@ -125,6 +141,34 @@
 				9BD2AC552BD6C5EF0086AC78 /* P2PKitExampleUITestsLaunchTests.swift */,
 			);
 			path = P2PKitExampleUITests;
+			sourceTree = "<group>";
+		};
+		9BD2AC622BD962990086AC78 /* P2PService */ = {
+			isa = PBXGroup;
+			children = (
+				9BD2AC6D2BDBE0F10086AC78 /* Utils */,
+				9BD2AC632BD962D20086AC78 /* P2PNetworkSession.swift */,
+				9BD2AC652BD963F80086AC78 /* P2PUtils.swift */,
+				9BD2AC6A2BD972810086AC78 /* Player.swift */,
+			);
+			path = P2PService;
+			sourceTree = "<group>";
+		};
+		9BD2AC672BD96C8D0086AC78 /* ExampleViews */ = {
+			isa = PBXGroup;
+			children = (
+				9BD2AC682BD96CED0086AC78 /* PeerListView.swift */,
+				9BD2AC702BDE94F10086AC78 /* CounterView.swift */,
+			);
+			path = ExampleViews;
+			sourceTree = "<group>";
+		};
+		9BD2AC6D2BDBE0F10086AC78 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				9BD2AC6E2BDBE1010086AC78 /* P2PLogger.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -257,8 +301,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BD2AC662BD963F80086AC78 /* P2PUtils.swift in Sources */,
+				9BD2AC6F2BDBE1010086AC78 /* P2PLogger.swift in Sources */,
+				9BD2AC692BD96CED0086AC78 /* PeerListView.swift in Sources */,
 				9BD2AC3B2BD6C5ED0086AC78 /* ContentView.swift in Sources */,
+				9BD2AC642BD962D20086AC78 /* P2PNetworkSession.swift in Sources */,
+				9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */,
 				9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */,
+				9BD2AC712BDE94F10086AC78 /* CounterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,6 +474,8 @@
 				DEVELOPMENT_ASSET_PATHS = "\"P2PKitExample/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = P2PKitExample/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This application will use local networking to discover nearby devices.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -452,6 +504,8 @@
 				DEVELOPMENT_ASSET_PATHS = "\"P2PKitExample/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = P2PKitExample/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This application will use local networking to discover nearby devices.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
