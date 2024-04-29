@@ -35,38 +35,29 @@ class P2PNetworkSession: NSObject {
     let advertiser: MCNearbyServiceAdvertiser
     let browser: MCNearbyServiceBrowser
     
+    private let myDiscoveryInfo = DiscoveryInfo(startTime: Date().timeIntervalSince1970)
+    
     private var playersLock = NSLock()
-    private var players = [Player]() // protected with playersLock
     private var sessionStates = [MCPeerID: MCSessionState]() // protected with playersLock
     private var discoveryInfos = [MCPeerID: DiscoveryInfo]() // protected with playersLock
-    
-    private var sessionHost: MCPeerID? // The one who invites the others
-    
-    // Discovery
-    private let myDiscoveryInfo = DiscoveryInfo(startTime: Date().timeIntervalSince1970)
+    private var foundPeers = Set<MCPeerID>()  // protected with playersLock
     
     var connectedPeers: [Player] {
         prettyPrint(level: .debug, "\(session.connectedPeers)")
-        return players
+        return session.connectedPeers.filter { foundPeers.contains($0) }.map{ Player($0) }
     }
     
     override init() {
         let myPeerID = myPlayer.peerID
         session = MCSession(peer: myPeerID, securityIdentity: nil, encryptionPreference: .required)
         advertiser = MCNearbyServiceAdvertiser(peer: myPeerID,
-                                               discoveryInfo: ["startTime": "\(myDiscoveryInfo.startTime)"],
+                                               discoveryInfo: ["startTime": "\(myDiscoveryInfo.startTime))"],
                                                serviceType: P2PConstants.networkChannelName)
         browser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: P2PConstants.networkChannelName)
         
         super.init()
         
         session.delegate = self
-        
-        NotificationCenter.default.addObserver(forName: UIApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.stopServices()
-            self?.session.disconnect()
-            self?.session.delegate = nil
-        }
     }
     
     func start() {
@@ -78,6 +69,7 @@ class P2PNetworkSession: NSObject {
     }
     
     deinit {
+        prettyPrint("Deinit")
         stopServices()
         session.disconnect()
         session.delegate = nil
@@ -96,18 +88,61 @@ class P2PNetworkSession: NSObject {
         return sessionStates[peer]
     }
     
-    func send(data: Data) {
-        if session.connectedPeers.count > 0 {
-            do {
-                try session.send(data, toPeers: session.connectedPeers, with: .reliable)
-            } catch {
-                prettyPrint(level: .error, "error sending data to peers: \(error.localizedDescription)")
-            }
+    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
+        delegates.append(delegate)
+    }
+    
+    // MARK: - Sending
+    
+    func send(_ encodable: Encodable, to peers: [MCPeerID] = []) {
+        do {
+            let data = try JSONEncoder().encode(encodable)
+            send(data: data, to: peers)
+        } catch {
+            prettyPrint(level: .error, "Could not encode: \(error.localizedDescription)")
         }
     }
     
-    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        delegates.append(delegate)
+    func send(data: Data, to peers: [MCPeerID] = []) {
+        let sendToPeers = peers == [] ? session.connectedPeers : peers
+        guard !sendToPeers.isEmpty else {
+            return
+        }
+        
+        do {
+            try session.send(data, toPeers: session.connectedPeers, with: .reliable)
+        } catch {
+            prettyPrint(level: .error, "error sending data to peers: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Loopback Test
+    // Test whether a connection is still alive.
+    
+    private func startLoopbackTest(_ peerID: MCPeerID) {
+        prettyPrint("Sending Ping to \(peerID.displayName)")
+        send(["ping": ""], to: [peerID])
+    }
+    
+    private func handleLoopbackTest(_ session: MCSession, didReceive json: [String: Any], fromPeer peerID: MCPeerID) -> Bool {
+        if json["ping"] as? String == "" {
+            prettyPrint("Sending Pong to \(peerID.displayName)")
+            send(["pong": ""])
+            return true
+        } else if json["pong"] as? String == "" {
+            prettyPrint("Received Pong from \(peerID.displayName)")
+            playersLock.lock()
+            if sessionStates[peerID] == nil {
+                sessionStates[peerID] = .connected
+            }
+            playersLock.unlock()
+            
+            for delegate in delegates {
+                delegate.p2pNetworkSession(self, didUpdate: Player(peerID))
+            }
+            return true
+        }
+        return false
     }
 }
 
@@ -119,12 +154,11 @@ extension P2PNetworkSession: MCSessionDelegate {
         sessionStates[peerID] = state
         playersLock.unlock()
         
-        let player = Player(peerID)
         switch state {
         case .connected:
             playersLock.lock()
-            if !players.contains(player) {
-                players.append(player)
+            if !foundPeers.contains(peerID) {
+                foundPeers.insert(peerID)
             }
             playersLock.unlock()
         case .connecting:
@@ -143,6 +177,12 @@ extension P2PNetworkSession: MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if let json = try? JSONSerialization.jsonObject(with: data) {
             prettyPrint("Received: \(json)")
+            
+            if let json = json as? [String: Any] {
+                if handleLoopbackTest(session, didReceive: json, fromPeer: peerID) {
+                    return
+                }
+            }
         }
         
         for delegate in delegates {
@@ -169,20 +209,22 @@ extension P2PNetworkSession: MCSessionDelegate {
 
 extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
-        prettyPrint("Found peer: [\(peerID.displayName)]")
+        prettyPrint("Found peer: [\(peerID)]")
         
-        let player = Player(peerID)
         playersLock.lock()
-        if !players.contains(player) {
-            players.append(player)
+        if !foundPeers.contains(peerID) {
+            foundPeers.insert(peerID)
         }
         playersLock.unlock()
         
         if let other = info?["startTime"], let otherStartTime = Double(other) {
-            let discoveryInfo = DiscoveryInfo(startTime: otherStartTime)
             playersLock.lock()
-            discoveryInfos[peerID] = discoveryInfo
+            discoveryInfos[peerID] = DiscoveryInfo(startTime: otherStartTime)
+            if sessionStates[peerID] == nil, session.connectedPeers.contains(peerID) {
+                startLoopbackTest(peerID)
+            }
             playersLock.unlock()
+            
             invitePeerIfNeeded(peerID)
         }
         
@@ -192,11 +234,17 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     }
     
     public func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
-        prettyPrint("Lost peer: [\(peerID.displayName)] \(session.connectedPeers) ")
+        prettyPrint("Lost peer: [\(peerID.displayName)]")
         
-        let player = Player(peerID)
         playersLock.lock()
-        players.removeAll { $0 == player }
+        if foundPeers.contains(peerID) {
+            foundPeers.remove(peerID)
+        }
+        
+        // When a peer enters background, session.connectedPeers still contains that peer.
+        // Setting this to nil ensures we make a loopback test to test the connection.
+        sessionStates[peerID] = nil
+        
         playersLock.unlock()
         
         for delegate in delegates {
@@ -209,7 +257,7 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
         playersLock.lock()
         info = discoveryInfos[peerID]
         playersLock.unlock()
-
+        
         if let info = info, myDiscoveryInfo.startTime < info.startTime,
            !session.connectedPeers.contains(peerID) {
             prettyPrint("Inviting peer: [\(peerID.displayName)]")
