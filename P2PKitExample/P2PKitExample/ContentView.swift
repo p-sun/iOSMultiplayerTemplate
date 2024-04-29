@@ -20,18 +20,37 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
+        ScrollView {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
                 .padding()
-            ScrollView {
+            
+            VStack(alignment: .leading) {
+                title("List All Peers")
                 PeerListView()
+                
+                title("Sending/Receiving Data")
                 CounterView()
-            }.buttonStyle(.borderedProminent).tint(.mint)
-            Spacer()
+                
+                Button("Send Test Event") {
+                    let data = try! JSONEncoder().encode("sending test event!")
+                    P2PNetworkSession.shared.send(data: data)
+                }
+                
+                title("Apple's UIController")
+                ShowBrowserButton()
+            }
         }
-        .padding()
+        .buttonStyle(.borderedProminent).tint(.mint)
+        .padding(30)
+    }
+    
+    func title(_ title: String) -> some View {
+        Text(title)
+            .font(.title2).bold()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(EdgeInsets(top: 20, leading: 0, bottom: 10, trailing: 0))
     }
 }
 

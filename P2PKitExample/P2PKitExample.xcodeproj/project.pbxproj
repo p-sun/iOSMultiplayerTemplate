@@ -20,6 +20,8 @@
 		9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC6A2BD972810086AC78 /* Player.swift */; };
 		9BD2AC6F2BDBE1010086AC78 /* P2PLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC6E2BDBE1010086AC78 /* P2PLogger.swift */; };
 		9BD2AC712BDE94F10086AC78 /* CounterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC702BDE94F10086AC78 /* CounterView.swift */; };
+		9BD2AC752BDFED300086AC78 /* DebugDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC742BDFED300086AC78 /* DebugDataView.swift */; };
+		9BD2AC772BDFF17F0086AC78 /* ShowBrowserButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC762BDFF17F0086AC78 /* ShowBrowserButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +59,8 @@
 		9BD2AC6C2BD98F9A0086AC78 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		9BD2AC6E2BDBE1010086AC78 /* P2PLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PLogger.swift; sourceTree = "<group>"; };
 		9BD2AC702BDE94F10086AC78 /* CounterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounterView.swift; sourceTree = "<group>"; };
+		9BD2AC742BDFED300086AC78 /* DebugDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugDataView.swift; sourceTree = "<group>"; };
+		9BD2AC762BDFF17F0086AC78 /* ShowBrowserButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowBrowserButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,6 +163,8 @@
 			children = (
 				9BD2AC682BD96CED0086AC78 /* PeerListView.swift */,
 				9BD2AC702BDE94F10086AC78 /* CounterView.swift */,
+				9BD2AC742BDFED300086AC78 /* DebugDataView.swift */,
+				9BD2AC762BDFF17F0086AC78 /* ShowBrowserButton.swift */,
 			);
 			path = ExampleViews;
 			sourceTree = "<group>";
@@ -302,7 +308,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				9BD2AC662BD963F80086AC78 /* P2PUtils.swift in Sources */,
+				9BD2AC752BDFED300086AC78 /* DebugDataView.swift in Sources */,
 				9BD2AC6F2BDBE1010086AC78 /* P2PLogger.swift in Sources */,
+				9BD2AC772BDFF17F0086AC78 /* ShowBrowserButton.swift in Sources */,
 				9BD2AC692BD96CED0086AC78 /* PeerListView.swift in Sources */,
 				9BD2AC3B2BD6C5ED0086AC78 /* ContentView.swift in Sources */,
 				9BD2AC642BD962D20086AC78 /* P2PNetworkSession.swift in Sources */,
