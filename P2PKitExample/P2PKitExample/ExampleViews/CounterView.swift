@@ -28,7 +28,7 @@ extension CounterModel: P2PNetworkSessionDelegate {
     }
     
     func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Bool {
-        let json = try! JSONSerialization.jsonObject(with: didReceive) as? [String: Any]
+        let json = try? JSONSerialization.jsonObject(with: didReceive) as? [String: Any]
         if let newCount = json?["count"] as? Int {
             DispatchQueue.main.async { [weak self] in
                 self?.count = newCount
