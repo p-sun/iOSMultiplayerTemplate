@@ -14,9 +14,9 @@ class CounterModel: ObservableObject {
     init() {
         P2PNetworkSession.shared.addDelegate(self)
     }
- 
-    func add(_ n: Int) {
-        count += n
+    
+    func increment() {
+        count += 1
         
         let data = try! JSONEncoder().encode(["count": count])
         P2PNetworkSession.shared.send(data: data)
@@ -41,10 +41,16 @@ struct CounterView: View {
     @StateObject var counter = CounterModel()
     
     var body: some View {
-        Stepper("Counter: \(counter.count)") {
-            counter.add(1)
-        } onDecrement: {
-            counter.add(-1)
+        HStack {
+            Text("Counter: \(counter.count)")
+            Spacer()
+            Button("+ 1") {
+                counter.increment()
+            }
         }
     }
+}
+
+#Preview {
+    CounterView()
 }
