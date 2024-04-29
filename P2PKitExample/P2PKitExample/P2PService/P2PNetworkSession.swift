@@ -49,8 +49,8 @@ class P2PNetworkSession: NSObject {
     static var shared = P2PNetworkSession()
 
     var delegates = [P2PNetworkSessionDelegate]() // TODO: Weak Ref?
-
-    let myPlayer = Player.myself
+    
+    let myPlayer = UserDefaults.standard.myself
     let session: MCSession
     let advertiser: MCNearbyServiceAdvertiser
     let browser: MCNearbyServiceBrowser
