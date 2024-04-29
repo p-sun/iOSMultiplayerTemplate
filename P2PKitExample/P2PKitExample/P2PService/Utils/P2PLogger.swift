@@ -11,10 +11,10 @@ fileprivate let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, catego
 
 @inline(__always)
 func prettyPrint(level: OSLogType = .info, _ message: String, file: String = #fileID, function: String = #function) {
-#if DEBUG
-    let fileName = NSURL(fileURLWithPath: file).deletingPathExtension?.lastPathComponent
-    logger.log(level: .info, "📒 \(fileName ?? file):\(function)\n\(message)")
-#endif
+    if P2PConstants.loggerEnabled {
+        let fileName = NSURL(fileURLWithPath: file).deletingPathExtension?.lastPathComponent
+        logger.log(level: .info, "📒 \(fileName ?? file):\(function)\n\(message)")
+    }
 }
 
 //@inline(__always)
