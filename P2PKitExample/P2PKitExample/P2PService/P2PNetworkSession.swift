@@ -205,12 +205,15 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     }
     
     private func invitePeerIfNeeded(_ peerID: MCPeerID) {
-        if let info = discoveryInfos[peerID], myDiscoveryInfo.startTime < info.startTime {
-            let connectedPeer = session.connectedPeers.first { $0 == peerID }
-            if connectedPeer == nil {
-                prettyPrint("Inviting peer: [\(peerID.displayName)]")
-                browser.invitePeer(peerID, to: session, withContext: nil, timeout: 3)
-            }
+        let info: DiscoveryInfo?
+        playersLock.lock()
+        info = discoveryInfos[peerID]
+        playersLock.unlock()
+
+        if let info = info, myDiscoveryInfo.startTime < info.startTime,
+           !session.connectedPeers.contains(peerID) {
+            prettyPrint("Inviting peer: [\(peerID.displayName)]")
+            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 3)
         }
     }
 }
