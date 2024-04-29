@@ -2,16 +2,6 @@
 //  P2PNetworking.swift
 //  P2PKitExample
 
-/**
- Make sure to add in Info.list:
- NSBonjourServices
- _my-p2p-service._tcp
- _my-p2p-service._udp
- NSLocalNetworkUsageDescription
- This application will use local networking to discover nearby devices. (Or your own custom message)
- 
- Every device in the same room should be able to see each other, whether they're on bluetooth or wifi.
- */
 
 import MultipeerConnectivity
 import os.signpost
@@ -25,18 +15,6 @@ protocol P2PNetworkSessionDelegate {
     func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) -> Void
     func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Void
 }
-
-/**
- Discovery Phase
- A      init               sees B      ... wait 1s ...->  "A is host" -> A sends invite
- B          init        sees A        ... wait 1s ...->  "A is host"            B accepts invite
- 
- Disconnection
- A                                                                              [Found B] -> A sends invite
- [B backgrounds/kills app]      [B foregrounds]       ->  same as discovery phase
- 
- Invitation Phase
- */
 
 private struct DiscoveryInfo {
     let startTime: TimeInterval
