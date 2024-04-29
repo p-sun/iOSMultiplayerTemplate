@@ -254,12 +254,14 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     
     private func invitePeerIfNeeded(_ peerID: MCPeerID) {
         let info: DiscoveryInfo?
+        let sessionState: MCSessionState?
         playersLock.lock()
         info = discoveryInfos[peerID]
+        sessionState = sessionStates[peerID]
         playersLock.unlock()
         
         if let info = info, myDiscoveryInfo.startTime < info.startTime,
-           !session.connectedPeers.contains(peerID) {
+           !session.connectedPeers.contains(peerID), sessionState != .connecting {
             prettyPrint("Inviting peer: [\(peerID.displayName)]")
             browser.invitePeer(peerID, to: session, withContext: nil, timeout: 3)
         }
