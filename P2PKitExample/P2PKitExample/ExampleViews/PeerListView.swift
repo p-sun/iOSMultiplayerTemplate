@@ -6,15 +6,14 @@
 //
 
 import SwiftUI
-import MultipeerConnectivity
 
 class PeerListViewModel: ObservableObject {
     let p2pSession = P2PNetworkSession.shared
+    
     @Published var playerList = [Player]()
     
     init() {
         p2pSession.addDelegate(self)
-        p2pSession.start()
     }
 }
 
@@ -25,7 +24,8 @@ extension PeerListViewModel: P2PNetworkSessionDelegate {
         }
     }
     
-    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) {
+    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Bool {
+        return false
     }
 }
 

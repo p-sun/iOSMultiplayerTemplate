@@ -13,7 +13,7 @@ struct P2PConstants {
 
 protocol P2PNetworkSessionDelegate {
     func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) -> Void
-    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Void
+    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Bool
 }
 
 private struct DiscoveryInfo {
@@ -51,19 +51,17 @@ class P2PNetworkSession: NSObject {
         let myPeerID = myPlayer.peerID
         session = MCSession(peer: myPeerID, securityIdentity: nil, encryptionPreference: .required)
         advertiser = MCNearbyServiceAdvertiser(peer: myPeerID,
-                                               discoveryInfo: ["startTime": "\(myDiscoveryInfo.startTime))"],
+                                               discoveryInfo: ["startTime": "\(myDiscoveryInfo.startTime)"],
                                                serviceType: P2PConstants.networkChannelName)
         browser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: P2PConstants.networkChannelName)
         
         super.init()
         
         session.delegate = self
-    }
-    
-    func start() {
+        
         advertiser.delegate = self
         advertiser.startAdvertisingPeer()
-        
+
         browser.delegate = self
         browser.startBrowsingForPeers()
     }
@@ -87,11 +85,7 @@ class P2PNetworkSession: NSObject {
         playersLock.lock(); defer { playersLock.unlock() }
         return sessionStates[peer]
     }
-    
-    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        delegates.append(delegate)
-    }
-    
+
     // MARK: - Sending
     
     func send(_ encodable: Encodable, to peers: [MCPeerID] = []) {
@@ -116,6 +110,12 @@ class P2PNetworkSession: NSObject {
         }
     }
     
+    // MARK: - Delegates
+    
+    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
+        delegates.append(delegate)
+    }
+
     // MARK: - Loopback Test
     // Test whether a connection is still alive.
     
@@ -186,7 +186,9 @@ extension P2PNetworkSession: MCSessionDelegate {
         }
         
         for delegate in delegates {
-            delegate.p2pNetworkSession(self, didReceive: data, from: Player(peerID))
+            if delegate.p2pNetworkSession(self, didReceive: data, from: Player(peerID)) {
+                return
+            }
         }
     }
     
