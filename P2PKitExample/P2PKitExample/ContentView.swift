@@ -16,7 +16,7 @@ struct ContentView: View {
             ScrollView {
                 PeerListView()
                 CounterView()
-            }
+            }.buttonStyle(.borderedProminent).tint(.mint)
             Spacer()
         }
         .padding()
