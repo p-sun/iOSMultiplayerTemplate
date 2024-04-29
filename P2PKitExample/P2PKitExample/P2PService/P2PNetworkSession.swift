@@ -115,7 +115,13 @@ class P2PNetworkSession: NSObject {
     func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
         delegates.append(delegate)
     }
-
+    
+    private func updateSessionDelegates(forPeer peerID: MCPeerID) {
+        for delegate in delegates {
+            delegate.p2pNetworkSession(self, didUpdate: Player(peerID))
+        }
+    }
+    
     // MARK: - Loopback Test
     // Test whether a connection is still alive.
     
@@ -137,9 +143,7 @@ class P2PNetworkSession: NSObject {
             }
             playersLock.unlock()
             
-            for delegate in delegates {
-                delegate.p2pNetworkSession(self, didUpdate: Player(peerID))
-            }
+            updateSessionDelegates(forPeer: peerID)
             return true
         }
         return false
@@ -169,9 +173,7 @@ extension P2PNetworkSession: MCSessionDelegate {
             fatalError(#function + " - Unexpected multipeer connectivity state.")
         }
         
-        for delegate in delegates {
-            delegate.p2pNetworkSession(self, didUpdate: Player(peerID))
-        }
+        updateSessionDelegates(forPeer: peerID)
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
@@ -230,9 +232,7 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
             invitePeerIfNeeded(peerID)
         }
         
-        for delegate in delegates {
-            delegate.p2pNetworkSession(self, didUpdate: Player(peerID))
-        }
+        updateSessionDelegates(forPeer: peerID)
     }
     
     public func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
@@ -249,9 +249,7 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
         
         playersLock.unlock()
         
-        for delegate in delegates {
-            delegate.p2pNetworkSession(self, didUpdate: Player(peerID))
-        }
+        updateSessionDelegates(forPeer: peerID)
     }
     
     private func invitePeerIfNeeded(_ peerID: MCPeerID) {
