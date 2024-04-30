@@ -27,7 +27,7 @@ extension Player: Hashable {
 }
 
 extension UserDefaults {
-    var myself: Player {
+    var myPlayer: Player {
         get {
             if let data = UserDefaults.standard.data(forKey: UserDefaultsKeys.myPeerId),
                let peerID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data) {
