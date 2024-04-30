@@ -8,12 +8,20 @@
 import SwiftUI
 
 class PeerListViewModel: ObservableObject {
-    let p2pSession = P2PNetworkSession.shared
-    
     @Published var playerList = [Player]()
     
     init() {
-        p2pSession.addDelegate(self)
+        P2PNetwork.addDelegate(self)
+        P2PNetwork.start()
+    }
+    
+    func resetNetwork() {
+        playerList = []
+        P2PNetwork.reset(displayName: "\(UIDevice.current.name) <<\(Int.random(in: 1...100))>>")
+    }
+    
+    deinit {
+        P2PNetwork.removeDelegate(self)
     }
 }
 
@@ -35,7 +43,10 @@ struct PeerListView: View {
     var body: some View {
         Group {
             Text("Current Device").font(.headline)
-            Text(model.p2pSession.myPlayer.peerID.displayName)
+            Text(P2PNetwork.myPlayer.username)
+            Button("Change Name") {
+                model.resetNetwork()
+            }
             Spacer().frame(height: 24)
             
             Text("Found Devices").font(.headline)
@@ -44,7 +55,7 @@ struct PeerListView: View {
                     ProgressView()
                 } else {
                     ForEach(model.playerList, id: \.peerID) { peer in
-                        let connectionState = model.p2pSession.connectionState(for: peer.peerID)
+                        let connectionState = P2PNetwork.connectionState(for: peer.peerID)
                         let connectionStateStr = connectionState != nil ? connectionState!.debugDescription : "No Session"
                         Text("\(peer.peerID.displayName): \(connectionStateStr)")
                     }

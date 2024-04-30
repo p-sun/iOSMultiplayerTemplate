@@ -12,14 +12,14 @@ class CounterModel: ObservableObject {
     @Published var count = 0
     
     init() {
-        P2PNetworkSession.shared.addDelegate(self)
+        P2PNetwork.addDelegate(self)
     }
     
     func increment() {
         count += 1
         
         let data = try! JSONEncoder().encode(["count": count])
-        P2PNetworkSession.shared.send(data: data)
+        P2PNetwork.send(data: data)
     }
 }
 

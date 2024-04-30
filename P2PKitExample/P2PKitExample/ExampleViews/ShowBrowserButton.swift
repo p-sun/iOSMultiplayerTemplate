@@ -32,8 +32,7 @@ struct BrowerViewHost: UIViewControllerRepresentable {
     }
     
     func makeUIViewController(context: Context) -> MCBrowserViewController {
-        let controller = MCBrowserViewController(browser: P2PNetworkSession.shared.browser,
-                                                 session: P2PNetworkSession.shared.session)
+        let controller = P2PNetwork.makeBrowserViewController()
         if let delegate = delegate {
             controller.delegate = delegate
         }

@@ -11,20 +11,70 @@ struct P2PConstants {
     static let loggerEnabled = true
 }
 
-protocol P2PNetworkSessionDelegate {
+class P2PNetwork {
+    private static var networkSession = P2PNetworkSession(myPlayer: UserDefaults.standard.myPlayer)
+    
+    static var myPlayer: Player {
+        return networkSession.myPlayer
+    }
+    
+    static func start() {
+        networkSession.start()
+    }
+    
+    static func send(_ encodable: Encodable, to peers: [MCPeerID] = []) {
+        networkSession.send(encodable, to: peers)
+    }
+    
+    static func send(data: Data, to peers: [MCPeerID] = []) {
+        networkSession.send(data: data, to: peers)
+    }
+    
+    static func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
+        networkSession.addDelegate(delegate)
+    }
+    
+    static func removeDelegate(_ delegate: P2PNetworkSessionDelegate) {
+        networkSession.removeDelegate(delegate)
+    }
+    
+    static func connectionState(for peer: MCPeerID) -> MCSessionState? {
+        networkSession.connectionState(for: peer)
+    }
+
+    static func reset(displayName: String) {
+        let peerID = MCPeerID(displayName: displayName)
+        UserDefaults.standard.myPlayer = Player(peerID)
+        
+        let oldSession = networkSession
+        networkSession = P2PNetworkSession(myPlayer: UserDefaults.standard.myPlayer)
+        oldSession.disconnect()
+
+        for delegate in oldSession.delegates {
+            oldSession.removeDelegate(delegate)
+            networkSession.addDelegate(delegate)
+        }
+        
+        networkSession.start()
+    }
+    
+    static func makeBrowserViewController() -> MCBrowserViewController {
+        return networkSession.makeBrowserViewController()
+    }
+}
+
+protocol P2PNetworkSessionDelegate: AnyObject {
     func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) -> Void
     func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Bool
 }
 
 class P2PNetworkSession: NSObject {
-    static var shared = P2PNetworkSession(myPlayer: UserDefaults.standard.myPlayer)
-    
-    var delegates = [P2PNetworkSessionDelegate]() // TODO: Weak Ref?
+    private(set) var delegates = [P2PNetworkSessionDelegate]()
     
     let myPlayer: Player
-    let session: MCSession
-    let advertiser: MCNearbyServiceAdvertiser
-    let browser: MCNearbyServiceBrowser
+    private let session: MCSession
+    private let advertiser: MCNearbyServiceAdvertiser
+    private let browser: MCNearbyServiceBrowser
     
     private let myDiscoveryInfo = DiscoveryInfo()
     
@@ -51,22 +101,25 @@ class P2PNetworkSession: NSObject {
         super.init()
         
         session.delegate = self
-        
         advertiser.delegate = self
-        advertiser.startAdvertisingPeer()
-        
         browser.delegate = self
+    }
+    
+    func start() {
+        advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
     }
     
     deinit {
-        prettyPrint("Deinit")
-        stopServices()
-        session.disconnect()
-        session.delegate = nil
+        disconnect()
     }
     
-    private func stopServices() {
+    func disconnect() {
+        prettyPrint("disconnect")
+ 
+        session.disconnect()
+        session.delegate = nil
+        
         advertiser.stopAdvertisingPeer()
         advertiser.delegate = nil
         
@@ -77,6 +130,20 @@ class P2PNetworkSession: NSObject {
     func connectionState(for peer: MCPeerID) -> MCSessionState? {
         peersLock.lock(); defer { peersLock.unlock() }
         return sessionStates[peer]
+    }
+    
+    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
+        if !delegates.contains(where: { $0 === delegate }){
+            delegates.append(delegate)
+        }
+    }
+    
+    func removeDelegate(_ delegate: P2PNetworkSessionDelegate) {
+        delegates.removeAll(where: { $0 === delegate })
+    }
+    
+    func makeBrowserViewController() -> MCBrowserViewController {
+        return MCBrowserViewController(browser: browser, session: session)
     }
     
     // MARK: - Sending
@@ -104,10 +171,6 @@ class P2PNetworkSession: NSObject {
     }
     
     // MARK: - Delegates
-    
-    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        delegates.append(delegate)
-    }
     
     private func updateSessionDelegates(forPeer peerID: MCPeerID) {
         for delegate in delegates {
@@ -161,7 +224,7 @@ extension P2PNetworkSession: MCSessionDelegate {
             fatalError(#function + " - Unexpected multipeer connectivity state.")
         }
         peersLock.unlock()
-
+        
         updateSessionDelegates(forPeer: peerID)
     }
     
@@ -207,7 +270,7 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
         if let discoveryId = info?["discoveryId"] {
             peersLock.lock()
             foundPeers.insert(peerID)
-
+            
             discoveryInfos[peerID] = DiscoveryInfo(discoveryId: discoveryId)
             if sessionStates[peerID] == nil, session.connectedPeers.contains(peerID) {
                 startLoopbackTest(peerID)
@@ -216,7 +279,7 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
             invitePeerIfNeeded(peerID)
             peersLock.unlock()
         }
-
+        
         updateSessionDelegates(forPeer: peerID)
     }
     
@@ -229,17 +292,14 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
         // When a peer enters background, session.connectedPeers still contains that peer.
         // Setting this to nil ensures we make a loopback test to test the connection.
         sessionStates[peerID] = nil
-        
         peersLock.unlock()
         
         updateSessionDelegates(forPeer: peerID)
     }
     
     private func invitePeerIfNeeded(_ peerID: MCPeerID) {
-        let peerInfo = discoveryInfos[peerID]
-        let sessionState = sessionStates[peerID]
-        if let peerInfo = peerInfo, myDiscoveryInfo.shouldInvite(peerInfo),
-           !session.connectedPeers.contains(peerID), sessionState != .connecting {
+        if let peerInfo = discoveryInfos[peerID], myDiscoveryInfo.shouldInvite(peerInfo),
+           !session.connectedPeers.contains(peerID), sessionStates[peerID] != .connecting {
             prettyPrint("Inviting peer: [\(peerID.displayName)]")
             browser.invitePeer(peerID, to: session, withContext: nil, timeout: 3)
         }
@@ -268,5 +328,13 @@ private struct DiscoveryInfo {
     
     func shouldInvite(_ otherInfo: DiscoveryInfo) -> Bool {
         return discoveryId < otherInfo.discoveryId
+    }
+}
+
+private struct DelegateWrapper {
+    weak var delegate: P2PNetworkSessionDelegate?
+    
+    init(delegate: P2PNetworkSessionDelegate) {
+        self.delegate = delegate
     }
 }

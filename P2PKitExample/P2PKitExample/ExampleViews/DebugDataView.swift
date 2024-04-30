@@ -11,7 +11,7 @@ struct DebugDataView: View {
     var body: some View {
         Button("Send Test Event") {
             let data = try! JSONEncoder().encode(["TEST EVENT": "from button!"])
-            P2PNetworkSession.shared.send(data: data)
+            P2PNetwork.send(data: data)
         }
     }
 }

@@ -35,7 +35,7 @@ struct ContentView: View {
                 
                 Button("Send Test Event") {
                     let data = try! JSONEncoder().encode("sending test event!")
-                    P2PNetworkSession.shared.send(data: data)
+                    P2PNetwork.send(data: data)
                 }
                 
                 title("Apple's UIController")
