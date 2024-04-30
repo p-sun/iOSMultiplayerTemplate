@@ -41,7 +41,7 @@ struct PeerListView: View {
             Text("Found Devices").font(.headline)
             VStack(alignment: .leading, spacing: 10) {
                 if model.playerList.isEmpty {
-                    Text("No devices found")
+                    ProgressView()
                 } else {
                     ForEach(model.playerList, id: \.peerID) { peer in
                         let connectionState = model.p2pSession.connectionState(for: peer.peerID)
