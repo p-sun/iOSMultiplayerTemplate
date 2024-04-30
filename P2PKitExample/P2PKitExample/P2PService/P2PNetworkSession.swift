@@ -149,15 +149,10 @@ extension P2PNetworkSession: MCSessionDelegate {
         
         peersLock.lock()
         sessionStates[peerID] = state
-        peersLock.unlock()
         
         switch state {
         case .connected:
-            peersLock.lock()
-            if !foundPeers.contains(peerID) {
-                foundPeers.insert(peerID)
-            }
-            peersLock.unlock()
+            foundPeers.insert(peerID)
         case .connecting:
             break
         case .notConnected:
@@ -165,7 +160,8 @@ extension P2PNetworkSession: MCSessionDelegate {
         default:
             fatalError(#function + " - Unexpected multipeer connectivity state.")
         }
-        
+        peersLock.unlock()
+
         updateSessionDelegates(forPeer: peerID)
     }
     
@@ -208,23 +204,19 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
         prettyPrint("Found peer: [\(peerID)]")
         
-        peersLock.lock()
-        if !foundPeers.contains(peerID) {
-            foundPeers.insert(peerID)
-        }
-        peersLock.unlock()
-        
         if let discoveryId = info?["discoveryId"] {
             peersLock.lock()
+            foundPeers.insert(peerID)
+
             discoveryInfos[peerID] = DiscoveryInfo(discoveryId: discoveryId)
             if sessionStates[peerID] == nil, session.connectedPeers.contains(peerID) {
                 startLoopbackTest(peerID)
             }
-            peersLock.unlock()
             
             invitePeerIfNeeded(peerID)
+            peersLock.unlock()
         }
-        
+
         updateSessionDelegates(forPeer: peerID)
     }
     
@@ -232,9 +224,7 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
         prettyPrint("Lost peer: [\(peerID.displayName)]")
         
         peersLock.lock()
-        if foundPeers.contains(peerID) {
-            foundPeers.remove(peerID)
-        }
+        foundPeers.remove(peerID)
         
         // When a peer enters background, session.connectedPeers still contains that peer.
         // Setting this to nil ensures we make a loopback test to test the connection.
@@ -246,13 +236,8 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     }
     
     private func invitePeerIfNeeded(_ peerID: MCPeerID) {
-        let peerInfo: DiscoveryInfo?
-        let sessionState: MCSessionState?
-        peersLock.lock()
-        peerInfo = discoveryInfos[peerID]
-        sessionState = sessionStates[peerID]
-        peersLock.unlock()
-        
+        let peerInfo = discoveryInfos[peerID]
+        let sessionState = sessionStates[peerID]
         if let peerInfo = peerInfo, myDiscoveryInfo.shouldInvite(peerInfo),
            !session.connectedPeers.contains(peerID), sessionState != .connecting {
             prettyPrint("Inviting peer: [\(peerID.displayName)]")
@@ -263,8 +248,10 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
 
 extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        prettyPrint("Accepting Peer invite from [\(peerID.displayName)]")
-        invitationHandler(true, self.session)
+        if !session.connectedPeers.contains(peerID), sessionStates[peerID] != .connecting {
+            prettyPrint("Accepting Peer invite from [\(peerID.displayName)]")
+            invitationHandler(true, self.session)
+        }
     }
     
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
