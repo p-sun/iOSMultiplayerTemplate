@@ -88,6 +88,7 @@ class P2PNetworkSession: NSObject {
     private var foundPeers = Set<MCPeerID>()  // protected with playersLock
     private var discoveryInfos = [MCPeerID: DiscoveryInfo]() // protected with playersLock
     private var sessionStates = [MCPeerID: MCSessionState]() // protected with playersLock
+    private var inviteAttempts = [MCPeerID: Int]() // protected with playersLock
     
     var connectedPeers: [Player] {
         peersLock.lock(); defer { peersLock.unlock() }
@@ -305,8 +306,22 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
         if let peerInfo = discoveryInfos[peerID], myDiscoveryInfo.shouldInvite(peerInfo),
            !session.connectedPeers.contains(peerID),
            sessionStates[peerID] != .connecting, sessionStates[peerID] != .connected {
-            prettyPrint("Inviting peer: [\(peerID.displayName)]")
-            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 6)
+            
+            let attempts = inviteAttempts[peerID] ?? 0
+            inviteAttempts[peerID] = attempts + 1
+            if attempts < 3 {
+                prettyPrint("Inviting peer: [\(peerID.displayName)]")
+                self.browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 6)
+            }
+            
+            DispatchQueue.global().asyncAfter(deadline: .now() + 6.1, execute: { [weak self] in
+                guard let self = self else { return }
+                if session.connectedPeers.contains(peerID) {
+                    peersLock.lock()
+                    inviteAttempts[peerID] = nil
+                    peersLock.unlock()
+                }
+            })
         }
     }
 }
