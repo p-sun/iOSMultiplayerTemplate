@@ -42,8 +42,8 @@ class P2PNetwork {
         networkSession.connectionState(for: peer)
     }
     
-    static func resetSession(displayName: String) {
-        let peerID = MCPeerID(displayName: displayName)
+    static func resetSession(displayName: String? = nil) {
+        let peerID = MCPeerID(displayName: displayName ?? UserDefaults.standard.myPlayer.peerID.displayName)
         UserDefaults.standard.myPlayer = Player(peerID)
         
         let oldSession = networkSession
@@ -305,16 +305,18 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     
     private func invitePeerIfNeeded(_ peerID: MCPeerID) {
         if let peerInfo = discoveryInfos[peerID], myDiscoveryInfo.shouldInvite(peerInfo),
-           !session.connectedPeers.contains(peerID), sessionStates[peerID] != .connecting {
+           !session.connectedPeers.contains(peerID),
+           sessionStates[peerID] != .connecting, sessionStates[peerID] != .connected {
             prettyPrint("Inviting peer: [\(peerID.displayName)]")
-            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 3)
+            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 6)
         }
     }
 }
 
 extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        if !session.connectedPeers.contains(peerID), sessionStates[peerID] != .connecting {
+        if !session.connectedPeers.contains(peerID),
+           sessionStates[peerID] != .connecting, sessionStates[peerID] != .connected {
             prettyPrint("Accepting Peer invite from [\(peerID.displayName)]")
             invitationHandler(true, self.session)
         }

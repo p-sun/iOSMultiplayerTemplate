@@ -15,10 +15,13 @@ class PeerListViewModel: ObservableObject {
         P2PNetwork.start()
     }
     
+    func changeName() {
+        let randomAnimal = Array("🦊🐯🐹🐶🐸🐵🐮🦄🐷🐨🐼🐰🐻🐷🐨🐼🐰🐻").randomElement()!
+        P2PNetwork.resetSession(displayName: "\(randomAnimal) \(UIDevice.current.name)")
+    }
+    
     func resetSession() {
-        playerList = []
-        let animals = Array("🦊🐯🐹🐶🐸🐵🐮🦄🐷🐨🐼🐰🐻🐷🐨🐼🐰🐻")
-        P2PNetwork.resetSession(displayName: "\(UIDevice.current.name) \(animals.randomElement()!)")
+        P2PNetwork.resetSession()
     }
 }
 
@@ -41,8 +44,13 @@ struct PeerListView: View {
         Group {
             Text("Current Device").p2pTitleStyle()
             Text(P2PNetwork.myPlayer.username).font(.largeTitle)
-            Button("Change Name") {
-                model.resetSession()
+            HStack {
+                Button("Change Name") {
+                    model.changeName()
+                }
+                Button("Reset Session") {
+                    model.resetSession()
+                }
             }
             Spacer().frame(height: 24)
             
