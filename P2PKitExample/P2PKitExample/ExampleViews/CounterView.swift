@@ -24,11 +24,7 @@ class CounterModel: ObservableObject {
 }
 
 extension CounterModel: P2PNetworkSessionDelegate {
-    func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) {
-    }
-    
-    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Bool {
-        let json = try? JSONSerialization.jsonObject(with: didReceive) as? [String: Any]
+    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
         if let newCount = json?["count"] as? Int {
             DispatchQueue.main.async { [weak self] in
                 self?.count = newCount
@@ -37,13 +33,15 @@ extension CounterModel: P2PNetworkSessionDelegate {
         }
         return false
     }
+    
+    func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) { }
 }
 
 struct CounterView: View {
     @StateObject var counter = CounterModel()
     
     var body: some View {
-        Text("Sending/Receiving Data")
+        Text("Send/Receive Data")
             .p2pTitleStyle()
         HStack {
             Text("Counter: \(counter.count)")

@@ -26,14 +26,14 @@ class PeerListViewModel: ObservableObject {
 }
 
 extension PeerListViewModel: P2PNetworkSessionDelegate {
+    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
+        return false
+    }
+    
     func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) {
         DispatchQueue.main.async { [weak self] in
             self?.playerList = session.connectedPeers
         }
-    }
-    
-    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Bool {
-        return false
     }
 }
 

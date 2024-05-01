@@ -65,7 +65,7 @@ class P2PNetwork {
 
 protocol P2PNetworkSessionDelegate: AnyObject {
     func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) -> Void
-    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive: Data, from player: Player) -> Bool
+    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive data: Data, dataAsJson json: [String: Any]?, from player: Player) -> Bool
 }
 
 class P2PNetworkSession: NSObject {
@@ -235,18 +235,16 @@ extension P2PNetworkSession: MCSessionDelegate {
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        if let json = try? JSONSerialization.jsonObject(with: data) {
+        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        if let json = json {
             prettyPrint("Received: \(json)")
-            
-            if let json = json as? [String: Any] {
-                if handleLoopbackTest(session, didReceive: json, fromPeer: peerID) {
-                    return
-                }
+            if handleLoopbackTest(session, didReceive: json, fromPeer: peerID) {
+                return
             }
         }
         
         for delegate in delegates {
-            if delegate.p2pNetworkSession(self, didReceive: data, from: Player(peerID)) {
+            if delegate.p2pNetworkSession(self, didReceive: data, dataAsJson: json, from: Player(peerID)) {
                 return
             }
         }
