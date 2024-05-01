@@ -29,7 +29,6 @@ extension CounterModel: P2PNetworkSessionDelegate {
             DispatchQueue.main.async { [weak self] in
                 self?.count = newCount
             }
-            return true
         }
         return false
     }

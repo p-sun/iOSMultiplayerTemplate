@@ -31,9 +31,10 @@ struct ContentView: View {
                 PeerListView()
                 CounterView()
                 Button("Send Test Event") {
-                    let data = try! JSONEncoder().encode("sending test event!")
+                    let data = try! JSONEncoder().encode(["testEvent": "Time: \(Date().formatted())"])
                     P2PNetwork.send(data: data)
                 }.p2pButtonStyle()
+                DebugDataView()
                 ShowBrowserButton()
             }
         }
