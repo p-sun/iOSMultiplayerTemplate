@@ -27,10 +27,9 @@ struct ContentView: View {
                 .padding()
             
             VStack(alignment: .leading) {
-                title("List All Peers")
                 PeerListView()
                 
-                title("Sending/Receiving Data")
+                Text("Sending/Receiving Data").p2pTitleStyle()
                 CounterView()
                 
                 Button("Send Test Event") {
@@ -38,19 +37,12 @@ struct ContentView: View {
                     P2PNetwork.send(data: data)
                 }
                 
-                title("Apple's UIController")
+                Text("Apple's UIController").p2pTitleStyle()
                 ShowBrowserButton()
             }
         }
         .buttonStyle(.borderedProminent).tint(.mint)
         .padding(30)
-    }
-    
-    func title(_ title: String) -> some View {
-        Text(title)
-            .font(.title2).bold()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(EdgeInsets(top: 20, leading: 0, bottom: 10, trailing: 0))
     }
 }
 

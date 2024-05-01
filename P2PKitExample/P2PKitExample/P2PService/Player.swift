@@ -29,7 +29,7 @@ extension Player: Hashable {
 extension UserDefaults {
     var myPlayer: Player {
         get {
-            if let data = UserDefaults.standard.data(forKey: UserDefaultsKeys.myPeerId),
+            if let data = data(forKey: UserDefaultsKeys.myPeerId),
                let peerID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data) {
                 return Player(peerID)
             } else {

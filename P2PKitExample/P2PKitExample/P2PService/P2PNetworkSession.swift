@@ -42,7 +42,7 @@ class P2PNetwork {
         networkSession.connectionState(for: peer)
     }
 
-    static func reset(displayName: String) {
+    static func resetSession(displayName: String) {
         let peerID = MCPeerID(displayName: displayName)
         UserDefaults.standard.myPlayer = Player(peerID)
         

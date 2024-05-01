@@ -15,9 +15,10 @@ class PeerListViewModel: ObservableObject {
         P2PNetwork.start()
     }
     
-    func resetNetwork() {
+    func resetSession() {
         playerList = []
-        P2PNetwork.reset(displayName: "\(UIDevice.current.name) <<\(Int.random(in: 1...100))>>")
+        let animals = Array("🦊🐯🐹🐶🐸🐵🐮🦄🐷🐨🐼🐰🐻🐷🐨🐼🐰🐻")
+        P2PNetwork.resetSession(displayName: "\(UIDevice.current.name) \(animals.randomElement()!)")
     }
     
     deinit {
@@ -42,14 +43,14 @@ struct PeerListView: View {
     
     var body: some View {
         Group {
-            Text("Current Device").font(.headline)
-            Text(P2PNetwork.myPlayer.username)
+            Text("Current Device").p2pTitleStyle()
+            Text(P2PNetwork.myPlayer.username).font(.largeTitle)
             Button("Change Name") {
-                model.resetNetwork()
+                model.resetSession()
             }
             Spacer().frame(height: 24)
             
-            Text("Found Devices").font(.headline)
+            Text("Found Devices").p2pTitleStyle()
             VStack(alignment: .leading, spacing: 10) {
                 if model.playerList.isEmpty {
                     ProgressView()

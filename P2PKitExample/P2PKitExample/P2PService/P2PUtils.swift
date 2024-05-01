@@ -7,6 +7,7 @@
 
 import Foundation
 import MultipeerConnectivity
+import SwiftUI
 
 struct UserDefaultsKeys {
     static let myPeerId = "MyPeerIDDefaultsKey"
@@ -20,5 +21,13 @@ extension MCSessionState: CustomDebugStringConvertible {
             case .notConnected: return "NotConnected"
             @unknown default:   return "Unknown"
         }
+    }
+}
+
+extension Text {
+    public func p2pTitleStyle() -> some View {
+        return self.font(.title).bold()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(EdgeInsets(top: 12, leading: 0, bottom: 0, trailing: 0))
     }
 }
