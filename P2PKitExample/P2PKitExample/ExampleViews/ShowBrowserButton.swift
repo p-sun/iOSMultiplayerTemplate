@@ -12,13 +12,17 @@ import MultipeerConnectivity
 struct ShowBrowserButton: View {
     @State private var isPresented = false
     @StateObject private var browerViewDelegate = BrowerViewDelegate()
-
+    
     var body: some View {
-        Button("Open MCBrowserViewController") {
-            isPresented = true
-        }.sheet(isPresented: $isPresented) {
-            BrowerViewHost(browerViewDelegate)
-        }
+        VStack(alignment: .leading) {
+            Text("Apple's UIController")
+                .p2pTitleStyle()
+            Button("Open MCBrowserViewController") {
+                isPresented = true
+            }.sheet(isPresented: $isPresented) {
+                BrowerViewHost(browerViewDelegate)
+            }
+        }.p2pButtonStyle()
     }
 }
 
@@ -51,8 +55,8 @@ class BrowerViewDelegate: NSObject, MCBrowserViewControllerDelegate, ObservableO
     func browserViewControllerWasCancelled(_ browserViewController: MCBrowserViewController) {
         browserViewController.dismiss(animated: true)
     }
-    
-    deinit {
-        print("PAIGE Deinit BrowerViewDelegate")
-    }
+}
+
+#Preview {
+    ShowBrowserButton()
 }

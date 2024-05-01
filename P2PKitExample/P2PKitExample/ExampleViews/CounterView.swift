@@ -43,12 +43,14 @@ struct CounterView: View {
     @StateObject var counter = CounterModel()
     
     var body: some View {
+        Text("Sending/Receiving Data")
+            .p2pTitleStyle()
         HStack {
             Text("Counter: \(counter.count)")
             Spacer()
             Button("+ 1") {
                 counter.increment()
-            }
+            }.p2pButtonStyle()
         }
     }
 }

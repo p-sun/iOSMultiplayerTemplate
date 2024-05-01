@@ -24,10 +24,16 @@ extension MCSessionState: CustomDebugStringConvertible {
     }
 }
 
+extension View {
+    func p2pButtonStyle() -> some View {
+        self.buttonStyle(.borderedProminent).tint(.mint)
+    }
+}
+
 extension Text {
     public func p2pTitleStyle() -> some View {
         return self.font(.title).bold()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(EdgeInsets(top: 12, leading: 0, bottom: 0, trailing: 0))
+            .padding(EdgeInsets(top: 16, leading: 0, bottom: 0, trailing: 0))
     }
 }

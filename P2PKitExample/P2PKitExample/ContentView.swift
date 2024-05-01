@@ -25,24 +25,19 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
                 .padding()
+                .tint(.mint)
             
             VStack(alignment: .leading) {
                 PeerListView()
-                
-                Text("Sending/Receiving Data").p2pTitleStyle()
                 CounterView()
-                
                 Button("Send Test Event") {
                     let data = try! JSONEncoder().encode("sending test event!")
                     P2PNetwork.send(data: data)
-                }
-                
-                Text("Apple's UIController").p2pTitleStyle()
+                }.p2pButtonStyle()
                 ShowBrowserButton()
             }
         }
-        .buttonStyle(.borderedProminent).tint(.mint)
-        .padding(30)
+        .padding()
     }
 }
 

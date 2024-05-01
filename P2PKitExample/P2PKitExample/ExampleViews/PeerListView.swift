@@ -41,7 +41,7 @@ struct PeerListView: View {
     @StateObject var model = PeerListViewModel()
     
     var body: some View {
-        Group {
+        VStack(alignment: .leading) {
             Text("Current Device").p2pTitleStyle()
             Text(P2PNetwork.myPlayer.username).font(.largeTitle)
             HStack {
@@ -52,7 +52,6 @@ struct PeerListView: View {
                     model.resetSession()
                 }
             }
-            Spacer().frame(height: 24)
             
             Text("Found Devices").p2pTitleStyle()
             VStack(alignment: .leading, spacing: 10) {
@@ -67,6 +66,7 @@ struct PeerListView: View {
                 }
             }
         }
+        .p2pButtonStyle()
     }
 }
 
