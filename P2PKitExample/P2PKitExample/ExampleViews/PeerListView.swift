@@ -20,10 +20,6 @@ class PeerListViewModel: ObservableObject {
         let animals = Array("🦊🐯🐹🐶🐸🐵🐮🦄🐷🐨🐼🐰🐻🐷🐨🐼🐰🐻")
         P2PNetwork.resetSession(displayName: "\(UIDevice.current.name) \(animals.randomElement()!)")
     }
-    
-    deinit {
-        P2PNetwork.removeDelegate(self)
-    }
 }
 
 extension PeerListViewModel: P2PNetworkSessionDelegate {

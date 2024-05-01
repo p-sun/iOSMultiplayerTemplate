@@ -41,7 +41,7 @@ class P2PNetwork {
     static func connectionState(for peer: MCPeerID) -> MCSessionState? {
         networkSession.connectionState(for: peer)
     }
-
+    
     static func resetSession(displayName: String) {
         let peerID = MCPeerID(displayName: displayName)
         UserDefaults.standard.myPlayer = Player(peerID)
@@ -49,7 +49,7 @@ class P2PNetwork {
         let oldSession = networkSession
         networkSession = P2PNetworkSession(myPlayer: UserDefaults.standard.myPlayer)
         oldSession.disconnect()
-
+        
         for delegate in oldSession.delegates {
             oldSession.removeDelegate(delegate)
             networkSession.addDelegate(delegate)
@@ -69,7 +69,13 @@ protocol P2PNetworkSessionDelegate: AnyObject {
 }
 
 class P2PNetworkSession: NSObject {
-    private(set) var delegates = [P2PNetworkSessionDelegate]()
+    var delegates: [P2PNetworkSessionDelegate] {
+        get {
+            return _delegates.compactMap { $0.delegate }
+        }
+    }
+    
+    private var _delegates = [WeakDelegate]()
     
     let myPlayer: Player
     private let session: MCSession
@@ -116,7 +122,7 @@ class P2PNetworkSession: NSObject {
     
     func disconnect() {
         prettyPrint("disconnect")
- 
+        
         session.disconnect()
         session.delegate = nil
         
@@ -133,13 +139,13 @@ class P2PNetworkSession: NSObject {
     }
     
     func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        if !delegates.contains(where: { $0 === delegate }){
-            delegates.append(delegate)
+        if !_delegates.contains(where: { $0.delegate === delegate }) {
+            _delegates.append(WeakDelegate(delegate))
         }
     }
     
     func removeDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        delegates.removeAll(where: { $0 === delegate })
+        _delegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
     }
     
     func makeBrowserViewController() -> MCBrowserViewController {
@@ -331,10 +337,10 @@ private struct DiscoveryInfo {
     }
 }
 
-private struct DelegateWrapper {
+private struct WeakDelegate {
     weak var delegate: P2PNetworkSessionDelegate?
     
-    init(delegate: P2PNetworkSessionDelegate) {
+    init(_ delegate: P2PNetworkSessionDelegate) {
         self.delegate = delegate
     }
 }
