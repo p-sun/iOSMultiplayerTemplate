@@ -145,16 +145,6 @@ class P2PNetworkSession: NSObject {
         return sessionStates[peer]
     }
     
-    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        if !_delegates.contains(where: { $0.delegate === delegate }) {
-            _delegates.append(WeakDelegate(delegate))
-        }
-    }
-    
-    func removeDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        _delegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
-    }
-    
     func makeBrowserViewController() -> MCBrowserViewController {
         return MCBrowserViewController(browser: browser, session: session)
     }
@@ -184,6 +174,16 @@ class P2PNetworkSession: NSObject {
     }
     
     // MARK: - Delegates
+    
+    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
+        if !_delegates.contains(where: { $0.delegate === delegate }) {
+            _delegates.append(WeakDelegate(delegate))
+        }
+    }
+    
+    func removeDelegate(_ delegate: P2PNetworkSessionDelegate) {
+        _delegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
+    }
     
     private func updateSessionDelegates(forPeer peerID: MCPeerID) {
         for delegate in delegates {
@@ -246,9 +246,10 @@ extension P2PNetworkSession: MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         if let json = json {
-            prettyPrint("Received: \(json)")
             if handleLoopbackTest(session, didReceive: json, fromPeer: peerID) {
                 return
+            } else {
+                prettyPrint("Received: \(json)")
             }
         }
         
@@ -280,9 +281,9 @@ extension P2PNetworkSession: MCSessionDelegate {
 
 extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
-        prettyPrint("Found peer: [\(peerID)]")
-        
         if let discoveryId = info?["discoveryId"] {
+            prettyPrint("Found peer: [\(peerID)]")
+            
             peersLock.lock()
             foundPeers.insert(peerID)
             
@@ -293,9 +294,9 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
             
             invitePeerIfNeeded(peerID)
             peersLock.unlock()
+            
+            updateSessionDelegates(forPeer: peerID)
         }
-        
-        updateSessionDelegates(forPeer: peerID)
     }
     
     public func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
