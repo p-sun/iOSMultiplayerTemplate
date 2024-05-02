@@ -9,9 +9,7 @@ import SwiftUI
 
 class PeerListViewModel: ObservableObject {
     @Published var playerList = [Player]()
-    
-    private var resets = 0
-    
+        
     init() {
         P2PNetwork.addDelegate(self)
         P2PNetwork.start()
@@ -23,9 +21,17 @@ class PeerListViewModel: ObservableObject {
     }
     
     func resetSession() {
-        resets += 1
-        let displayNameWithoutNumbers = P2PNetwork.myPlayer.displayName.replacing(/\s<<(\d+)>>/, with: "")
-        P2PNetwork.resetSession(displayName: displayNameWithoutNumbers + " <<\(resets)>>")
+        P2PNetwork.resetSession(displayName: newDisplayName(from: P2PNetwork.myPlayer.displayName))
+    }
+    
+    // oldName: "My iPhone <<7>>"
+    // return: "My iPhone <<8>>"
+    private func newDisplayName(from oldName: String) -> String {
+        if let result = try? /\s<<(\d+)>>/.firstMatch(in: oldName), let count = Int(result.1)  {
+            return oldName.replacing(/\s<<(\d+)>>/, with: "") + " <<\(count + 1)>>"
+        } else {
+            return oldName
+        }
     }
 }
 

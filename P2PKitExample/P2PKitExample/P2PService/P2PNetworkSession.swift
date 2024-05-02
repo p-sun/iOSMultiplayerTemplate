@@ -83,17 +83,17 @@ class P2PNetworkSession: NSObject {
     private var _delegates = [WeakDelegate]()
     
     let myPlayer: Player
+    private let myDiscoveryInfo = DiscoveryInfo()
+    
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let browser: MCNearbyServiceBrowser
     
-    private let myDiscoveryInfo = DiscoveryInfo()
-    
     private var peersLock = NSLock()
-    private var foundPeers = Set<MCPeerID>()  // protected with playersLock
-    private var discoveryInfos = [MCPeerID: DiscoveryInfo]() // protected with playersLock
-    private var sessionStates = [MCPeerID: MCSessionState]() // protected with playersLock
-    private var inviteAttempts = [MCPeerID: Int]() // protected with playersLock
+    private var foundPeers = Set<MCPeerID>()  // protected with peersLock
+    private var discoveryInfos = [MCPeerID: DiscoveryInfo]() // protected with peersLock
+    private var sessionStates = [MCPeerID: MCSessionState]() // protected with peersLock
+    private var invitesHistory = [MCPeerID: InviteHistory]() // protected with peersLock
     
     var connectedPeers: [Player] {
         peersLock.lock(); defer { peersLock.unlock() }
@@ -312,37 +312,13 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
         
         updateSessionDelegates(forPeer: peerID)
     }
-    
-    private func invitePeerIfNeeded(_ peerID: MCPeerID) {
-        if let peerInfo = discoveryInfos[peerID], myDiscoveryInfo.shouldInvite(peerInfo),
-           !session.connectedPeers.contains(peerID),
-           sessionStates[peerID] != .connecting, sessionStates[peerID] != .connected {
-            
-            let attempts = inviteAttempts[peerID] ?? 0
-            inviteAttempts[peerID] = attempts + 1
-            if attempts < 3 {
-                prettyPrint("Inviting peer: [\(peerID.displayName)]")
-                self.browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 6)
-            }
-            
-            DispatchQueue.global().asyncAfter(deadline: .now() + 6.1, execute: { [weak self] in
-                guard let self = self else { return }
-                if session.connectedPeers.contains(peerID) {
-                    peersLock.lock()
-                    inviteAttempts[peerID] = nil
-                    peersLock.unlock()
-                }
-            })
-        }
-    }
 }
 
 // MARK: - MCNearbyServiceAdvertiserDelegate
 
 extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        if !session.connectedPeers.contains(peerID),
-           sessionStates[peerID] != .connecting, sessionStates[peerID] != .connected {
+        if isNotConnected(peerID) {
             prettyPrint("Accepting Peer invite from [\(peerID.displayName)]")
             invitationHandler(true, self.session)
         }
@@ -351,6 +327,73 @@ extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
         prettyPrint(level:.error, "Error: \(error.localizedDescription)")
     }
+}
+
+// MARK: - Private - Invitate Peers
+
+extension P2PNetworkSession {
+    // Call this from inside a peerLock()
+    private func invitePeerIfNeeded(_ peerID: MCPeerID) {
+        func invitePeer(attempt: Int) {
+            prettyPrint("Inviting peer: [\(peerID.displayName)]. Attempt \(attempt)")
+            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 6)
+            invitesHistory[peerID] = InviteHistory(attempt: attempt, nextInviteAfter: Date().addingTimeInterval(retryWaitTime))
+        }
+        
+        guard discoveryInfos[peerID]?.shouldBeInvited(by: myDiscoveryInfo) == true,
+              isNotConnected(peerID) else {
+            return
+        }
+        
+        let retryWaitTime: TimeInterval = 1
+        let maxRetries = 3
+
+        if let prevInvite = invitesHistory[peerID] {
+            if prevInvite.nextInviteAfter.timeIntervalSinceNow < -8 {
+                // Waited long enough that we can restart attempt from 1.
+                invitePeer(attempt: 1)
+            
+            } else if prevInvite.nextInviteAfter.timeIntervalSinceNow < 0 {
+                // Waited long enough to do the next invite attempt.
+                if prevInvite.attempt < maxRetries {
+                    invitePeer(attempt: prevInvite.attempt + 1)
+                } else {
+                    prettyPrint(level: .error, "Max \(maxRetries) invite attempts reached for [\(peerID.displayName)].")
+                }
+                
+            } else {
+                if !prevInvite.nextInviteScheduled {
+                    // Haven't waited long enough for next invite, so schedule the next invite.
+                    prettyPrint("Inviting peer later: [\(peerID.displayName)] with attempt \(prevInvite.attempt + 1)")
+                    
+                    DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + retryWaitTime + 0.1) { [weak self] in
+                        guard let self = self else { return }
+                        self.peersLock.lock()
+                        self.invitesHistory[peerID]?.nextInviteScheduled = false
+                        self.invitePeerIfNeeded(peerID)
+                        self.peersLock.unlock()
+                    }
+                    invitesHistory[peerID]?.nextInviteScheduled = true
+                } else {
+                    prettyPrint("No need to invite peer [\(peerID.displayName)]. Next invite is already scheduled.")
+                }
+            }
+        } else {
+            invitePeer(attempt: 1)
+        }
+    }
+    
+    private func isNotConnected(_ peerID: MCPeerID) -> Bool {
+        return !session.connectedPeers.contains(peerID)
+        && sessionStates[peerID] != .connecting
+        && sessionStates[peerID] != .connected
+    }
+}
+
+private struct InviteHistory {
+    let attempt: Int
+    let nextInviteAfter: Date
+    var nextInviteScheduled: Bool = false
 }
 
 // MARK: - Private
@@ -362,9 +405,8 @@ private struct DiscoveryInfo {
         // Ensure that between any pair of devices, only one invites.
         self.discoveryId = discoveryId ?? "\(UIDevice.current.identifierForVendor!)"
     }
-    
-    func shouldInvite(_ otherInfo: DiscoveryInfo) -> Bool {
-        return discoveryId < otherInfo.discoveryId
+    func shouldBeInvited(by myInfo: DiscoveryInfo) -> Bool {
+        return myInfo.discoveryId < discoveryId
     }
 }
 
