@@ -15,10 +15,10 @@ class DebugDataViewModel: ObservableObject {
     }
 }
 
-extension DebugDataViewModel: P2PNetworkSessionDelegate {
-    func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) { }
+extension DebugDataViewModel: P2PSessionDelegate {
+    func p2pSession(_ session: P2PSession, didUpdate player: Player) { }
     
-    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
+    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             if let json = json {

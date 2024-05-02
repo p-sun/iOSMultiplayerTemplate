@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9B04347B2BE4149B005B1606 /* P2PNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04347A2BE4149B005B1606 /* P2PNetwork.swift */; };
 		9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC382BD6C5ED0086AC78 /* P2PKitExampleApp.swift */; };
 		9BD2AC3B2BD6C5ED0086AC78 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC3A2BD6C5ED0086AC78 /* ContentView.swift */; };
 		9BD2AC3D2BD6C5EE0086AC78 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9BD2AC3C2BD6C5EE0086AC78 /* Assets.xcassets */; };
@@ -14,7 +15,7 @@
 		9BD2AC4A2BD6C5EF0086AC78 /* P2PKitExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC492BD6C5EF0086AC78 /* P2PKitExampleTests.swift */; };
 		9BD2AC542BD6C5EF0086AC78 /* P2PKitExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC532BD6C5EF0086AC78 /* P2PKitExampleUITests.swift */; };
 		9BD2AC562BD6C5EF0086AC78 /* P2PKitExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC552BD6C5EF0086AC78 /* P2PKitExampleUITestsLaunchTests.swift */; };
-		9BD2AC642BD962D20086AC78 /* P2PNetworkSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC632BD962D20086AC78 /* P2PNetworkSession.swift */; };
+		9BD2AC642BD962D20086AC78 /* P2PSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC632BD962D20086AC78 /* P2PSession.swift */; };
 		9BD2AC662BD963F80086AC78 /* P2PUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC652BD963F80086AC78 /* P2PUtils.swift */; };
 		9BD2AC692BD96CED0086AC78 /* PeerListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC682BD96CED0086AC78 /* PeerListView.swift */; };
 		9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC6A2BD972810086AC78 /* Player.swift */; };
@@ -42,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9B04347A2BE4149B005B1606 /* P2PNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PNetwork.swift; sourceTree = "<group>"; };
 		9BD2AC352BD6C5ED0086AC78 /* P2PKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = P2PKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BD2AC382BD6C5ED0086AC78 /* P2PKitExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PKitExampleApp.swift; sourceTree = "<group>"; };
 		9BD2AC3A2BD6C5ED0086AC78 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -52,7 +54,7 @@
 		9BD2AC4F2BD6C5EF0086AC78 /* P2PKitExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = P2PKitExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BD2AC532BD6C5EF0086AC78 /* P2PKitExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PKitExampleUITests.swift; sourceTree = "<group>"; };
 		9BD2AC552BD6C5EF0086AC78 /* P2PKitExampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PKitExampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		9BD2AC632BD962D20086AC78 /* P2PNetworkSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PNetworkSession.swift; sourceTree = "<group>"; };
+		9BD2AC632BD962D20086AC78 /* P2PSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PSession.swift; sourceTree = "<group>"; };
 		9BD2AC652BD963F80086AC78 /* P2PUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PUtils.swift; sourceTree = "<group>"; };
 		9BD2AC682BD96CED0086AC78 /* PeerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerListView.swift; sourceTree = "<group>"; };
 		9BD2AC6A2BD972810086AC78 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
@@ -150,10 +152,8 @@
 		9BD2AC622BD962990086AC78 /* P2PService */ = {
 			isa = PBXGroup;
 			children = (
-				9BD2AC6D2BDBE0F10086AC78 /* Utils */,
-				9BD2AC632BD962D20086AC78 /* P2PNetworkSession.swift */,
-				9BD2AC652BD963F80086AC78 /* P2PUtils.swift */,
-				9BD2AC6A2BD972810086AC78 /* Player.swift */,
+				9BD2AC6D2BDBE0F10086AC78 /* Internal */,
+				9B04347A2BE4149B005B1606 /* P2PNetwork.swift */,
 			);
 			path = P2PService;
 			sourceTree = "<group>";
@@ -169,12 +169,15 @@
 			path = ExampleViews;
 			sourceTree = "<group>";
 		};
-		9BD2AC6D2BDBE0F10086AC78 /* Utils */ = {
+		9BD2AC6D2BDBE0F10086AC78 /* Internal */ = {
 			isa = PBXGroup;
 			children = (
+				9BD2AC632BD962D20086AC78 /* P2PSession.swift */,
 				9BD2AC6E2BDBE1010086AC78 /* P2PLogger.swift */,
+				9BD2AC652BD963F80086AC78 /* P2PUtils.swift */,
+				9BD2AC6A2BD972810086AC78 /* Player.swift */,
 			);
-			path = Utils;
+			path = Internal;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -313,9 +316,10 @@
 				9BD2AC772BDFF17F0086AC78 /* ShowBrowserButton.swift in Sources */,
 				9BD2AC692BD96CED0086AC78 /* PeerListView.swift in Sources */,
 				9BD2AC3B2BD6C5ED0086AC78 /* ContentView.swift in Sources */,
-				9BD2AC642BD962D20086AC78 /* P2PNetworkSession.swift in Sources */,
+				9BD2AC642BD962D20086AC78 /* P2PSession.swift in Sources */,
 				9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */,
 				9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */,
+				9B04347B2BE4149B005B1606 /* P2PNetwork.swift in Sources */,
 				9BD2AC712BDE94F10086AC78 /* CounterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

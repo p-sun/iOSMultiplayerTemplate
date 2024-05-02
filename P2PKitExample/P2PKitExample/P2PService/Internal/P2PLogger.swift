@@ -16,12 +16,3 @@ func prettyPrint(level: OSLogType = .info, _ message: String, file: String = #fi
         logger.log(level: level, "📒 \(fileName ?? file):\(function)\n\(message)")
     }
 }
-
-//@inline(__always)
-//func prettyPrint(level: OSLogType = .info, _ items: Any..., file: String = #fileID, function: String = #function) {
-//#if DEBUG
-//    let fileName = NSURL(fileURLWithPath: file).deletingPathExtension?.lastPathComponent
-//    let message = items.map {"\($0)"}.joined(separator: " ")
-//    logger.log(level: .info, "📒 \(fileName ?? file):\(function)\n\(message)")
-//#endif
-//}

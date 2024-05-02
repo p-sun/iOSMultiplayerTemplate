@@ -1,80 +1,21 @@
 //
 //  P2PNetworking.swift
 //  P2PKitExample
-
+//
+//  Created by Paige Sun on 5/2/24.
+//
 
 import MultipeerConnectivity
-import os.signpost
 
-struct P2PConstants {
-    static let networkChannelName = "my-p2p-service"
-    static let loggerEnabled = true
-    
-    struct UserDefaultsKeys {
-        static let myPlayer = "MyPlayerIDKey"
-    }
+// MARK: - P2PSession
+
+protocol P2PSessionDelegate: AnyObject {
+    func p2pSession(_ session: P2PSession, didUpdate player: Player) -> Void
+    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String: Any]?, from player: Player) -> Bool
 }
 
-class P2PNetwork {
-    private static var networkSession = P2PNetworkSession(myPlayer: UserDefaults.standard.myPlayer)
-    
-    static var myPlayer: Player {
-        return networkSession.myPlayer
-    }
-    
-    static func start() {
-        networkSession.start()
-    }
-    
-    static func send(_ encodable: Encodable, to peers: [MCPeerID] = []) {
-        networkSession.send(encodable, to: peers)
-    }
-    
-    static func send(data: Data, to peers: [MCPeerID] = []) {
-        networkSession.send(data: data, to: peers)
-    }
-    
-    static func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        networkSession.addDelegate(delegate)
-    }
-    
-    static func removeDelegate(_ delegate: P2PNetworkSessionDelegate) {
-        networkSession.removeDelegate(delegate)
-    }
-    
-    static func connectionState(for peer: MCPeerID) -> MCSessionState? {
-        networkSession.connectionState(for: peer)
-    }
-    
-    static func resetSession(displayName: String? = nil) {
-        let oldSession = networkSession
-        oldSession.disconnect()
-        
-        let newPeerId = MCPeerID(displayName: displayName ?? oldSession.myPlayer.displayName)
-        let myPlayer = Player(newPeerId)
-        UserDefaults.standard.myPlayer = myPlayer
-        
-        networkSession = P2PNetworkSession(myPlayer: myPlayer)
-        for delegate in oldSession.delegates {
-            oldSession.removeDelegate(delegate)
-            networkSession.addDelegate(delegate)
-        }
-        
-        networkSession.start()
-    }
-    
-    static func makeBrowserViewController() -> MCBrowserViewController {
-        return networkSession.makeBrowserViewController()
-    }
-}
-
-protocol P2PNetworkSessionDelegate: AnyObject {
-    func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) -> Void
-    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive data: Data, dataAsJson json: [String: Any]?, from player: Player) -> Bool
-}
-
-class P2PNetworkSession: NSObject {
-    var delegates: [P2PNetworkSessionDelegate] {
+class P2PSession: NSObject {
+    var delegates: [P2PSessionDelegate] {
         get {
             return _delegates.compactMap { $0.delegate }
         }
@@ -175,19 +116,19 @@ class P2PNetworkSession: NSObject {
     
     // MARK: - Delegates
     
-    func addDelegate(_ delegate: P2PNetworkSessionDelegate) {
+    func addDelegate(_ delegate: P2PSessionDelegate) {
         if !_delegates.contains(where: { $0.delegate === delegate }) {
             _delegates.append(WeakDelegate(delegate))
         }
     }
     
-    func removeDelegate(_ delegate: P2PNetworkSessionDelegate) {
+    func removeDelegate(_ delegate: P2PSessionDelegate) {
         _delegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
     }
     
     private func updateSessionDelegates(forPeer peerID: MCPeerID) {
         for delegate in delegates {
-            delegate.p2pNetworkSession(self, didUpdate: Player(peerID))
+            delegate.p2pSession(self, didUpdate: Player(peerID))
         }
     }
     
@@ -221,7 +162,7 @@ class P2PNetworkSession: NSObject {
 
 // MARK: - MCSessionDelegate
 
-extension P2PNetworkSession: MCSessionDelegate {
+extension P2PSession: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         prettyPrint("Session state of [\(peerID.displayName)] changed to [\(state)]")
         
@@ -254,7 +195,7 @@ extension P2PNetworkSession: MCSessionDelegate {
         }
         
         for delegate in delegates {
-            if delegate.p2pNetworkSession(self, didReceive: data, dataAsJson: json, from: Player(peerID)) {
+            if delegate.p2pSession(self, didReceive: data, dataAsJson: json, from: Player(peerID)) {
                 return
             }
         }
@@ -277,9 +218,9 @@ extension P2PNetworkSession: MCSessionDelegate {
     }
 }
 
-// MARK: - MCNearbyServiceBrowserDelegate
+// MARK: - Browser Delegate
 
-extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
+extension P2PSession: MCNearbyServiceBrowserDelegate {
     public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
         if let discoveryId = info?["discoveryId"], discoveryId != myDiscoveryInfo.discoveryId {
             prettyPrint("Found peer: [\(peerID)]")
@@ -314,9 +255,9 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     }
 }
 
-// MARK: - MCNearbyServiceAdvertiserDelegate
+// MARK: - Advertiser Delegate
 
-extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
+extension P2PSession: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         if isNotConnected(peerID) {
             prettyPrint("Accepting Peer invite from [\(peerID.displayName)]")
@@ -329,9 +270,9 @@ extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
     }
 }
 
-// MARK: - Private - Invitate Peers
+// MARK: - Private - Invite Peers
 
-extension P2PNetworkSession {
+extension P2PSession {
     // Call this from inside a peerLock()
     private func invitePeerIfNeeded(_ peerID: MCPeerID) {
         func invitePeer(attempt: Int) {
@@ -347,12 +288,12 @@ extension P2PNetworkSession {
         
         let retryWaitTime: TimeInterval = 1
         let maxRetries = 3
-
+        
         if let prevInvite = invitesHistory[peerID] {
             if prevInvite.nextInviteAfter.timeIntervalSinceNow < -8 {
                 // Waited long enough that we can restart attempt from 1.
                 invitePeer(attempt: 1)
-            
+                
             } else if prevInvite.nextInviteAfter.timeIntervalSinceNow < 0 {
                 // Waited long enough to do the next invite attempt.
                 if prevInvite.attempt < maxRetries {
@@ -411,9 +352,9 @@ private struct DiscoveryInfo {
 }
 
 private struct WeakDelegate {
-    weak var delegate: P2PNetworkSessionDelegate?
+    weak var delegate: P2PSessionDelegate?
     
-    init(_ delegate: P2PNetworkSessionDelegate) {
+    init(_ delegate: P2PSessionDelegate) {
         self.delegate = delegate
     }
 }

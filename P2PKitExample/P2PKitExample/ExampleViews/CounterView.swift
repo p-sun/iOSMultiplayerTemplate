@@ -23,8 +23,8 @@ class CounterModel: ObservableObject {
     }
 }
 
-extension CounterModel: P2PNetworkSessionDelegate {
-    func p2pNetworkSession(_ session: P2PNetworkSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
+extension CounterModel: P2PSessionDelegate {
+    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
         if let newCount = json?["count"] as? Int {
             DispatchQueue.main.async { [weak self] in
                 self?.count = newCount
@@ -33,7 +33,7 @@ extension CounterModel: P2PNetworkSessionDelegate {
         return false
     }
     
-    func p2pNetworkSession(_ session: P2PNetworkSession, didUpdate player: Player) { }
+    func p2pSession(_ session: P2PSession, didUpdate player: Player) { }
 }
 
 struct CounterView: View {
