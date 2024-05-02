@@ -9,6 +9,10 @@ import os.signpost
 struct P2PConstants {
     static let networkChannelName = "my-p2p-service"
     static let loggerEnabled = true
+    
+    struct UserDefaultsKeys {
+        static let myPlayer = "MyPlayerIDKey"
+    }
 }
 
 class P2PNetwork {
@@ -213,6 +217,8 @@ class P2PNetworkSession: NSObject {
     }
 }
 
+// MARK: - MCSessionDelegate
+
 extension P2PNetworkSession: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         prettyPrint("Session state of [\(peerID.displayName)] changed to [\(state)]")
@@ -267,6 +273,8 @@ extension P2PNetworkSession: MCSessionDelegate {
         certificateHandler(true)
     }
 }
+
+// MARK: - MCNearbyServiceBrowserDelegate
 
 extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
@@ -326,6 +334,8 @@ extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     }
 }
 
+// MARK: - MCNearbyServiceAdvertiserDelegate
+
 extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         if !session.connectedPeers.contains(peerID),
@@ -339,6 +349,8 @@ extension P2PNetworkSession: MCNearbyServiceAdvertiserDelegate {
         prettyPrint(level:.error, "Error: \(error.localizedDescription)")
     }
 }
+
+// MARK: - Private
 
 private struct DiscoveryInfo {
     let discoveryId: String

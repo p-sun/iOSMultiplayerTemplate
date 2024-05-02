@@ -43,7 +43,7 @@ struct PeerListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Current Device").p2pTitleStyle()
-            Text(P2PNetwork.myPlayer.username).font(.largeTitle)
+            Text(P2PNetwork.myPlayer.displayName).font(.largeTitle)
             HStack {
                 Button("Change Name") {
                     model.changeName()

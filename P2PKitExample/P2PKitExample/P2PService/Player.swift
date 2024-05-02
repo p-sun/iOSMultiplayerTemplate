@@ -29,19 +29,19 @@ extension Player: Hashable {
 extension UserDefaults {
     var myPlayer: Player {
         get {
-            if let data = data(forKey: UserDefaultsKeys.myPeerId),
+            if let data = data(forKey: P2PConstants.UserDefaultsKeys.myPlayer),
                let peerID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data) {
                 return Player(peerID)
             } else {
                 let peerID = MCPeerID(displayName: UIDevice.current.name)
                 let data = try? NSKeyedArchiver.archivedData(withRootObject: peerID, requiringSecureCoding: true)
-                set(data, forKey: UserDefaultsKeys.myPeerId)
+                set(data, forKey: P2PConstants.UserDefaultsKeys.myPlayer)
                 return Player(peerID)
             }
         }
         set {
             let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue.peerID, requiringSecureCoding: true)
-            set(data, forKey: UserDefaultsKeys.myPeerId)
+            set(data, forKey: P2PConstants.UserDefaultsKeys.myPlayer)
         }
     }
 }

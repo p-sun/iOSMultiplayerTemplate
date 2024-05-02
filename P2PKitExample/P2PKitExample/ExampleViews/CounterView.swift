@@ -43,11 +43,11 @@ struct CounterView: View {
         Text("Send/Receive Data")
             .p2pTitleStyle()
         HStack {
-            Text("Counter: \(counter.count)")
+            Text("Counter: \(counter.count)").font(.largeTitle)
             Spacer()
             Button("+ 1") {
                 counter.increment()
-            }.p2pButtonStyle()
+            }.p2pButtonStyle().font(.largeTitle)
         }
     }
 }

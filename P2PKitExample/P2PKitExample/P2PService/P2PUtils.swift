@@ -9,10 +9,6 @@ import Foundation
 import MultipeerConnectivity
 import SwiftUI
 
-struct UserDefaultsKeys {
-    static let myPeerId = "MyPeerIDDefaultsKey"
-}
-
 extension MCSessionState: CustomDebugStringConvertible {
     public var debugDescription: String {
         switch self {
