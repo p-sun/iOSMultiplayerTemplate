@@ -281,7 +281,7 @@ extension P2PNetworkSession: MCSessionDelegate {
 
 extension P2PNetworkSession: MCNearbyServiceBrowserDelegate {
     public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
-        if let discoveryId = info?["discoveryId"] {
+        if let discoveryId = info?["discoveryId"], discoveryId != myDiscoveryInfo.discoveryId {
             prettyPrint("Found peer: [\(peerID)]")
             
             peersLock.lock()
