@@ -10,18 +10,22 @@ import SwiftUI
 class PeerListViewModel: ObservableObject {
     @Published var playerList = [Player]()
     
+    private var resets = 0
+    
     init() {
         P2PNetwork.addDelegate(self)
         P2PNetwork.start()
     }
     
     func changeName() {
-        let randomAnimal = Array("🦊🐯🐹🐶🐸🐵🐮🦄🐷🐨🐼🐰🐻🐷🐨🐼🐰🐻").randomElement()!
+        let randomAnimal = Array("🦊🐯🐹🐶🐸🐵🐮🦄🐷🐰🐻").randomElement()!
         P2PNetwork.resetSession(displayName: "\(randomAnimal) \(UIDevice.current.name)")
     }
     
     func resetSession() {
-        P2PNetwork.resetSession()
+        resets += 1
+        let displayNameWithoutNumbers = P2PNetwork.myPlayer.displayName.replacing(/\s<<(\d+)>>/, with: "")
+        P2PNetwork.resetSession(displayName: displayNameWithoutNumbers + " <<\(resets)>>")
     }
 }
 

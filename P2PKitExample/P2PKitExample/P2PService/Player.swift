@@ -9,7 +9,7 @@ import MultipeerConnectivity
 
 struct Player {
     let peerID: MCPeerID
-    var username: String { return peerID.displayName }
+    var displayName: String { return peerID.displayName }
     
     init(_ peerID: MCPeerID) {
         self.peerID = peerID
@@ -33,7 +33,8 @@ extension UserDefaults {
                let peerID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data) {
                 return Player(peerID)
             } else {
-                let peerID = MCPeerID(displayName: UIDevice.current.name)
+                let randomAnimal = Array("🦊🐯🐹🐶🐸🐵🐮🦄").randomElement()!
+                let peerID = MCPeerID(displayName: "\(randomAnimal) \(UIDevice.current.name)")
                 let data = try? NSKeyedArchiver.archivedData(withRootObject: peerID, requiringSecureCoding: true)
                 set(data, forKey: P2PConstants.UserDefaultsKeys.myPlayer)
                 return Player(peerID)

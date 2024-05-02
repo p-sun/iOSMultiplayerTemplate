@@ -47,13 +47,14 @@ class P2PNetwork {
     }
     
     static func resetSession(displayName: String? = nil) {
-        let peerID = MCPeerID(displayName: displayName ?? UserDefaults.standard.myPlayer.peerID.displayName)
-        UserDefaults.standard.myPlayer = Player(peerID)
-        
         let oldSession = networkSession
-        networkSession = P2PNetworkSession(myPlayer: UserDefaults.standard.myPlayer)
         oldSession.disconnect()
         
+        let newPeerId = MCPeerID(displayName: displayName ?? oldSession.myPlayer.displayName)
+        let myPlayer = Player(newPeerId)
+        UserDefaults.standard.myPlayer = myPlayer
+        
+        networkSession = P2PNetworkSession(myPlayer: myPlayer)
         for delegate in oldSession.delegates {
             oldSession.removeDelegate(delegate)
             networkSession.addDelegate(delegate)
@@ -119,6 +120,7 @@ class P2PNetworkSession: NSObject {
     func start() {
         advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
+        updateSessionDelegates(forPeer: myPlayer.peerID)
     }
     
     deinit {
