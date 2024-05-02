@@ -30,18 +30,18 @@ extension UserDefaults {
     var myPlayer: Player {
         get {
             if let data = data(forKey: P2PConstants.UserDefaultsKeys.myPlayer),
-               let peerID = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data) {
+               let peerID = try! NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data) {
                 return Player(peerID)
             } else {
                 let randomAnimal = Array("🦊🐯🐹🐶🐸🐵🐮🦄").randomElement()!
                 let peerID = MCPeerID(displayName: "\(randomAnimal) \(UIDevice.current.name)")
-                let data = try? NSKeyedArchiver.archivedData(withRootObject: peerID, requiringSecureCoding: true)
+                let data = try! NSKeyedArchiver.archivedData(withRootObject: peerID, requiringSecureCoding: true)
                 set(data, forKey: P2PConstants.UserDefaultsKeys.myPlayer)
                 return Player(peerID)
             }
         }
         set {
-            let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue.peerID, requiringSecureCoding: true)
+            let data = try! NSKeyedArchiver.archivedData(withRootObject: newValue.peerID, requiringSecureCoding: true)
             set(data, forKey: P2PConstants.UserDefaultsKeys.myPlayer)
         }
     }

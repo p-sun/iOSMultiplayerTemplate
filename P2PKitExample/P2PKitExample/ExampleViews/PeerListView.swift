@@ -30,7 +30,7 @@ class PeerListViewModel: ObservableObject {
         if let result = try? /\s<<(\d+)>>/.firstMatch(in: oldName), let count = Int(result.1)  {
             return oldName.replacing(/\s<<(\d+)>>/, with: "") + " <<\(count + 1)>>"
         } else {
-            return oldName
+            return oldName + " <<1>>"
         }
     }
 }
