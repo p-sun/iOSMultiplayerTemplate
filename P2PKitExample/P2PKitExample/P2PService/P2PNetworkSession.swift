@@ -201,8 +201,8 @@ class P2PNetworkSession: NSObject {
     
     private func handleLoopbackTest(_ session: MCSession, didReceive json: [String: Any], fromPeer peerID: MCPeerID) -> Bool {
         if json["ping"] as? String == "" {
-            prettyPrint("Sending Pong to \(peerID.displayName)")
-            send(["pong": ""])
+            prettyPrint("Received ping from \(peerID.displayName). Sending Pong.")
+            send(["pong": ""], to: [peerID])
             return true
         } else if json["pong"] as? String == "" {
             prettyPrint("Received Pong from \(peerID.displayName)")
