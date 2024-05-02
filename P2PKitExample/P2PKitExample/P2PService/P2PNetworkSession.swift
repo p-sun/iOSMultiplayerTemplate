@@ -359,7 +359,8 @@ private struct DiscoveryInfo {
     let discoveryId: String
     
     init(discoveryId: String? = nil) {
-        self.discoveryId = discoveryId ?? "\(Date().timeIntervalSince1970) \(UUID().uuidString)"
+        // Ensure that between any pair of devices, only one invites.
+        self.discoveryId = discoveryId ?? "\(UIDevice.current.identifierForVendor!)"
     }
     
     func shouldInvite(_ otherInfo: DiscoveryInfo) -> Bool {
