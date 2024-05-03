@@ -36,9 +36,9 @@ class P2PSession: NSObject {
     private var sessionStates = [MCPeerID: MCSessionState]() // protected with peersLock
     private var invitesHistory = [MCPeerID: InviteHistory]() // protected with peersLock
     
-    var connectedPeers: [Player] {
+    var allPeers: [Player] {
         peersLock.lock(); defer { peersLock.unlock() }
-        prettyPrint(level: .debug, "\(session.connectedPeers)")
+        prettyPrint(level: .debug, "connectedPeers: \(session.connectedPeers)")
         return session.connectedPeers.filter { foundPeers.contains($0) }.map { Player($0) }
     }
     

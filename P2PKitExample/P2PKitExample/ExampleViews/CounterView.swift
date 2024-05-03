@@ -40,14 +40,14 @@ struct CounterView: View {
     @StateObject var counter = CounterModel()
     
     var body: some View {
-        Text("Send/Receive Data")
+        Text("Sync Data")
             .p2pTitleStyle()
         HStack {
-            Text("Counter: \(counter.count)").font(.largeTitle)
+            Text("Counter: \(counter.count)")
             Spacer()
             Button("+ 1") {
                 counter.increment()
-            }.p2pButtonStyle().font(.largeTitle)
+            }.p2pButtonStyle()
         }
     }
 }

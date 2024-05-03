@@ -24,7 +24,6 @@ struct ContentView: View {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-                .padding()
                 .tint(.mint)
             
             VStack(alignment: .leading) {

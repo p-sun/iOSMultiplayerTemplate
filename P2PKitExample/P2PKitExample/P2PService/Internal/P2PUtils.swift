@@ -28,8 +28,8 @@ extension View {
 
 extension Text {
     public func p2pTitleStyle() -> some View {
-        return self.font(.title).bold()
+        return self.font(.title)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(EdgeInsets(top: 16, leading: 0, bottom: 0, trailing: 0))
+            .padding(EdgeInsets(top: 14, leading: 0, bottom: 0, trailing: 0))
     }
 }

@@ -42,7 +42,7 @@ extension PeerListViewModel: P2PSessionDelegate {
     
     func p2pSession(_ session: P2PSession, didUpdate player: Player) {
         DispatchQueue.main.async { [weak self] in
-            self?.playerList = session.connectedPeers
+            self?.playerList = session.allPeers
         }
     }
 }
@@ -53,7 +53,7 @@ struct PeerListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Current Device").p2pTitleStyle()
-            Text(P2PNetwork.myPlayer.displayName).font(.largeTitle)
+            Text(P2PNetwork.myPlayer.displayName)
             HStack {
                 Button("Change Name") {
                     model.changeName()
