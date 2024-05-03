@@ -49,6 +49,7 @@ class P2PNetwork {
     }
     
     static func resetSession(displayName: String? = nil) {
+        prettyPrint(level: .error, "♻️ Resetting Session!")
         let oldSession = session
         oldSession.disconnect()
         

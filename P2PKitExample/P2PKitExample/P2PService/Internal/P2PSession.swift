@@ -277,7 +277,7 @@ extension P2PSession {
     private func invitePeerIfNeeded(_ peerID: MCPeerID) {
         func invitePeer(attempt: Int) {
             prettyPrint("Inviting peer: [\(peerID.displayName)]. Attempt \(attempt)")
-            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 6)
+            browser.invitePeer(peerID, to: session, withContext: nil, timeout: inviteTimeout)
             invitesHistory[peerID] = InviteHistory(attempt: attempt, nextInviteAfter: Date().addingTimeInterval(retryWaitTime))
         }
         
@@ -286,11 +286,12 @@ extension P2PSession {
             return
         }
         
-        let retryWaitTime: TimeInterval = 1
+        let retryWaitTime: TimeInterval = 3 // time to wait before retrying invite
         let maxRetries = 3
+        let inviteTimeout: TimeInterval = 8 // time before retrying times out
         
         if let prevInvite = invitesHistory[peerID] {
-            if prevInvite.nextInviteAfter.timeIntervalSinceNow < -8 {
+            if prevInvite.nextInviteAfter.timeIntervalSinceNow < -(inviteTimeout + 3) {
                 // Waited long enough that we can restart attempt from 1.
                 invitePeer(attempt: 1)
                 
@@ -300,6 +301,7 @@ extension P2PSession {
                     invitePeer(attempt: prevInvite.attempt + 1)
                 } else {
                     prettyPrint(level: .error, "Max \(maxRetries) invite attempts reached for [\(peerID.displayName)].")
+                    P2PNetwork.resetSession()
                 }
                 
             } else {
@@ -346,6 +348,7 @@ private struct DiscoveryInfo {
         // Ensure that between any pair of devices, only one invites.
         self.discoveryId = discoveryId ?? "\(UIDevice.current.identifierForVendor!)"
     }
+    
     func shouldBeInvited(by myInfo: DiscoveryInfo) -> Bool {
         return myInfo.discoveryId < discoveryId
     }
