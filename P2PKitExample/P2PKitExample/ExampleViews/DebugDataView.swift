@@ -8,7 +8,7 @@
 import SwiftUI
 
 class DebugDataViewModel: ObservableObject {
-    @Published var recentJsons = [String]()
+    @Published var recentJsons = Array(repeating: "", count: 10)
     
     init() {
         P2PNetwork.addDelegate(self)
@@ -20,10 +20,14 @@ extension DebugDataViewModel: P2PSessionDelegate {
     
     func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            if let json = json {
-                self.recentJsons = ["\(json)"] + self.recentJsons
-            }
+            guard let self = self, let json = json else { return }
+            
+            let data = try! JSONSerialization.data(
+                withJSONObject: json,
+                options: [.prettyPrinted, .sortedKeys]
+            )
+            let jsonStr = String(data: data, encoding: .utf8)!
+            self.recentJsons = ["\(jsonStr)"] +  Array(self.recentJsons[0..<self.recentJsons.count - 1])
         }
         return false
     }
@@ -33,7 +37,7 @@ struct DebugDataView: View {
     @StateObject var model = DebugDataViewModel()
     
     var body: some View {
-        Text("Last received data")
+        Text("Received Data")
             .p2pTitleStyle()
         ScrollView {
             HStack {
