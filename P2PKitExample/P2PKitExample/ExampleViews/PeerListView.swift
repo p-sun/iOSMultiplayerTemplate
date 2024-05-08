@@ -11,7 +11,7 @@ class PeerListViewModel: ObservableObject {
     @Published var playerList = [Player]()
         
     init() {
-        P2PNetwork.addDelegate(self)
+        P2PNetwork.addPlayerDelegate(self)
         P2PNetwork.start()
     }
     
@@ -35,14 +35,10 @@ class PeerListViewModel: ObservableObject {
     }
 }
 
-extension PeerListViewModel: P2PSessionDelegate {
-    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
-        return false
-    }
-    
-    func p2pSession(_ session: P2PSession, didUpdate player: Player) {
+extension PeerListViewModel: P2PNetworkPlayerDelegate {
+    func p2pNetwork(didUpdate player: Player) {
         DispatchQueue.main.async { [weak self] in
-            self?.playerList = session.allPeers
+            self?.playerList = P2PNetwork.allPeers
         }
     }
 }

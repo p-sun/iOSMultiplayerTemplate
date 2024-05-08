@@ -11,14 +11,12 @@ class DebugDataViewModel: ObservableObject {
     @Published var recentJsons = Array(repeating: "", count: 10)
     
     init() {
-        P2PNetwork.addDelegate(self)
+        P2PNetwork.addDataDelegate(self)
     }
 }
 
-extension DebugDataViewModel: P2PSessionDelegate {
-    func p2pSession(_ session: P2PSession, didUpdate player: Player) { }
-    
-    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
+extension DebugDataViewModel: P2PNetworkDataDelegate {
+    func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let json = json else { return }
             

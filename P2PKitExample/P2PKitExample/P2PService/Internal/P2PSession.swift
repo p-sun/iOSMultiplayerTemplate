@@ -11,17 +11,12 @@ import MultipeerConnectivity
 
 protocol P2PSessionDelegate: AnyObject {
     func p2pSession(_ session: P2PSession, didUpdate player: Player) -> Void
-    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String: Any]?, from player: Player) -> Bool
+    
+    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String: Any]?, from player: Player)
 }
 
 class P2PSession: NSObject {
-    var delegates: [P2PSessionDelegate] {
-        get {
-            return _delegates.compactMap { $0.delegate }
-        }
-    }
-    
-    private var _delegates = [WeakDelegate]()
+    weak var delegate: P2PSessionDelegate?
     
     let myPlayer: Player
     private let myDiscoveryInfo = DiscoveryInfo()
@@ -61,7 +56,7 @@ class P2PSession: NSObject {
     func start() {
         advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
-        updateSessionDelegates(forPeer: myPlayer.peerID)
+        delegate?.p2pSession(self, didUpdate: myPlayer)
     }
     
     deinit {
@@ -113,25 +108,7 @@ class P2PSession: NSObject {
             prettyPrint(level: .error, "error sending data to peers: \(error.localizedDescription)")
         }
     }
-    
-    // MARK: - Delegates
-    
-    func addDelegate(_ delegate: P2PSessionDelegate) {
-        if !_delegates.contains(where: { $0.delegate === delegate }) {
-            _delegates.append(WeakDelegate(delegate))
-        }
-    }
-    
-    func removeDelegate(_ delegate: P2PSessionDelegate) {
-        _delegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
-    }
-    
-    private func updateSessionDelegates(forPeer peerID: MCPeerID) {
-        for delegate in delegates {
-            delegate.p2pSession(self, didUpdate: Player(peerID))
-        }
-    }
-    
+
     // MARK: - Loopback Test
     // Test whether a connection is still alive.
     
@@ -153,7 +130,7 @@ class P2PSession: NSObject {
             }
             peersLock.unlock()
             
-            updateSessionDelegates(forPeer: peerID)
+            delegate?.p2pSession(self, didUpdate: Player(peerID))
             return true
         }
         return false
@@ -181,7 +158,7 @@ extension P2PSession: MCSessionDelegate {
         }
         peersLock.unlock()
         
-        updateSessionDelegates(forPeer: peerID)
+        delegate?.p2pSession(self, didUpdate: Player(peerID))
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
@@ -194,11 +171,7 @@ extension P2PSession: MCSessionDelegate {
             }
         }
         
-        for delegate in delegates {
-            if delegate.p2pSession(self, didReceive: data, dataAsJson: json, from: Player(peerID)) {
-                return
-            }
-        }
+        delegate?.p2pSession(self, didReceive: data, dataAsJson: json, from: Player(peerID))
     }
     
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
@@ -236,7 +209,7 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
             invitePeerIfNeeded(peerID)
             peersLock.unlock()
             
-            updateSessionDelegates(forPeer: peerID)
+            delegate?.p2pSession(self, didUpdate: Player(peerID))
         }
     }
     
@@ -251,7 +224,7 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
         sessionStates[peerID] = nil
         peersLock.unlock()
         
-        updateSessionDelegates(forPeer: peerID)
+        delegate?.p2pSession(self, didUpdate: Player(peerID))
     }
 }
 
@@ -351,13 +324,5 @@ private struct DiscoveryInfo {
     
     func shouldBeInvited(by myInfo: DiscoveryInfo) -> Bool {
         return myInfo.discoveryId < discoveryId
-    }
-}
-
-private struct WeakDelegate {
-    weak var delegate: P2PSessionDelegate?
-    
-    init(_ delegate: P2PSessionDelegate) {
-        self.delegate = delegate
     }
 }

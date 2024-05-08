@@ -8,45 +8,17 @@
 import Foundation
 import SwiftUI
 
-class CounterModel: ObservableObject {
-    @Published var count = 0
-    
-    init() {
-        P2PNetwork.addDelegate(self)
-    }
-    
-    func increment() {
-        count += 1
-        
-        let data = try! JSONEncoder().encode(["count": count])
-        P2PNetwork.send(data: data)
-    }
-}
-
-extension CounterModel: P2PSessionDelegate {
-    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
-        if let newCount = json?["count"] as? Int {
-            DispatchQueue.main.async { [weak self] in
-                self?.count = newCount
-            }
-        }
-        return false
-    }
-    
-    func p2pSession(_ session: P2PSession, didUpdate player: Player) { }
-}
-
 struct CounterView: View {
-    @StateObject var counter = CounterModel()
+    @StateObject private var syncedCount = P2PNetworkedEntity<Int>(name: "CounterView", initial: 1)
     
     var body: some View {
-        Text("Sync Data")
+        Text("Sync Value")
             .p2pTitleStyle()
         HStack {
-            Text("Counter: \(counter.count)")
+            Text("Counter: \(syncedCount.value)")
             Spacer()
             Button("+ 1") {
-                counter.increment()
+                syncedCount.value = syncedCount.value + 1
             }.p2pButtonStyle()
         }
     }

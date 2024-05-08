@@ -20,24 +20,29 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        ScrollView {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-                .tint(.mint)
-            
-            VStack(alignment: .leading) {
-                PeerListView()
-                CounterView()
-                Button("Send Test Event") {
-                    let data = try! JSONEncoder().encode(["testEvent": "Time: \(Date().formatted())"])
-                    P2PNetwork.send(data: data)
-                }.p2pButtonStyle()
-                DebugDataView()
-                ShowBrowserButton()
+        Group {
+            ScrollView {
+                Image(systemName: "globe")
+                    .imageScale(.large)
+                    .foregroundStyle(.tint)
+                    .tint(.mint)
+                VStack(alignment: .leading) {
+                    PeerListView()
+    //                Button("Send Test Event") {
+    //                    let data = try! JSONEncoder().encode(["testEvent": "Time: \(Date().formatted())"])
+    //                    P2PNetwork.send(data: data)
+    //                }.p2pButtonStyle()
+                    CounterView()
+                    VStack(alignment: .leading) {
+                        Text("Sync Data")
+                            .p2pTitleStyle()
+                        SyncedCircles()
+                        ShowSyncedCirclesButton()
+                    }
+                    DebugDataView()
+                }
             }
-        }
-        .padding()
+        }.padding()
     }
 }
 

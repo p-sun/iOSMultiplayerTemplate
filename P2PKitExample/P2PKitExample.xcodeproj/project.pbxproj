@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		9B04347B2BE4149B005B1606 /* P2PNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04347A2BE4149B005B1606 /* P2PNetwork.swift */; };
+		9B04347D2BE56A35005B1606 /* SyncedCircles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04347C2BE56A35005B1606 /* SyncedCircles.swift */; };
+		9B04347F2BE56A73005B1606 /* P2PNetworkedEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04347E2BE56A73005B1606 /* P2PNetworkedEntity.swift */; };
 		9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC382BD6C5ED0086AC78 /* P2PKitExampleApp.swift */; };
 		9BD2AC3B2BD6C5ED0086AC78 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC3A2BD6C5ED0086AC78 /* ContentView.swift */; };
 		9BD2AC3D2BD6C5EE0086AC78 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9BD2AC3C2BD6C5EE0086AC78 /* Assets.xcassets */; };
@@ -44,6 +46,8 @@
 
 /* Begin PBXFileReference section */
 		9B04347A2BE4149B005B1606 /* P2PNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PNetwork.swift; sourceTree = "<group>"; };
+		9B04347C2BE56A35005B1606 /* SyncedCircles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncedCircles.swift; sourceTree = "<group>"; };
+		9B04347E2BE56A73005B1606 /* P2PNetworkedEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PNetworkedEntity.swift; sourceTree = "<group>"; };
 		9BD2AC352BD6C5ED0086AC78 /* P2PKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = P2PKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BD2AC382BD6C5ED0086AC78 /* P2PKitExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PKitExampleApp.swift; sourceTree = "<group>"; };
 		9BD2AC3A2BD6C5ED0086AC78 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -154,6 +158,7 @@
 			children = (
 				9BD2AC6D2BDBE0F10086AC78 /* Internal */,
 				9B04347A2BE4149B005B1606 /* P2PNetwork.swift */,
+				9B04347E2BE56A73005B1606 /* P2PNetworkedEntity.swift */,
 			);
 			path = P2PService;
 			sourceTree = "<group>";
@@ -165,6 +170,7 @@
 				9BD2AC702BDE94F10086AC78 /* CounterView.swift */,
 				9BD2AC742BDFED300086AC78 /* DebugDataView.swift */,
 				9BD2AC762BDFF17F0086AC78 /* ShowBrowserButton.swift */,
+				9B04347C2BE56A35005B1606 /* SyncedCircles.swift */,
 			);
 			path = ExampleViews;
 			sourceTree = "<group>";
@@ -315,9 +321,11 @@
 				9BD2AC6F2BDBE1010086AC78 /* P2PLogger.swift in Sources */,
 				9BD2AC772BDFF17F0086AC78 /* ShowBrowserButton.swift in Sources */,
 				9BD2AC692BD96CED0086AC78 /* PeerListView.swift in Sources */,
+				9B04347D2BE56A35005B1606 /* SyncedCircles.swift in Sources */,
 				9BD2AC3B2BD6C5ED0086AC78 /* ContentView.swift in Sources */,
 				9BD2AC642BD962D20086AC78 /* P2PSession.swift in Sources */,
 				9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */,
+				9B04347F2BE56A73005B1606 /* P2PNetworkedEntity.swift in Sources */,
 				9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */,
 				9B04347B2BE4149B005B1606 /* P2PNetwork.swift in Sources */,
 				9BD2AC712BDE94F10086AC78 /* CounterView.swift in Sources */,
@@ -484,6 +492,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"P2PKitExample/Preview Content\"";
+				DEVELOPMENT_TEAM = JDMH64LNAX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = P2PKitExample/Info.plist;
@@ -498,7 +507,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = psun.P2PKitExample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.psun.P2PKitExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -514,6 +523,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"P2PKitExample/Preview Content\"";
+				DEVELOPMENT_TEAM = JDMH64LNAX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = P2PKitExample/Info.plist;
@@ -528,7 +538,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = psun.P2PKitExample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.psun.P2PKitExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
