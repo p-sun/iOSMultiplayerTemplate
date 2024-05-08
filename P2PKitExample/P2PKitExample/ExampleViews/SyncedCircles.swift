@@ -12,8 +12,8 @@ struct SendableCircle: Codable {
 }
 
 struct SyncedCircles: View {
-    @StateObject var blueCircle = P2PNetworkedEntity(name: "blue", initial: SendableCircle(point: CGPoint(x: 300, y: -58)))
-    @StateObject var greenCircle = P2PNetworkedEntity(name: "green", initial: SendableCircle(point: CGPoint(x: 300, y: 30)))
+    @StateObject var blueCircle = P2PSyncedObject(name: "blue", initial: SendableCircle(point: CGPoint(x: 300, y: -58)))
+    @StateObject var greenCircle = P2PSyncedObject(name: "green", initial: SendableCircle(point: CGPoint(x: 300, y: 30)))
     
     var body: some View {
         VStack {
@@ -30,24 +30,9 @@ struct SyncedCircles: View {
     }
 }
 
-struct ShowSyncedCirclesButton: View {
-    @State private var isPresented = false
-    
-    var body: some View {
-        HStack {
-            Button("Present in New Sheet") {
-                isPresented = true
-            }.sheet(isPresented: $isPresented) {
-                SyncedCircles()
-            }.p2pButtonStyle()
-            Spacer()
-        }
-    }
-}
-
 struct DraggableCircle: View {
     let color: Color
-    @ObservedObject var networking: P2PNetworkedEntity<SendableCircle>
+    @ObservedObject var networking: P2PSyncedObject<SendableCircle>
     
     var body: some View {
         VStack {
@@ -61,6 +46,21 @@ struct DraggableCircle: View {
                             networking.value = SendableCircle(point: value.location)
                         }
                 )
+        }
+    }
+}
+
+struct ShowSyncedCirclesButton: View {
+    @State private var isPresented = false
+    
+    var body: some View {
+        HStack {
+            Button("Present in New Sheet") {
+                isPresented = true
+            }.sheet(isPresented: $isPresented) {
+                SyncedCircles()
+            }.p2pButtonStyle()
+            Spacer()
         }
     }
 }

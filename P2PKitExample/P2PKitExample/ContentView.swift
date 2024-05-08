@@ -50,7 +50,7 @@ struct ContentView: View {
     var DebugTab: some View {
         VStack(alignment: .leading) {
             PeerListView()
-            CounterView()
+            SyncedCounter()
             SyncedCircles()
             DebugDataView()
         }

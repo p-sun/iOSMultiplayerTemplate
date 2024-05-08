@@ -25,6 +25,17 @@ protocol P2PNetworkPlayerDelegate: AnyObject {
     func p2pNetwork(didUpdate player: Player) -> Void
 }
 
+struct Event<T: Codable>: Codable {
+    let eventName: String
+    let info: EventInfo
+    let payload: T
+}
+
+struct EventInfo: Codable {
+    let senderEntityID: String?
+    let sendTime: Double
+}
+
 class P2PNetwork {
     private static var session = P2PSession(myPlayer: UserDefaults.standard.myPlayer)
     private static let sessionListener = P2PNetworkSessionListener()

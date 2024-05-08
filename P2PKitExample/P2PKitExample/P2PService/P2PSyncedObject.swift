@@ -1,5 +1,5 @@
 //
-//  P2PNetworkedEntity.swift
+//  P2PSyncedObject.swift
 //  P2PKitExample
 //
 //  Created by Paige Sun on 5/3/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class P2PNetworkedEntity<T: Codable>: ObservableObject {
+class P2PSyncedObject<T: Codable>: ObservableObject {
     var value: T {
         get {
             return val
@@ -25,17 +25,16 @@ class P2PNetworkedEntity<T: Codable>: ObservableObject {
         prettyPrint("P2PSynced init: " + name)
         val = initial
         
-        networking = P2PNetworkedEvent(name: name)
-        networking.listen(didReceiveEvent)
-    }
-    
-    private func didReceiveEvent(event: Event<T>, sender: Player) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            if lastUpdated < event.info.sendTime {
-                val = event.payload
-                lastUpdated = event.info.sendTime
-                objectWillChange.send()
+        networking = P2PNetworkedEvent(eventName: name)
+        networking.listen { (event: Event<T>, sender: Player) in
+            DispatchQueue.main.async { [weak self] in
+                
+                guard let self = self else { return }
+                if lastUpdated < event.info.sendTime {
+                    val = event.payload
+                    lastUpdated = event.info.sendTime
+                    objectWillChange.send()
+                }
             }
         }
     }
@@ -55,17 +54,17 @@ private class P2PNetworkedEvent {
     private typealias DidReceiveData = (Data, [String : Any]?, Player) -> Void
 
     let eventName: String
-    let senderEntityID = UUID().uuidString
+    let entityID = UUID().uuidString
     
-    private var onChange: DidReceiveData?
+    private var didReceiveData: DidReceiveData?
     
-    init(name: String) {
-        self.eventName = name
-        P2PNetwork.addDataDelegate(self, forEventName: name)
+    init(eventName: String) {
+        self.eventName = eventName
+        P2PNetwork.addDataDelegate(self, forEventName: eventName)
     }
     
     func send<T: Codable>(_ payload: T) -> EventInfo {
-        return P2PNetwork.sendEvent(eventName: eventName, payload: payload, senderID: senderEntityID)
+        return P2PNetwork.sendEvent(eventName: eventName, payload: payload, senderID: entityID)
     }
     
     func listen<T: Codable>(_ callback: @escaping (_ event: Event<T>, _ sender: Player) -> Void) {
@@ -80,23 +79,12 @@ private class P2PNetworkedEvent {
                 fatalError("Could not decode event of type \(Event<T>.self).\nJSON: \(String(describing: json))")
             }
         }
-        onChange = castedCallback
+        didReceiveData = castedCallback
     }
 }
 
 extension P2PNetworkedEvent: P2PNetworkDataDelegate {
     func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
-        return ((onChange?(data, json, player)) != nil) == true
+        return ((didReceiveData?(data, json, player)) != nil) == true
     }
-}
-
-struct Event<T: Codable>: Codable {
-    let eventName: String
-    let info: EventInfo
-    let payload: T
-}
-
-struct EventInfo: Codable {
-    let senderEntityID: String?
-    let sendTime: Double
 }
