@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct AirHockeyGameView: UIViewRepresentable {
-    typealias UIViewType = GameViewBorder
+    typealias UIViewType = GameViewBorderView
     
-    func makeUIView(context: Context) -> GameViewBorder {
-        GameViewBorder(PongGameBoardView())
+    func makeUIView(context: Context) -> GameViewBorderView {
+        GameViewBorderView(PongGameBoardView())
     }
     
-    func updateUIView(_ uiView: GameViewBorder, context: Context) {
+    func updateUIView(_ uiView: GameViewBorderView, context: Context) {
     }
 }
 
-class GameViewBorder: UIView {
+class GameViewBorderView: UIView {
     private var gameView: UIView
     
     init(_ gameView: UIView) {
@@ -64,10 +64,19 @@ class PongGameBoardView: UIView {
         return view
     }()
     
-    private lazy var panGesture: UIPanGestureRecognizer = {
-        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-        pan.maximumNumberOfTouches = 1
-        return pan
+    private lazy var panGesture: UIGestureRecognizer = {
+        let gesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+        gesture.maximumNumberOfTouches = 1
+        gesture.delegate = self
+        return gesture
+    }()
+    
+    private lazy var longPressGesture: UIGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        gesture.cancelsTouchesInView = false
+        gesture.minimumPressDuration = 0.01
+        gesture.delegate = self
+        return gesture
     }()
     
     init() {
@@ -85,27 +94,38 @@ class PongGameBoardView: UIView {
         handle.frame.origin = CGPoint(x: 0, y: 50)
         
         addGestureRecognizer(panGesture)
+        addGestureRecognizer(longPressGesture)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
-        let translation = gesture.translation(in: gesture.view?.superview)
-        
+    @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+        let location = gesture.location(in: handle.superview)
         switch gesture.state {
         case .began, .changed:
-            if let view = gesture.view {
-                handle.center = CGPoint(
-                    x: handle.center.x + translation.x,
-                    y: handle.center.y + translation.y)
-                gesture.setTranslation(.zero, in: gesture.view?.superview)
-            }
+            handle.center = location
         case .ended:
             break
         default:
             break
         }
+    }
+    
+    @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        let location = gesture.location(in: handle.superview)
+        switch gesture.state {
+        case .began:
+            handle.center = location
+        default:
+            break
+        }
+    }
+}
+
+extension PongGameBoardView: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }
