@@ -21,32 +21,22 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         Group {
-            TabView(selection: .constant(0)) {
+            TabView(selection: .constant(1)) {
                 DebugTab
                     .tag(0)
                     .safeAreaPadding()
                     .tabItem {
                         Label("Debug", systemImage: "newspaper.fill")
                     }
-                GameTab
+                AirHockeyGameView()
                     .tag(1)
-                    .safeAreaPadding()
                     .tabItem {
                         Label("Game", systemImage: "gamecontroller.fill")
                     }
             }
         }.tint(.mint)
     }
-    
-    var GameTab: some View {
-        VStack(alignment: .leading) {
-            Image(systemName: "gamecontroller.fill")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Spacer()
-        }
-    }
-    
+        
     var DebugTab: some View {
         VStack(alignment: .leading) {
             PeerListView()
