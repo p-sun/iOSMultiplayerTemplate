@@ -42,7 +42,7 @@ struct ContentView: View {
                     DebugDataView()
                 }
             }
-        }.padding()
+        }.safeAreaPadding()
     }
 }
 
