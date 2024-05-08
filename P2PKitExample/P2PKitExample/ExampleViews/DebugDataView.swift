@@ -35,19 +35,20 @@ struct DebugDataView: View {
     @StateObject var model = DebugDataViewModel()
     
     var body: some View {
-        Text("Received Data")
-            .p2pTitleStyle()
-        ScrollView {
-            HStack {
-                VStack(alignment: .leading) {
-                    ForEach(model.recentJsons.indices, id: \.self) { index in
-                        Text(model.recentJsons[index])
+        VStack {
+            Text("Receive Data")
+                .p2pTitleStyle()
+            ScrollView {
+                HStack {
+                    VStack(alignment: .leading) {
+                        ForEach(model.recentJsons.indices, id: \.self) { index in
+                            Text(model.recentJsons[index])
+                        }
                     }
+                    Spacer()
                 }
-                Spacer()
             }
         }
-        .frame(height: 160)
         .background(Color.mint.opacity(0.3))
     }
 }

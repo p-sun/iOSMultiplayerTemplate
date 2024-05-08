@@ -167,7 +167,7 @@ extension P2PSession: MCSessionDelegate {
             if handleLoopbackTest(session, didReceive: json, fromPeer: peerID) {
                 return
             } else {
-                prettyPrint("Received: \(json)")
+//                prettyPrint("Received: \(json)")
             }
         }
         

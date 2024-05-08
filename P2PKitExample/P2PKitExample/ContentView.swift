@@ -21,28 +21,39 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         Group {
-            ScrollView {
-                Image(systemName: "globe")
-                    .imageScale(.large)
-                    .foregroundStyle(.tint)
-                    .tint(.mint)
-                VStack(alignment: .leading) {
-                    PeerListView()
-    //                Button("Send Test Event") {
-    //                    let data = try! JSONEncoder().encode(["testEvent": "Time: \(Date().formatted())"])
-    //                    P2PNetwork.send(data: data)
-    //                }.p2pButtonStyle()
-                    CounterView()
-                    VStack(alignment: .leading) {
-                        Text("Sync Data")
-                            .p2pTitleStyle()
-                        SyncedCircles()
-                        ShowSyncedCirclesButton()
+            TabView(selection: .constant(0)) {
+                DebugTab
+                    .tag(0)
+                    .safeAreaPadding()
+                    .tabItem {
+                        Label("Debug", systemImage: "newspaper.fill")
                     }
-                    DebugDataView()
-                }
+                GameTab
+                    .tag(1)
+                    .safeAreaPadding()
+                    .tabItem {
+                        Label("Game", systemImage: "gamecontroller.fill")
+                    }
             }
-        }.safeAreaPadding()
+        }.tint(.mint)
+    }
+    
+    var GameTab: some View {
+        VStack(alignment: .leading) {
+            Image(systemName: "gamecontroller.fill")
+                .imageScale(.large)
+                .foregroundStyle(.tint)
+            Spacer()
+        }
+    }
+    
+    var DebugTab: some View {
+        VStack(alignment: .leading) {
+            PeerListView()
+            CounterView()
+            SyncedCircles()
+            DebugDataView()
+        }
     }
 }
 
