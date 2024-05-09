@@ -110,7 +110,17 @@ class AirHockeyPlayAreaView: UIView {
 }
 
 extension AirHockeyPlayAreaView: MultiGestureDetectorDelegate {
-    func touchesDidMoveTo(_ location: CGPoint, velocity: CGPoint) {
+    func gestureDidStart(_ location: CGPoint) {
+        handle.backgroundColor = .systemOrange
+        delegate?.airHockeyViewDidMoveHandle(location, velocity: CGPoint.zero)
+    }
+    
+    func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint) {
+        delegate?.airHockeyViewDidMoveHandle(location, velocity: velocity)
+    }
+    
+    func gestureDidEnd(_ location: CGPoint, velocity: CGPoint) {
+        handle.backgroundColor = .systemBlue
         delegate?.airHockeyViewDidMoveHandle(location, velocity: velocity)
     }
 }
