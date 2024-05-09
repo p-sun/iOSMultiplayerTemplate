@@ -39,7 +39,13 @@ class GameBorderView: UIView {
     }
 }
 
+protocol AirHockeyPlayAreaViewDelegate: AnyObject {
+    func airHockeyViewDidMoveHandle(_ location: CGPoint)
+}
+
 class AirHockeyPlayAreaView: UIView {
+    var delegate: AirHockeyPlayAreaViewDelegate?
+    
     private lazy var debugLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -51,8 +57,7 @@ class AirHockeyPlayAreaView: UIView {
     
     lazy var ball: UIView = {
         let view = UIView()
-        view.backgroundColor = .green
-        view.layer.borderWidth = 6
+        view.backgroundColor = .white
         view.layer.cornerRadius = GameConfig.ballRadius
         view.frame.size = CGSize(
             width: GameConfig.ballRadius * 2,
@@ -62,10 +67,11 @@ class AirHockeyPlayAreaView: UIView {
     
     lazy var handle: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
-        view.layer.borderWidth = 6
-        view.layer.cornerRadius = GameConfig.handleSize/2
-        view.frame.size = CGSize(width: GameConfig.handleSize, height: GameConfig.handleSize)
+        view.backgroundColor = .blue
+        view.layer.cornerRadius = GameConfig.handleRadius
+        view.frame.size = CGSize(
+            width: GameConfig.handleRadius * 2,
+            height: GameConfig.handleRadius * 2)
         return view
     }()
     
@@ -105,6 +111,6 @@ class AirHockeyPlayAreaView: UIView {
 
 extension AirHockeyPlayAreaView: MultiGestureDetectorDelegate {
     func touchesDidMoveTo(_ location: CGPoint) {
-        handle.center = location
+        delegate?.airHockeyViewDidMoveHandle(location)
     }
 }

@@ -14,9 +14,7 @@ protocol MultiGestureDetectorDelegate: AnyObject {
 
 class MultiGestureDetector: NSObject {
     private weak var delegate: MultiGestureDetectorDelegate?
-    
-    private let handleSize: CGFloat = 80
-    
+        
     private lazy var panGesture: UIGestureRecognizer = {
         let gesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         gesture.maximumNumberOfTouches = 1
