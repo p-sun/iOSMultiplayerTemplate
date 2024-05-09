@@ -12,7 +12,7 @@ struct Ball {
     let mass: CGFloat
     var velocity: CGPoint
     var position: CGPoint
-    var framesSinceCollision = 0
+    var lastCollisionFrame = 0
 }
 
 class AirHockeyPhysics {
@@ -20,6 +20,7 @@ class AirHockeyPhysics {
     var handle: Ball
     
     private let boardSize: CGSize
+    private var frame: Int = 0
     
     init(boardSize: CGSize, ballRadius: CGFloat, handleRadius: CGFloat) {
         self.ball = Ball(radius: ballRadius,
@@ -37,16 +38,16 @@ class AirHockeyPhysics {
     }
     
     func update(duration: CGFloat) {
+        frame += 1
+        
         // MARK: Collisions updates velocity
         if isColliding(ball, handle) {
-            if ball.framesSinceCollision > 10 {
-                ball.framesSinceCollision = 0
-                handle.framesSinceCollision = 0
+            if frame - ball.lastCollisionFrame > 10
+                && frame - handle.lastCollisionFrame > 10 {
+                ball.lastCollisionFrame = frame
+                handle.lastCollisionFrame = frame
                 collideBetween(&ball, &handle)
             }
-        } else {
-            ball.framesSinceCollision += 1
-            handle.framesSinceCollision += 1
         }
         
         collideWithWalls(&ball)
