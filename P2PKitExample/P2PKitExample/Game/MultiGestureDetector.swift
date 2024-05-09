@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 protocol MultiGestureDetectorDelegate: AnyObject {
-    func touchesDidMoveTo(_ location: CGPoint)
+    func touchesDidMoveTo(_ location: CGPoint, velocity: CGPoint)
 }
 
 class MultiGestureDetector: NSObject {
@@ -41,7 +41,7 @@ class MultiGestureDetector: NSObject {
         let location = gesture.location(in: gesture.view)
         switch gesture.state {
         case .began, .changed:
-            delegate?.touchesDidMoveTo(location)
+            delegate?.touchesDidMoveTo(location, velocity: gesture.velocity(in: gesture.view))
         case .ended:
             break
         default:
@@ -53,7 +53,7 @@ class MultiGestureDetector: NSObject {
         let location = gesture.location(in: gesture.view)
         switch gesture.state {
         case .began:
-            delegate?.touchesDidMoveTo(location)
+            delegate?.touchesDidMoveTo(location, velocity: CGPoint.zero)
         default:
             break
         }

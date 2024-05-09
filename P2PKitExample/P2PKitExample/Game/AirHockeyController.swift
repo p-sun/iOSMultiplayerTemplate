@@ -42,7 +42,8 @@ class AirHockeyController {
 }
 
 extension AirHockeyController: AirHockeyPlayAreaViewDelegate {
-    func airHockeyViewDidMoveHandle(_ location: CGPoint) {
-        physics.handle.center = location
+    func airHockeyViewDidMoveHandle(_ location: CGPoint, velocity: CGPoint) {
+        physics.handle.position = location
+        physics.handle.velocity = (velocity / 5).capMagnitudeTo(max: 200)
     }
 }

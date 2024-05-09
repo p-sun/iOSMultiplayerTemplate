@@ -40,7 +40,7 @@ class GameBorderView: UIView {
 }
 
 protocol AirHockeyPlayAreaViewDelegate: AnyObject {
-    func airHockeyViewDidMoveHandle(_ location: CGPoint)
+    func airHockeyViewDidMoveHandle(_ location: CGPoint, velocity: CGPoint)
 }
 
 class AirHockeyPlayAreaView: UIView {
@@ -110,7 +110,7 @@ class AirHockeyPlayAreaView: UIView {
 }
 
 extension AirHockeyPlayAreaView: MultiGestureDetectorDelegate {
-    func touchesDidMoveTo(_ location: CGPoint) {
-        delegate?.airHockeyViewDidMoveHandle(location)
+    func touchesDidMoveTo(_ location: CGPoint, velocity: CGPoint) {
+        delegate?.airHockeyViewDidMoveHandle(location, velocity: velocity)
     }
 }
