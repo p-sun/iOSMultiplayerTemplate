@@ -10,8 +10,11 @@ import QuartzCore
 
 struct GameConfig {
     static let handleRadius: CGFloat = 40
+    static let handleMass: CGFloat = 8
+
     static let ballRadius: CGFloat = 30
-    static let ballInitialVelocity = CGVector(dx: -3, dy: 10)
+    static let ballMass: CGFloat = 1
+    static let ballInitialVelocity = CGPoint(x: -100, y: 300)
 }
 
 class AirHockeyController {
@@ -23,7 +26,8 @@ class AirHockeyController {
     
     init(boardSize: CGSize, playAreaView: AirHockeyPlayAreaView) {
         self.physics = AirHockeyPhysics(boardSize: boardSize,
-                                        ballRadius: GameConfig.ballRadius, handleRadius: GameConfig.handleRadius)
+                                        ballRadius: GameConfig.ballRadius,
+                                        handleRadius: GameConfig.handleRadius)
         self.playAreaView = playAreaView
         playAreaView.delegate = self
         self.displayLink = CADisplayLink(target: self, selector: #selector(handleUpdate))
@@ -31,9 +35,9 @@ class AirHockeyController {
     }
     
     @objc private func handleUpdate(displayLink: CADisplayLink) {
-        physics.update()
-        playAreaView.ball.center = physics.ball.center
-        playAreaView.handle.center = physics.handle.center
+        physics.update(duration: CGFloat(displayLink.duration))
+        playAreaView.ball.center = physics.ball.position
+        playAreaView.handle.center = physics.handle.position
     }
     
     deinit {

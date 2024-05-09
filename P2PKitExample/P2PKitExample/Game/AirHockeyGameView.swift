@@ -50,7 +50,7 @@ class AirHockeyPlayAreaView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .preferredFont(forTextStyle: .title1)
-        label.text = "Hello!"
+        label.text = ""
         label.textAlignment = .center
         return label
     }()
