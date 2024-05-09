@@ -49,11 +49,10 @@ class AirHockeyPhysics {
                 collideBetween(&ball, &handle)
             }
         }
-        
+        ball.velocity = ball.velocity * 0.996
+
         collideWithWalls(&ball)
         collideWithWalls(&handle)
-        
-        ball.velocity = ball.velocity.clampingMagnitude(min: 200, max: 1200)
         
         // MARK: Update Position
         ball.position.x += ball.velocity.x * duration
@@ -148,6 +147,8 @@ class AirHockeyPhysics {
             a.velocity.y = ty * dpTan1 + ny * m1
             b.velocity.x = tx * dpTan2 + nx * m2
             b.velocity.y = ty * dpTan2 + ny * m2
+            
+            b.velocity = b.velocity.clampingMagnitude(min: 240, max: 1200)
         }
     }
 }
