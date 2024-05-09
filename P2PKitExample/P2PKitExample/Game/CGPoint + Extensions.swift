@@ -37,7 +37,7 @@ extension CGPoint {
         return sqrt(x * x + y * y)
     }
     
-    func capMagnitudeTo(min: CGFloat = -CGFloat.infinity, max: CGFloat = CGFloat.infinity) -> CGPoint {
+    func clampingMagnitude(min: CGFloat = -CGFloat.infinity, max: CGFloat = CGFloat.infinity) -> CGPoint {
         let curr = sqrt(x * x + y * y)
         if curr >= min && curr <= max {
             return self

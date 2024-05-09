@@ -10,7 +10,7 @@ import QuartzCore
 
 struct GameConfig {
     static let handleRadius: CGFloat = 40
-    static let handleMass: CGFloat = 8
+    static let handleMass: CGFloat = 20
 
     static let ballRadius: CGFloat = 30
     static let ballMass: CGFloat = 1
@@ -48,6 +48,6 @@ class AirHockeyController {
 extension AirHockeyController: AirHockeyPlayAreaViewDelegate {
     func airHockeyViewDidMoveHandle(_ location: CGPoint, velocity: CGPoint) {
         physics.handle.position = location
-        physics.handle.velocity = (velocity / 5).capMagnitudeTo(max: 200)
+        physics.handle.velocity = (velocity / 4).clampingMagnitude(max: 260)
     }
 }
