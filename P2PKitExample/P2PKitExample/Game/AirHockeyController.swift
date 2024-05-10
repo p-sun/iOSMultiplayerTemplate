@@ -9,8 +9,8 @@ import Foundation
 import QuartzCore
 
 struct GameConfig {
-    static let handleRadius: CGFloat = 40
-    static let handleMass: CGFloat = 10
+    static let malletRadius: CGFloat = 40
+    static let malletMass: CGFloat = 10
     
     static let ballRadius: CGFloat = 30
     static let ballMass: CGFloat = 1
@@ -21,22 +21,23 @@ class AirHockeyController {
     static var shared: AirHockeyController?
     
     private let physics: AirHockeyPhysics
-    private let playAreaView: AirHockeyPlayAreaView
+    private let playAreaView: AirHockeyGameView
     private var displayLink: CADisplayLink!
     
-    init(boardSize: CGSize, playAreaView: AirHockeyPlayAreaView) {
+    init(boardSize: CGSize, playAreaView: AirHockeyGameView) {
         self.physics = AirHockeyPhysics(boardSize: boardSize)
         self.playAreaView = playAreaView
         playAreaView.setGestureDelegate(self.physics)
-        self.displayLink = CADisplayLink(target: self, selector: #selector(handleUpdate))
+        self.displayLink = CADisplayLink(target: self, selector: #selector(malletUpdate))
         displayLink.add(to: .main, forMode: .common)
     }
     
-    @objc private func handleUpdate(displayLink: CADisplayLink) {
-        physics.update(duration: CGFloat(displayLink.duration))
-        playAreaView.ball.center = physics.puck.position
-        playAreaView.handle.center = physics.pusher.position
-        playAreaView.handle.backgroundColor = physics.pusher.isGrabbed ? .systemOrange : .systemIndigo
+    @objc private func malletUpdate(displayLink: CADisplayLink) {
+        physics.update(deltaTime: CGFloat(displayLink.duration))
+        
+        playAreaView.puckView.center = physics.puck.position
+        playAreaView.malletView.center = physics.mallet.position
+        playAreaView.malletView.backgroundColor = physics.mallet.isGrabbed ? .systemOrange : .systemIndigo
     }
     
     deinit {

@@ -2,11 +2,11 @@
 
 import SwiftUI
 
-struct AirHockeyGameView: UIViewRepresentable {
+struct AirHockeyView: UIViewRepresentable {
     typealias UIViewType = GameBorderView
     
     func makeUIView(context: Context) -> GameBorderView {
-        let playAreaView = AirHockeyPlayAreaView()
+        let playAreaView = AirHockeyGameView()
         return GameBorderView(gameView: playAreaView)
     }
     
@@ -39,7 +39,7 @@ class GameBorderView: UIView {
     }
 }
 
-class AirHockeyPlayAreaView: UIView {
+class AirHockeyGameView: UIView {
     private lazy var debugLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +49,7 @@ class AirHockeyPlayAreaView: UIView {
         return label
     }()
     
-    lazy var ball: UIView = {
+    lazy var puckView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
         view.layer.cornerRadius = GameConfig.ballRadius
@@ -59,20 +59,17 @@ class AirHockeyPlayAreaView: UIView {
         return view
     }()
     
-    lazy var handle: UIView = {
+    lazy var malletView: UIView = {
         let view = UIView()
         view.backgroundColor = .blue
-        view.layer.cornerRadius = GameConfig.handleRadius
+        view.layer.cornerRadius = GameConfig.malletRadius
         view.frame.size = CGSize(
-            width: GameConfig.handleRadius * 2,
-            height: GameConfig.handleRadius * 2)
+            width: GameConfig.malletRadius * 2,
+            height: GameConfig.malletRadius * 2)
         return view
     }()
     
-    private lazy var gestureDetector = {
-        let gestureDetector = MultiGestureDetector()
-        return gestureDetector
-    }()
+    private let gestureDetector = MultiGestureDetector()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -85,19 +82,18 @@ class AirHockeyPlayAreaView: UIView {
             debugLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
         ])
         
-        addSubview(ball)
-        addSubview(handle)
-        handle.frame.origin = CGPoint(x: 0, y: 50)
+        addSubview(puckView)
+        addSubview(malletView)
         
         gestureDetector.attachTo(view: self)
     }
     
-    func setGestureDelegate(_ delegate: MultiGestureDetectorDelegate) {
-        gestureDetector.delegate = delegate
-    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setGestureDelegate(_ delegate: MultiGestureDetectorDelegate) {
+        gestureDetector.delegate = delegate
     }
     
     override func layoutSubviews() {

@@ -117,7 +117,7 @@ class P2PSession: NSObject {
         send(["ping": ""], to: [peerID])
     }
     
-    private func handleLoopbackTest(_ session: MCSession, didReceive json: [String: Any], fromPeer peerID: MCPeerID) -> Bool {
+    private func malletLoopbackTest(_ session: MCSession, didReceive json: [String: Any], fromPeer peerID: MCPeerID) -> Bool {
         if json["ping"] as? String == "" {
             prettyPrint("Received ping from \(peerID.displayName). Sending Pong.")
             send(["pong": ""], to: [peerID])
@@ -164,7 +164,7 @@ extension P2PSession: MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         if let json = json {
-            if handleLoopbackTest(session, didReceive: json, fromPeer: peerID) {
+            if malletLoopbackTest(session, didReceive: json, fromPeer: peerID) {
                 return
             } else {
 //                prettyPrint("Received: \(json)")

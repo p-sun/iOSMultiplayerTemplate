@@ -28,7 +28,7 @@ struct ContentView: View {
                     .tabItem {
                         Label("Debug", systemImage: "newspaper.fill")
                     }
-                AirHockeyGameView()
+                AirHockeyView()
                     .tag(1)
                     .tabItem {
                         Label("Game", systemImage: "gamecontroller.fill")

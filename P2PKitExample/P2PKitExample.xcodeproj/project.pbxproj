@@ -10,7 +10,7 @@
 		9B04347B2BE4149B005B1606 /* P2PNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04347A2BE4149B005B1606 /* P2PNetwork.swift */; };
 		9B04347D2BE56A35005B1606 /* SyncedCircles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04347C2BE56A35005B1606 /* SyncedCircles.swift */; };
 		9B04347F2BE56A73005B1606 /* P2PSyncedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04347E2BE56A73005B1606 /* P2PSyncedObject.swift */; };
-		9B04348D2BEC0199005B1606 /* AirHockeyGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04348C2BEC0199005B1606 /* AirHockeyGameView.swift */; };
+		9B04348D2BEC0199005B1606 /* AirHockeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04348C2BEC0199005B1606 /* AirHockeyView.swift */; };
 		9B04348F2BED230A005B1606 /* MultiGestureDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B04348E2BED230A005B1606 /* MultiGestureDetector.swift */; };
 		9B0434912BED23CC005B1606 /* AirHockeyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0434902BED23CC005B1606 /* AirHockeyController.swift */; };
 		9B0434952BED3BDC005B1606 /* AirHockeyPhysics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0434942BED3BDC005B1606 /* AirHockeyPhysics.swift */; };
@@ -53,7 +53,7 @@
 		9B04347A2BE4149B005B1606 /* P2PNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PNetwork.swift; sourceTree = "<group>"; };
 		9B04347C2BE56A35005B1606 /* SyncedCircles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncedCircles.swift; sourceTree = "<group>"; };
 		9B04347E2BE56A73005B1606 /* P2PSyncedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PSyncedObject.swift; sourceTree = "<group>"; };
-		9B04348C2BEC0199005B1606 /* AirHockeyGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirHockeyGameView.swift; sourceTree = "<group>"; };
+		9B04348C2BEC0199005B1606 /* AirHockeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirHockeyView.swift; sourceTree = "<group>"; };
 		9B04348E2BED230A005B1606 /* MultiGestureDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiGestureDetector.swift; sourceTree = "<group>"; };
 		9B0434902BED23CC005B1606 /* AirHockeyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirHockeyController.swift; sourceTree = "<group>"; };
 		9B0434942BED3BDC005B1606 /* AirHockeyPhysics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirHockeyPhysics.swift; sourceTree = "<group>"; };
@@ -107,7 +107,7 @@
 		9B04348B2BEC0187005B1606 /* Game */ = {
 			isa = PBXGroup;
 			children = (
-				9B04348C2BEC0199005B1606 /* AirHockeyGameView.swift */,
+				9B04348C2BEC0199005B1606 /* AirHockeyView.swift */,
 				9B04348E2BED230A005B1606 /* MultiGestureDetector.swift */,
 				9B0434902BED23CC005B1606 /* AirHockeyController.swift */,
 				9B0434942BED3BDC005B1606 /* AirHockeyPhysics.swift */,
@@ -350,7 +350,7 @@
 				9B0434912BED23CC005B1606 /* AirHockeyController.swift in Sources */,
 				9BD2AC3B2BD6C5ED0086AC78 /* ContentView.swift in Sources */,
 				9BD2AC642BD962D20086AC78 /* P2PSession.swift in Sources */,
-				9B04348D2BEC0199005B1606 /* AirHockeyGameView.swift in Sources */,
+				9B04348D2BEC0199005B1606 /* AirHockeyView.swift in Sources */,
 				9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */,
 				9B04347F2BE56A73005B1606 /* P2PSyncedObject.swift in Sources */,
 				9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */,

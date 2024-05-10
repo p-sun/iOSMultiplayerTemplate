@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct Ball {
     let radius: CGFloat
@@ -23,20 +24,19 @@ struct Ball {
 }
 
 class AirHockeyPhysics {
-    private(set) var ball: Ball
-    var handle: Ball
+    private(set) var puck: Ball
+    private(set) var mallet: Ball
     
     private let boardSize: CGSize
-    private var frame: Int = 0
     
     init(boardSize: CGSize) {
-        self.ball = Ball(radius: GameConfig.ballRadius,
+        self.puck = Ball(radius: GameConfig.ballRadius,
                          mass: GameConfig.ballMass,
                          velocity: GameConfig.ballInitialVelocity,
                          position: CGPoint(x: boardSize.width/2,
                                            y: boardSize.height/2))
-        self.handle = Ball(radius: GameConfig.handleRadius,
-                           mass: GameConfig.handleMass,
+        self.mallet = Ball(radius: GameConfig.malletRadius,
+                           mass: GameConfig.malletMass,
                            velocity: CGPoint.zero,
                            position: CGPoint(x: boardSize.width/2,
                                              y: boardSize.height - 80))
@@ -44,44 +44,44 @@ class AirHockeyPhysics {
     }
     
     //MARK: - Update
-    func update(duration: CGFloat) {
-        frame += 1
-        
+    
+    func update(deltaTime: CGFloat) {
         // MARK: Collisions updates velocity & position
-        if handle.isGrabbed {
-            collideWithGrabbedBody(grabbed: &handle, freeBody: &ball)
+        if mallet.isGrabbed {
+            collideWithGrabbedBody(grabbed: &mallet, freeBody: &puck)
         } else {
-            collideBetweenFreeBodies(&handle, &ball)
+            collideBetweenFreeBodies(&mallet, &puck)
         }
-        collideWithWalls(&ball)
-        collideWithWalls(&handle)
+        collideWithWalls(&puck)
+        collideWithWalls(&mallet)
         
         // MARK: Update position on free bodies
-        ball.position.x += ball.velocity.x * duration
-        ball.position.y += ball.velocity.y * duration
+        puck.position.x += puck.velocity.x * deltaTime
+        puck.position.y += puck.velocity.y * deltaTime
         
-        if !handle.isGrabbed {
-            handle.position.x += handle.velocity.x * duration
-            handle.position.y += handle.velocity.y * duration
+        if !mallet.isGrabbed {
+            mallet.position.x += mallet.velocity.x * deltaTime
+            mallet.position.y += mallet.velocity.y * deltaTime
         }
         
         // MARK: Resolve overlapping
-        resolveOverlap(grabbable: &handle, freebody: &ball)
-        constrainWithinWalls(&handle)
-        constrainWithinWalls(&ball)
+        resolveOverlap(grabbable: &mallet, freebody: &puck)
+        constrainWithinWalls(&mallet)
+        constrainWithinWalls(&puck)
     }
     
     //MARK: - Collisions
-    private func collideWithWalls(_ o: inout Ball) {
-        let r = o.radius
-        if o.position.x - r <= 0
-            || o.position.x + r >= boardSize.width {
-            o.velocity.x = -o.velocity.x
+    
+    private func collideWithWalls(_ b: inout Ball) {
+        let r = b.radius
+        if b.position.x - r <= 0
+            || b.position.x + r >= boardSize.width {
+            b.velocity.x = -b.velocity.x
         }
         
-        if o.position.y - r <= 0
-            || o.position.y + r >= boardSize.height {
-            o.velocity.y = -o.velocity.y
+        if b.position.y - r <= 0
+            || b.position.y + r >= boardSize.height {
+            b.velocity.y = -b.velocity.y
         }
     }
     
@@ -101,12 +101,12 @@ class AirHockeyPhysics {
             b.position.x += nx * overlap
             b.position.y += ny * overlap
             
-            // Pusher's velocity in the direction of the normal
+            // Paddle's velocity in the direction of the normal
             // determines how fast the object is pushed
-            let dpNorm1 = a.velocity.x * nx + a.velocity.y * ny
-            let pusherSpeed: CGFloat = (dpNorm1 * 6).clamp(min: 400, max: 1100)
-            b.velocity.x = nx * pusherSpeed
-            b.velocity.y = ny * pusherSpeed
+            let dpNormA = a.velocity.x * nx + a.velocity.y * ny
+            let malletSpeed: CGFloat = (dpNormA * 6).clamp(min: 330, max: 1200)
+            b.velocity.x = nx * malletSpeed
+            b.velocity.y = ny * malletSpeed
         }
     }
     
@@ -125,22 +125,22 @@ class AirHockeyPhysics {
             let ty = nx
             
             // Dot product tangent
-            let dpTan1 = a.velocity.x * tx + a.velocity.y * ty
-            let dpTan2 = b.velocity.x * tx + b.velocity.y * ty
+            let dpTanA = a.velocity.x * tx + a.velocity.y * ty
+            let dpTanB = b.velocity.x * tx + b.velocity.y * ty
             
             // Dot product normal
-            let dpNorm1 = a.velocity.x * nx + a.velocity.y * ny
-            let dpNorm2 = b.velocity.x * nx + b.velocity.y * ny
+            let dpNormA = a.velocity.x * nx + a.velocity.y * ny
+            let dpNormB = b.velocity.x * nx + b.velocity.y * ny
             
             // Conservation of momentum in 1D
-            let m1 = (dpNorm1 * (a.mass - b.mass) + 2 * b.mass * dpNorm2) / (a.mass + b.mass)
-            let m2 = (dpNorm2 * (b.mass - a.mass) + 2 * a.mass * dpNorm1) / (a.mass + b.mass)
+            let mA = (dpNormA * (a.mass - b.mass) + 2 * b.mass * dpNormB) / (a.mass + b.mass)
+            let mB = (dpNormB * (b.mass - a.mass) + 2 * a.mass * dpNormA) / (a.mass + b.mass)
             
             // Update velocities
-            a.velocity.x = tx * dpTan1 + nx * m1
-            a.velocity.y = ty * dpTan1 + ny * m1
-            b.velocity.x = tx * dpTan2 + nx * m2
-            b.velocity.y = ty * dpTan2 + ny * m2
+            a.velocity.x = tx * dpTanA + nx * mA
+            a.velocity.y = ty * dpTanA + ny * mA
+            b.velocity.x = tx * dpTanB + nx * mB
+            b.velocity.y = ty * dpTanB + ny * mB
             b.velocity = b.velocity.clampingMagnitude(max: 1200)
             
             // Resolve overlap
@@ -153,6 +153,7 @@ class AirHockeyPhysics {
     }
     
     //MARK: - Resolve Overlap
+    
     private func resolveOverlap(grabbable a: inout Ball, freebody b: inout Ball) {
         let dx = b.position.x - a.position.x
         let dy = b.position.y - a.position.y
@@ -166,10 +167,10 @@ class AirHockeyPhysics {
             // Resolve overlap
             let overlap: CGFloat
             if a.isGrabbed {
-                // When the pusher is grabbed, only move the ball
+                // When the mallet is grabbed, only move the puck
                 overlap = (a.radius + b.radius - distance)
             } else {
-                // When the pusher is not grabbed, move pusher & ball
+                // When the mallet is not grabbed, move mallet & puck
                 overlap = (a.radius + b.radius - distance) / 2
                 a.position.x -= overlap * nx
                 a.position.y -= overlap * ny
@@ -179,44 +180,44 @@ class AirHockeyPhysics {
         }
     }
     
-    private func constrainWithinWalls(_ o: inout Ball) {
-        let r = o.radius
-        if o.position.x - r <= 0 {
-            o.position.x = r
+    private func constrainWithinWalls(_ b: inout Ball) {
+        let r = b.radius
+        if b.position.x - r <= 0 {
+            b.position.x = r
         }
-        if o.position.x + r >= boardSize.width {
-            o.position.x = boardSize.width - r
+        if b.position.x + r >= boardSize.width {
+            b.position.x = boardSize.width - r
         }
-        if o.position.y - r <= 0 {
-            o.position.y = r
+        if b.position.y - r <= 0 {
+            b.position.y = r
         }
-        if o.position.y + r >= boardSize.height {
-            o.position.y = boardSize.height - r
+        if b.position.y + r >= boardSize.height {
+            b.position.y = boardSize.height - r
         }
     }
 }
 
 extension AirHockeyPhysics: MultiGestureDetectorDelegate {
     func gestureDidStart(_ location: CGPoint) {
-        handle.position = location
-        handle.isGrabbed = true
-        handle.velocity = CGPoint.zero
+        mallet.position = location
+        mallet.isGrabbed = true
+        mallet.velocity = CGPoint.zero
     }
     
     func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint) {
-        handle.position = location
-        handle.isGrabbed = true
-        handle.velocity = (velocity / 7).clampingMagnitude(max: 300)
+        mallet.position = location
+        mallet.isGrabbed = true
+        mallet.velocity = (velocity / 7).clampingMagnitude(max: 300)
     }
     
     func gesturePanDidEnd(_ location: CGPoint, velocity: CGPoint) {
-        handle.position = location
-        handle.isGrabbed = false
-        handle.velocity = (velocity / 7).clampingMagnitude(max: 300)
+        mallet.position = location
+        mallet.isGrabbed = false
+        mallet.velocity = (velocity / 7).clampingMagnitude(max: 300)
     }
     
     func gesturePressDidEnd(_ location: CGPoint) {
-        handle.position = location
-        handle.isGrabbed = false
+        mallet.position = location
+        mallet.isGrabbed = false
     }
 }

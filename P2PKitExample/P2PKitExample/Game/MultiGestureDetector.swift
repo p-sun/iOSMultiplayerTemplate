@@ -19,14 +19,14 @@ class MultiGestureDetector: NSObject {
     weak var delegate: MultiGestureDetectorDelegate?
         
     private lazy var panGesture: UIGestureRecognizer = {
-        let gesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+        let gesture = UIPanGestureRecognizer(target: self, action: #selector(malletPan))
         gesture.maximumNumberOfTouches = 1
         gesture.delegate = self
         return gesture
     }()
     
     private lazy var longPressGesture: UIGestureRecognizer = {
-        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(malletLongPress))
         gesture.cancelsTouchesInView = false
         gesture.minimumPressDuration = 0.01
         gesture.delegate = self
@@ -38,7 +38,7 @@ class MultiGestureDetector: NSObject {
         view.addGestureRecognizer(longPressGesture)
     }
     
-    @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+    @objc func malletPan(_ gesture: UIPanGestureRecognizer) {
         let location = gesture.location(in: gesture.view)
         switch gesture.state {
         case .began, .changed:
@@ -50,7 +50,7 @@ class MultiGestureDetector: NSObject {
         }
     }
     
-    @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+    @objc func malletLongPress(_ gesture: UILongPressGestureRecognizer) {
         let location = gesture.location(in: gesture.view)
         switch gesture.state {
         case .began:
