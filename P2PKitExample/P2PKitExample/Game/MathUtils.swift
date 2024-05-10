@@ -47,3 +47,13 @@ extension CGPoint {
         return CGPoint(x: x * scale, y: y * scale)
     }
 }
+
+extension CGFloat {
+    func clamp(min: CGFloat = -CGFloat.infinity, max: CGFloat = CGFloat.infinity) -> CGFloat {
+        if self >= min && self <= max {
+            return self
+        }
+        let scale = self < min ? (min / self) : (max / self)
+        return self * scale
+    }
+}
