@@ -42,28 +42,26 @@ class AirHockeyPhysics {
         frame += 1
         
         // MARK: Collisions updates velocity
-        if isColliding(ball, handle) {
-            if frame - ball.lastCollisionFrame > 10
-                && frame - handle.lastCollisionFrame > 10 {
-                ball.lastCollisionFrame = frame
-                handle.lastCollisionFrame = frame
-                collideBetween(&ball, &handle)
-            }
+        if handle.isGrabbed {
+            collideWithGrabbedBody(grabbed: &handle, freeBody: &ball)
+        } else {
+            collideBetweenFreeBodies(&handle, &ball)
         }
-        ball.velocity = ball.velocity * 0.996
-
         collideWithWalls(&ball)
         collideWithWalls(&handle)
         
-        // MARK: Update Position
+        // MARK: Update position
         ball.position.x += ball.velocity.x * duration
         ball.position.y += ball.velocity.y * duration
-        handle.position.x += handle.velocity.x * duration
-        handle.position.y += handle.velocity.y * duration
         
-        // MARK: Reduce Overlapping of objects
-        if isColliding(ball, handle) {
-            moveApart(&ball, &handle)
+        if !handle.isGrabbed {
+            handle.position.x += handle.velocity.x * duration
+            handle.position.y += handle.velocity.y * duration
+        }
+        
+        // MARK: Resolve overlapping
+        if handle.isGrabbed {
+            resolveOverlapGrabbed(grabbed: &handle, freebody: &ball)
         }
         constrainWithinWalls(&handle)
         constrainWithinWalls(&ball)
@@ -98,26 +96,45 @@ class AirHockeyPhysics {
         }
     }
     
-    private func isColliding(_ a: Ball, _ b: Ball) -> Bool {
+    private func resolveOverlapGrabbed(grabbed a: inout Ball, freebody b: inout Ball) {
         let dx = b.position.x - a.position.x
         let dy = b.position.y - a.position.y
         let distance = sqrt(dx * dx + dy * dy)
-        return distance <= (a.radius + b.radius)
-    }
-    
-    private func moveApart(_ a: inout Ball, _ b: inout Ball) {
-        let aToB = b.position - a.position
-        let aToBDir = aToB.normalized()
-        let shiftByVector = aToBDir * (a.radius + b.radius - aToB.magnitude())
-        // Move the lighter ball away (TODO: add a 'isGrabbed' on the ball)
-        if b.mass < a.mass {
-            b.position = b.position + shiftByVector
-        } else {
-            a.position = a.position - shiftByVector
+        
+        if distance <= (a.radius + b.radius) {
+            // Normal vector
+            let nx = dx / distance
+            let ny = dy / distance
+            
+            // Resolve overlap
+            let overlap = (a.radius + b.radius - distance + 0.01)
+            b.position.x += overlap * nx
+            b.position.y += overlap * ny
         }
     }
     
-    private func collideBetween(_ a: inout Ball, _ b: inout Ball) {
+    func collideWithGrabbedBody(grabbed: inout Ball, freeBody ball: inout Ball) {
+        let dx = ball.position.x - grabbed.position.x
+        let dy = ball.position.y - grabbed.position.y
+        let distance = sqrt(dx*dx + dy*dy)
+        let minDistance = grabbed.radius + ball.radius
+        
+        if distance < minDistance {
+            let overlap = minDistance - distance
+            let normalX = dx / distance
+            let normalY = dy / distance
+            
+            // Reposition to avoid overlap
+            ball.position.x += normalX * overlap
+            ball.position.y += normalY * overlap
+            
+            let pusherSpeed: CGFloat = 400 // TODO: Adjust pusher speed based on user's velocity
+            ball.velocity.x = normalX * pusherSpeed
+            ball.velocity.y = normalY * pusherSpeed
+        }
+    }
+    
+    private func collideBetweenFreeBodies(_ a: inout Ball, _ b: inout Ball) {
         let dx = b.position.x - a.position.x
         let dy = b.position.y - a.position.y
         let distance = sqrt(dx * dx + dy * dy)
@@ -149,7 +166,14 @@ class AirHockeyPhysics {
             b.velocity.x = tx * dpTan2 + nx * m2
             b.velocity.y = ty * dpTan2 + ny * m2
             
-            b.velocity = b.velocity.clampingMagnitude(min: 240, max: 1200)
+            b.velocity = b.velocity.clampingMagnitude(max: 1200)
+            
+            // Resolve overlap
+            let overlap = (a.radius + b.radius - distance + 0.01) / 2
+            a.position.x -= overlap * nx
+            a.position.y -= overlap * ny
+            b.position.x += overlap * nx
+            b.position.y += overlap * ny
         }
     }
 }
