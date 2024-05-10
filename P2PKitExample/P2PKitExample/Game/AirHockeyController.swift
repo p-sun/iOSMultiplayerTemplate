@@ -27,44 +27,19 @@ class AirHockeyController {
     init(boardSize: CGSize, playAreaView: AirHockeyPlayAreaView) {
         self.physics = AirHockeyPhysics(boardSize: boardSize)
         self.playAreaView = playAreaView
-        playAreaView.setGestureDelegate(self)
+        playAreaView.setGestureDelegate(self.physics)
         self.displayLink = CADisplayLink(target: self, selector: #selector(handleUpdate))
         displayLink.add(to: .main, forMode: .common)
     }
     
     @objc private func handleUpdate(displayLink: CADisplayLink) {
         physics.update(duration: CGFloat(displayLink.duration))
-        playAreaView.ball.center = physics.ball.position
-        playAreaView.handle.center = physics.handle.position
-        playAreaView.handle.backgroundColor = physics.handle.isGrabbed ? .systemOrange : .systemIndigo
+        playAreaView.ball.center = physics.puck.position
+        playAreaView.handle.center = physics.pusher.position
+        playAreaView.handle.backgroundColor = physics.pusher.isGrabbed ? .systemOrange : .systemIndigo
     }
     
     deinit {
         displayLink.invalidate()
-    }
-}
-
-extension AirHockeyController: MultiGestureDetectorDelegate {
-    func gestureDidStart(_ location: CGPoint) {
-        physics.handle.position = location
-        physics.handle.isGrabbed = true
-        physics.handle.velocity = CGPoint.zero
-    }
-    
-    func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint) {
-        physics.handle.position = location
-        physics.handle.isGrabbed = true
-        physics.handle.velocity = (velocity / 7).clampingMagnitude(max: 300)
-    }
-    
-    func gesturePanDidEnd(_ location: CGPoint, velocity: CGPoint) {
-        physics.handle.position = location
-        physics.handle.isGrabbed = false
-        physics.handle.velocity = (velocity / 7).clampingMagnitude(max: 300)
-    }
-    
-    func gesturePressDidEnd(_ location: CGPoint) {
-        physics.handle.position = location
-        physics.handle.isGrabbed = false
     }
 }

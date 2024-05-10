@@ -195,3 +195,28 @@ class AirHockeyPhysics {
         }
     }
 }
+
+extension AirHockeyPhysics: MultiGestureDetectorDelegate {
+    func gestureDidStart(_ location: CGPoint) {
+        handle.position = location
+        handle.isGrabbed = true
+        handle.velocity = CGPoint.zero
+    }
+    
+    func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint) {
+        handle.position = location
+        handle.isGrabbed = true
+        handle.velocity = (velocity / 7).clampingMagnitude(max: 300)
+    }
+    
+    func gesturePanDidEnd(_ location: CGPoint, velocity: CGPoint) {
+        handle.position = location
+        handle.isGrabbed = false
+        handle.velocity = (velocity / 7).clampingMagnitude(max: 300)
+    }
+    
+    func gesturePressDidEnd(_ location: CGPoint) {
+        handle.position = location
+        handle.isGrabbed = false
+    }
+}
