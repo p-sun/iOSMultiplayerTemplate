@@ -116,7 +116,7 @@ class AirHockeyPhysics {
         let dy = b.position.y - a.position.y
         let distance = sqrt(dx * dx + dy * dy)
         
-        if distance < (a.radius + b.radius) {
+        if distance < (a.radius + b.radius) && distance != 0 {
             // Normal vector
             let nx = dx / distance
             let ny = dy / distance
@@ -143,7 +143,7 @@ class AirHockeyPhysics {
         let distance = sqrt(dx * dx + dy * dy)
         let minDistance = a.radius + b.radius
         
-        if distance < minDistance {
+        if distance < minDistance && distance != 0 {
             // Normal vector
             let nx = dx / distance
             let ny = dy / distance
@@ -167,7 +167,7 @@ class AirHockeyPhysics {
         let dy = b.position.y - a.position.y
         let distance = sqrt(dx * dx + dy * dy)
         
-        if distance <= (a.radius + b.radius) {
+        if distance <= (a.radius + b.radius) && distance != 0 {
             // Normal vector
             let nx = dx / distance
             let ny = dy / distance

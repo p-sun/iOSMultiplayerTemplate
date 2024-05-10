@@ -39,10 +39,9 @@ extension CGPoint {
     
     func clampingMagnitude(min: CGFloat = -CGFloat.infinity, max: CGFloat = CGFloat.infinity) -> CGPoint {
         let curr = sqrt(x * x + y * y)
-        if curr >= min && curr <= max {
+        if curr >= min && curr <= max || curr == 0 {
             return self
         }
-        
         let scale = curr < min ? (min / curr) : (max / curr)
         return CGPoint(x: x * scale, y: y * scale)
     }
@@ -50,10 +49,6 @@ extension CGPoint {
 
 extension CGFloat {
     func clamp(min: CGFloat = -CGFloat.infinity, max: CGFloat = CGFloat.infinity) -> CGFloat {
-        if self >= min && self <= max {
-            return self
-        }
-        let scale = self < min ? (min / self) : (max / self)
-        return self * scale
+        return CGFloat.maximum(min, CGFloat.minimum(self, max))
     }
 }
