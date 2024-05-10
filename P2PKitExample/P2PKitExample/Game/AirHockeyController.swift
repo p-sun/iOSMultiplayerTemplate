@@ -10,7 +10,8 @@ import QuartzCore
 
 struct GameConfig {
     static let handleRadius: CGFloat = 40
-    static let handleMass: CGFloat = 20
+    static let handleMassGrabbed: CGFloat = 20
+    static let handleMassFreebody: CGFloat = 10
 
     static let ballRadius: CGFloat = 30
     static let ballMass: CGFloat = 1
@@ -25,9 +26,7 @@ class AirHockeyController {
     private var displayLink: CADisplayLink!
     
     init(boardSize: CGSize, playAreaView: AirHockeyPlayAreaView) {
-        self.physics = AirHockeyPhysics(boardSize: boardSize,
-                                        ballRadius: GameConfig.ballRadius,
-                                        handleRadius: GameConfig.handleRadius)
+        self.physics = AirHockeyPhysics(boardSize: boardSize)
         self.playAreaView = playAreaView
         playAreaView.setGestureDelegate(self)
         self.displayLink = CADisplayLink(target: self, selector: #selector(handleUpdate))

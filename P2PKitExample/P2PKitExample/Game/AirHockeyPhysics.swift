@@ -9,11 +9,27 @@ import Foundation
 
 struct Ball {
     let radius: CGFloat
-    let mass: CGFloat
+    var mass: CGFloat {
+        if isGrabbed {
+            grabbedMass
+        } else {
+            freebodyMass
+        }
+    }
     var velocity: CGPoint
     var position: CGPoint
-    var lastCollisionFrame = 0
     var isGrabbed: Bool = false
+    
+    private let grabbedMass: CGFloat
+    private let freebodyMass: CGFloat
+    
+    init(radius: CGFloat, velocity: CGPoint, position: CGPoint, grabbedMass: CGFloat, freebodyMass: CGFloat) {
+        self.radius = radius
+        self.velocity = velocity
+        self.position = position
+        self.grabbedMass = grabbedMass
+        self.freebodyMass = freebodyMass
+    }
 }
 
 class AirHockeyPhysics {
@@ -23,25 +39,27 @@ class AirHockeyPhysics {
     private let boardSize: CGSize
     private var frame: Int = 0
     
-    init(boardSize: CGSize, ballRadius: CGFloat, handleRadius: CGFloat) {
-        self.ball = Ball(radius: ballRadius,
-                         mass: GameConfig.ballMass,
+    init(boardSize: CGSize) {
+        self.ball = Ball(radius: GameConfig.ballRadius,
                          velocity: GameConfig.ballInitialVelocity,
                          position: CGPoint(x: boardSize.width/2,
-                                           y: boardSize.height/2))
-        self.handle = Ball(radius: handleRadius,
-                           mass: GameConfig.handleMass,
+                                           y: boardSize.height/2),
+                         grabbedMass: GameConfig.ballMass,
+                         freebodyMass: GameConfig.ballMass)
+        self.handle = Ball(radius: GameConfig.handleRadius,
                            velocity: CGPoint.zero,
                            position: CGPoint(
                             x: boardSize.width/2,
-                            y: boardSize.height - 80))
+                            y: boardSize.height - 80),
+                           grabbedMass: GameConfig.handleMassGrabbed,
+                           freebodyMass: GameConfig.handleMassFreebody)
         self.boardSize = boardSize
     }
     
     func update(duration: CGFloat) {
         frame += 1
         
-        // MARK: Collisions updates velocity
+        // MARK: Collisions updates velocity & position
         if handle.isGrabbed {
             collideWithGrabbedBody(grabbed: &handle, freeBody: &ball)
         } else {
@@ -50,7 +68,7 @@ class AirHockeyPhysics {
         collideWithWalls(&ball)
         collideWithWalls(&handle)
         
-        // MARK: Update position
+        // MARK: Update position on free bodies
         ball.position.x += ball.velocity.x * duration
         ball.position.y += ball.velocity.y * duration
         
@@ -113,11 +131,11 @@ class AirHockeyPhysics {
         }
     }
     
-    func collideWithGrabbedBody(grabbed: inout Ball, freeBody ball: inout Ball) {
-        let dx = ball.position.x - grabbed.position.x
-        let dy = ball.position.y - grabbed.position.y
+    func collideWithGrabbedBody(grabbed a: inout Ball, freeBody b: inout Ball) {
+        let dx = b.position.x - a.position.x
+        let dy = b.position.y - a.position.y
         let distance = sqrt(dx*dx + dy*dy)
-        let minDistance = grabbed.radius + ball.radius
+        let minDistance = a.radius + b.radius
         
         if distance < minDistance {
             let overlap = minDistance - distance
@@ -125,12 +143,12 @@ class AirHockeyPhysics {
             let normalY = dy / distance
             
             // Reposition to avoid overlap
-            ball.position.x += normalX * overlap
-            ball.position.y += normalY * overlap
+            b.position.x += normalX * overlap
+            b.position.y += normalY * overlap
             
             let pusherSpeed: CGFloat = 400 // TODO: Adjust pusher speed based on user's velocity
-            ball.velocity.x = normalX * pusherSpeed
-            ball.velocity.y = normalY * pusherSpeed
+            b.velocity.x = normalX * pusherSpeed
+            b.velocity.y = normalY * pusherSpeed
         }
     }
     
