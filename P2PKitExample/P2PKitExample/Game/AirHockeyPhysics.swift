@@ -13,6 +13,7 @@ struct Ball {
     var velocity: CGPoint
     var position: CGPoint
     var lastCollisionFrame = 0
+    var isGrabbed: Bool = false
 }
 
 class AirHockeyPhysics {

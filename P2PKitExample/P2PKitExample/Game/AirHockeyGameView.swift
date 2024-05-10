@@ -39,13 +39,7 @@ class GameBorderView: UIView {
     }
 }
 
-protocol AirHockeyPlayAreaViewDelegate: AnyObject {
-    func airHockeyViewDidMoveHandle(_ location: CGPoint, velocity: CGPoint)
-}
-
 class AirHockeyPlayAreaView: UIView {
-    var delegate: AirHockeyPlayAreaViewDelegate?
-    
     private lazy var debugLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -98,6 +92,10 @@ class AirHockeyPlayAreaView: UIView {
         gestureDetector.attachTo(view: self)
     }
     
+    func setGestureDelegate(_ delegate: MultiGestureDetectorDelegate) {
+        gestureDetector.delegate = delegate
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -106,21 +104,5 @@ class AirHockeyPlayAreaView: UIView {
         if AirHockeyController.shared == nil {
             AirHockeyController.shared = AirHockeyController(boardSize: frame.size, playAreaView: self)
         }
-    }
-}
-
-extension AirHockeyPlayAreaView: MultiGestureDetectorDelegate {
-    func gestureDidStart(_ location: CGPoint) {
-        handle.backgroundColor = .systemOrange
-        delegate?.airHockeyViewDidMoveHandle(location, velocity: CGPoint.zero)
-    }
-    
-    func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint) {
-        delegate?.airHockeyViewDidMoveHandle(location, velocity: velocity)
-    }
-    
-    func gestureDidEnd(_ location: CGPoint, velocity: CGPoint) {
-        handle.backgroundColor = .systemBlue
-        delegate?.airHockeyViewDidMoveHandle(location, velocity: velocity)
     }
 }

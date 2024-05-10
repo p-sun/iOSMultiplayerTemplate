@@ -11,11 +11,12 @@ import UIKit
 protocol MultiGestureDetectorDelegate: AnyObject {
     func gestureDidStart(_ location: CGPoint)
     func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint)
-    func gestureDidEnd(_ location: CGPoint, velocity: CGPoint)
+    func gesturePanDidEnd(_ location: CGPoint, velocity: CGPoint)
+    func gesturePressDidEnd(_ location: CGPoint)
 }
 
 class MultiGestureDetector: NSObject {
-    private weak var delegate: MultiGestureDetectorDelegate?
+    weak var delegate: MultiGestureDetectorDelegate?
         
     private lazy var panGesture: UIGestureRecognizer = {
         let gesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
@@ -32,9 +33,7 @@ class MultiGestureDetector: NSObject {
         return gesture
     }()
     
-    func attachTo<T>(view: T) where T: MultiGestureDetectorDelegate, T: UIView {
-        delegate = view
-        
+    func attachTo(view: UIView) {
         view.addGestureRecognizer(panGesture)
         view.addGestureRecognizer(longPressGesture)
     }
@@ -45,7 +44,7 @@ class MultiGestureDetector: NSObject {
         case .began, .changed:
             delegate?.gestureDidMoveTo(location, velocity: gesture.velocity(in: gesture.view))
         case .ended:
-            delegate?.gestureDidEnd(location, velocity: gesture.velocity(in: gesture.view))
+            delegate?.gesturePanDidEnd(location, velocity: gesture.velocity(in: gesture.view))
         default:
             break
         }
@@ -56,6 +55,8 @@ class MultiGestureDetector: NSObject {
         switch gesture.state {
         case .began:
             delegate?.gestureDidStart(location)
+        case .ended:
+            delegate?.gesturePressDidEnd(location)
         default:
             break
         }
