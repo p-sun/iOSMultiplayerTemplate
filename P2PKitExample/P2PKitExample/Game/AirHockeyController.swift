@@ -10,9 +10,8 @@ import QuartzCore
 
 struct GameConfig {
     static let handleRadius: CGFloat = 40
-    static let handleMassGrabbed: CGFloat = 30
-    static let handleMassFreebody: CGFloat = 10
-
+    static let handleMass: CGFloat = 10
+    
     static let ballRadius: CGFloat = 30
     static let ballMass: CGFloat = 1
     static let ballInitialVelocity = CGPoint(x: -100, y: 300)

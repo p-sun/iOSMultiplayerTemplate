@@ -9,26 +9,16 @@ import Foundation
 
 struct Ball {
     let radius: CGFloat
-    var mass: CGFloat {
-        if isGrabbed {
-            grabbedMass
-        } else {
-            freebodyMass
-        }
-    }
+    let mass: CGFloat
     var velocity: CGPoint
     var position: CGPoint
     var isGrabbed: Bool = false
     
-    private let grabbedMass: CGFloat
-    private let freebodyMass: CGFloat
-    
-    init(radius: CGFloat, velocity: CGPoint, position: CGPoint, grabbedMass: CGFloat, freebodyMass: CGFloat) {
+    init(radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint) {
         self.radius = radius
+        self.mass = mass
         self.velocity = velocity
         self.position = position
-        self.grabbedMass = grabbedMass
-        self.freebodyMass = freebodyMass
     }
 }
 
@@ -41,17 +31,15 @@ class AirHockeyPhysics {
     
     init(boardSize: CGSize) {
         self.ball = Ball(radius: GameConfig.ballRadius,
+                         mass: GameConfig.ballMass,
                          velocity: GameConfig.ballInitialVelocity,
                          position: CGPoint(x: boardSize.width/2,
-                                           y: boardSize.height/2),
-                         grabbedMass: GameConfig.ballMass,
-                         freebodyMass: GameConfig.ballMass)
+                                           y: boardSize.height/2))
         self.handle = Ball(radius: GameConfig.handleRadius,
+                           mass: GameConfig.handleMass,
                            velocity: CGPoint.zero,
                            position: CGPoint(x: boardSize.width/2,
-                                             y: boardSize.height - 80),
-                           grabbedMass: GameConfig.handleMassGrabbed,
-                           freebodyMass: GameConfig.handleMassFreebody)
+                                             y: boardSize.height - 80))
         self.boardSize = boardSize
     }
     
