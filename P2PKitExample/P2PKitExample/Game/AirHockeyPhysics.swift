@@ -48,9 +48,8 @@ class AirHockeyPhysics {
                          freebodyMass: GameConfig.ballMass)
         self.handle = Ball(radius: GameConfig.handleRadius,
                            velocity: CGPoint.zero,
-                           position: CGPoint(
-                            x: boardSize.width/2,
-                            y: boardSize.height - 80),
+                           position: CGPoint(x: boardSize.width/2,
+                                             y: boardSize.height - 80),
                            grabbedMass: GameConfig.handleMassGrabbed,
                            freebodyMass: GameConfig.handleMassFreebody)
         self.boardSize = boardSize
@@ -78,9 +77,7 @@ class AirHockeyPhysics {
         }
         
         // MARK: Resolve overlapping
-        if handle.isGrabbed {
-            resolveOverlapGrabbed(grabbed: &handle, freebody: &ball)
-        }
+        resolveOverlap(grabbable: &handle, freebody: &ball)
         constrainWithinWalls(&handle)
         constrainWithinWalls(&ball)
     }
@@ -114,18 +111,27 @@ class AirHockeyPhysics {
         }
     }
     
-    private func resolveOverlapGrabbed(grabbed a: inout Ball, freebody b: inout Ball) {
+    private func resolveOverlap(grabbable a: inout Ball, freebody b: inout Ball) {
         let dx = b.position.x - a.position.x
         let dy = b.position.y - a.position.y
         let distance = sqrt(dx * dx + dy * dy)
         
-        if distance <= (a.radius + b.radius) {
+        if distance < (a.radius + b.radius) {
             // Normal vector
             let nx = dx / distance
             let ny = dy / distance
             
             // Resolve overlap
-            let overlap = (a.radius + b.radius - distance + 0.01)
+            let overlap: CGFloat
+            if a.isGrabbed {
+                // When the pusher is grabbed, only move the ball
+                overlap = (a.radius + b.radius - distance)
+            } else {
+                // When the pusher is not grabbed, move pusher & ball
+                overlap = (a.radius + b.radius - distance) / 2
+                a.position.x -= overlap * nx
+                a.position.y -= overlap * ny
+            }
             b.position.x += overlap * nx
             b.position.y += overlap * ny
         }
