@@ -140,21 +140,25 @@ class AirHockeyPhysics {
     func collideWithGrabbedBody(grabbed a: inout Ball, freeBody b: inout Ball) {
         let dx = b.position.x - a.position.x
         let dy = b.position.y - a.position.y
-        let distance = sqrt(dx*dx + dy*dy)
+        let distance = sqrt(dx * dx + dy * dy)
         let minDistance = a.radius + b.radius
         
         if distance < minDistance {
-            let overlap = minDistance - distance
-            let normalX = dx / distance
-            let normalY = dy / distance
+            // Normal vector
+            let nx = dx / distance
+            let ny = dy / distance
             
             // Reposition to avoid overlap
-            b.position.x += normalX * overlap
-            b.position.y += normalY * overlap
+            let overlap = minDistance - distance
+            b.position.x += nx * overlap
+            b.position.y += ny * overlap
             
-            let pusherSpeed: CGFloat = 400 // TODO: Adjust pusher speed based on user's velocity
-            b.velocity.x = normalX * pusherSpeed
-            b.velocity.y = normalY * pusherSpeed
+            // Pusher's velocity in the direction of the normal
+            // determines how fast the object is pushed
+            let dpNorm1 = a.velocity.x * nx + a.velocity.y * ny
+            let pusherSpeed: CGFloat = (dpNorm1 * 6).clamp(min: 400, max: 1100)
+            b.velocity.x = nx * pusherSpeed
+            b.velocity.y = ny * pusherSpeed
         }
     }
     
@@ -189,7 +193,6 @@ class AirHockeyPhysics {
             a.velocity.y = ty * dpTan1 + ny * m1
             b.velocity.x = tx * dpTan2 + nx * m2
             b.velocity.y = ty * dpTan2 + ny * m2
-            
             b.velocity = b.velocity.clampingMagnitude(max: 1200)
             
             // Resolve overlap

@@ -10,7 +10,7 @@ import QuartzCore
 
 struct GameConfig {
     static let handleRadius: CGFloat = 40
-    static let handleMassGrabbed: CGFloat = 20
+    static let handleMassGrabbed: CGFloat = 30
     static let handleMassFreebody: CGFloat = 10
 
     static let ballRadius: CGFloat = 30
@@ -35,7 +35,6 @@ class AirHockeyController {
     
     @objc private func handleUpdate(displayLink: CADisplayLink) {
         physics.update(duration: CGFloat(displayLink.duration))
-        
         playAreaView.ball.center = physics.ball.position
         playAreaView.handle.center = physics.handle.position
         playAreaView.handle.backgroundColor = physics.handle.isGrabbed ? .systemOrange : .systemIndigo
@@ -56,6 +55,7 @@ extension AirHockeyController: MultiGestureDetectorDelegate {
     func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint) {
         physics.handle.position = location
         physics.handle.isGrabbed = true
+        physics.handle.velocity = (velocity / 7).clampingMagnitude(max: 300)
     }
     
     func gesturePanDidEnd(_ location: CGPoint, velocity: CGPoint) {
