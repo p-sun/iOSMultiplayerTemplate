@@ -43,6 +43,7 @@ class AirHockeyPhysics {
         self.boardSize = boardSize
     }
     
+    //MARK: - Update
     func update(duration: CGFloat) {
         frame += 1
         
@@ -70,22 +71,7 @@ class AirHockeyPhysics {
         constrainWithinWalls(&ball)
     }
     
-    private func constrainWithinWalls(_ o: inout Ball) {
-        let r = o.radius
-        if o.position.x - r <= 0 {
-            o.position.x = r
-        }
-        if o.position.x + r >= boardSize.width {
-            o.position.x = boardSize.width - r
-        }
-        if o.position.y - r <= 0 {
-            o.position.y = r
-        }
-        if o.position.y + r >= boardSize.height {
-            o.position.y = boardSize.height - r
-        }
-    }
-    
+    //MARK: - Collisions
     private func collideWithWalls(_ o: inout Ball) {
         let r = o.radius
         if o.position.x - r <= 0
@@ -99,33 +85,7 @@ class AirHockeyPhysics {
         }
     }
     
-    private func resolveOverlap(grabbable a: inout Ball, freebody b: inout Ball) {
-        let dx = b.position.x - a.position.x
-        let dy = b.position.y - a.position.y
-        let distance = sqrt(dx * dx + dy * dy)
-        
-        if distance < (a.radius + b.radius) && distance != 0 {
-            // Normal vector
-            let nx = dx / distance
-            let ny = dy / distance
-            
-            // Resolve overlap
-            let overlap: CGFloat
-            if a.isGrabbed {
-                // When the pusher is grabbed, only move the ball
-                overlap = (a.radius + b.radius - distance)
-            } else {
-                // When the pusher is not grabbed, move pusher & ball
-                overlap = (a.radius + b.radius - distance) / 2
-                a.position.x -= overlap * nx
-                a.position.y -= overlap * ny
-            }
-            b.position.x += overlap * nx
-            b.position.y += overlap * ny
-        }
-    }
-    
-    func collideWithGrabbedBody(grabbed a: inout Ball, freeBody b: inout Ball) {
+    private func collideWithGrabbedBody(grabbed a: inout Ball, freeBody b: inout Ball) {
         let dx = b.position.x - a.position.x
         let dy = b.position.y - a.position.y
         let distance = sqrt(dx * dx + dy * dy)
@@ -189,6 +149,49 @@ class AirHockeyPhysics {
             a.position.y -= overlap * ny
             b.position.x += overlap * nx
             b.position.y += overlap * ny
+        }
+    }
+    
+    //MARK: - Resolve Overlap
+    private func resolveOverlap(grabbable a: inout Ball, freebody b: inout Ball) {
+        let dx = b.position.x - a.position.x
+        let dy = b.position.y - a.position.y
+        let distance = sqrt(dx * dx + dy * dy)
+        
+        if distance < (a.radius + b.radius) && distance != 0 {
+            // Normal vector
+            let nx = dx / distance
+            let ny = dy / distance
+            
+            // Resolve overlap
+            let overlap: CGFloat
+            if a.isGrabbed {
+                // When the pusher is grabbed, only move the ball
+                overlap = (a.radius + b.radius - distance)
+            } else {
+                // When the pusher is not grabbed, move pusher & ball
+                overlap = (a.radius + b.radius - distance) / 2
+                a.position.x -= overlap * nx
+                a.position.y -= overlap * ny
+            }
+            b.position.x += overlap * nx
+            b.position.y += overlap * ny
+        }
+    }
+    
+    private func constrainWithinWalls(_ o: inout Ball) {
+        let r = o.radius
+        if o.position.x - r <= 0 {
+            o.position.x = r
+        }
+        if o.position.x + r >= boardSize.width {
+            o.position.x = boardSize.width - r
+        }
+        if o.position.y - r <= 0 {
+            o.position.y = r
+        }
+        if o.position.y + r >= boardSize.height {
+            o.position.y = boardSize.height - r
         }
     }
 }
