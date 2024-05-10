@@ -59,17 +59,16 @@ class AirHockeyGameView: UIView {
         return view
     }()
     
-    lazy var malletView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .blue
-        view.layer.cornerRadius = GameConfig.malletRadius
-        view.frame.size = CGSize(
-            width: GameConfig.malletRadius * 2,
-            height: GameConfig.malletRadius * 2)
-        return view
-    }()
+    private var malletViews = [UIView]()
+    private var gestureDetectors = [UIView: MultiGestureDetector]()
     
-    private let gestureDetector = MultiGestureDetector()
+    weak var gestureDelegate: MultiGestureDetectorDelegate? {
+        didSet {
+            for gestureDetector in gestureDetectors.values {
+                gestureDetector.delegate = gestureDelegate
+            }
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -83,22 +82,44 @@ class AirHockeyGameView: UIView {
         ])
         
         addSubview(puckView)
-        addSubview(malletView)
-        
-        gestureDetector.attachTo(view: self)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setGestureDelegate(_ delegate: MultiGestureDetectorDelegate) {
-        gestureDetector.delegate = delegate
+    func updateMallets(_ mallets: [Ball]) {
+        for (i, mallet) in mallets.enumerated() {
+            if i > malletViews.count - 1 {
+                let view = createMalletView()
+                malletViews.append(view)
+                
+                let gestureDetector = MultiGestureDetector(tag: i)
+                gestureDetectors[view] = gestureDetector
+                gestureDetector.attachTo(view: view, relativeToView: self)
+                gestureDetector.delegate = gestureDelegate
+            }
+            
+            malletViews[i].center = mallet.position
+            malletViews[i].backgroundColor = mallet.isGrabbed ? .systemOrange : .systemIndigo
+        }
+        // TODO: Move other malletViews out of view. Keep a reusable pool of malletViews
     }
     
     override func layoutSubviews() {
         if AirHockeyController.shared == nil {
             AirHockeyController.shared = AirHockeyController(boardSize: frame.size, playAreaView: self)
         }
+    }
+    
+    private func createMalletView() -> UIView {
+        let view = UIView()
+        view.backgroundColor = .blue
+        view.layer.cornerRadius = GameConfig.malletRadius
+        view.frame.size = CGSize(
+            width: GameConfig.malletRadius * 2,
+            height: GameConfig.malletRadius * 2)
+        addSubview(view)
+        return view
     }
 }

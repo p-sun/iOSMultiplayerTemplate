@@ -21,13 +21,13 @@ class AirHockeyController {
     static var shared: AirHockeyController?
     
     private let physics: AirHockeyPhysics
-    private let playAreaView: AirHockeyGameView
+    private let gameView: AirHockeyGameView
     private var displayLink: CADisplayLink!
     
     init(boardSize: CGSize, playAreaView: AirHockeyGameView) {
         self.physics = AirHockeyPhysics(boardSize: boardSize)
-        self.playAreaView = playAreaView
-        playAreaView.setGestureDelegate(self.physics)
+        self.gameView = playAreaView
+        playAreaView.gestureDelegate = self.physics
         self.displayLink = CADisplayLink(target: self, selector: #selector(malletUpdate))
         displayLink.add(to: .main, forMode: .common)
     }
@@ -35,9 +35,8 @@ class AirHockeyController {
     @objc private func malletUpdate(displayLink: CADisplayLink) {
         physics.update(deltaTime: CGFloat(displayLink.duration))
         
-        playAreaView.puckView.center = physics.puck.position
-        playAreaView.malletView.center = physics.mallet.position
-        playAreaView.malletView.backgroundColor = physics.mallet.isGrabbed ? .systemOrange : .systemIndigo
+        gameView.puckView.center = physics.puck.position
+        gameView.updateMallets(physics.mallets)
     }
     
     deinit {

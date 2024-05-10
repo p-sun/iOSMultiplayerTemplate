@@ -9,54 +9,70 @@ import Foundation
 import UIKit
 
 protocol MultiGestureDetectorDelegate: AnyObject {
-    func gestureDidStart(_ location: CGPoint)
-    func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint)
-    func gesturePanDidEnd(_ location: CGPoint, velocity: CGPoint)
-    func gesturePressDidEnd(_ location: CGPoint)
+    func gestureDidStart(_ location: CGPoint, tag: Int)
+    func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint, tag: Int)
+    func gesturePanDidEnd(_ location: CGPoint, velocity: CGPoint, tag: Int)
+    func gesturePressDidEnd(_ location: CGPoint, tag: Int)
 }
 
 class MultiGestureDetector: NSObject {
     weak var delegate: MultiGestureDetectorDelegate?
-        
+    
     private lazy var panGesture: UIGestureRecognizer = {
-        let gesture = UIPanGestureRecognizer(target: self, action: #selector(malletPan))
+        let gesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         gesture.maximumNumberOfTouches = 1
         gesture.delegate = self
         return gesture
     }()
     
     private lazy var longPressGesture: UIGestureRecognizer = {
-        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(malletLongPress))
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
         gesture.cancelsTouchesInView = false
         gesture.minimumPressDuration = 0.01
         gesture.delegate = self
         return gesture
     }()
     
-    func attachTo(view: UIView) {
-        view.addGestureRecognizer(panGesture)
-        view.addGestureRecognizer(longPressGesture)
+    private weak var relativeToView: UIView?
+    private let tag: Int
+    
+    init(tag: Int) {
+        self.tag = tag
     }
     
-    @objc func malletPan(_ gesture: UIPanGestureRecognizer) {
-        let location = gesture.location(in: gesture.view)
+    func attachTo(view: UIView, relativeToView: UIView) {
+        view.addGestureRecognizer(panGesture)
+        view.addGestureRecognizer(longPressGesture)
+        self.relativeToView = relativeToView
+    }
+    
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        let location = gesture.location(in: relativeToView)
         switch gesture.state {
         case .began, .changed:
-            delegate?.gestureDidMoveTo(location, velocity: gesture.velocity(in: gesture.view))
+            if let view = gesture.view {
+                delegate?.gestureDidMoveTo(location, velocity: gesture.velocity(in: relativeToView), tag: tag)
+            }
         case .ended:
-            delegate?.gesturePanDidEnd(location, velocity: gesture.velocity(in: gesture.view))
+            if let view = gesture.view {
+                delegate?.gesturePanDidEnd(location, velocity: gesture.velocity(in: relativeToView), tag: tag)
+            }
         default:
             break
         }
     }
     
-    @objc func malletLongPress(_ gesture: UILongPressGestureRecognizer) {
-        let location = gesture.location(in: gesture.view)
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        let location = gesture.location(in: relativeToView)
         switch gesture.state {
         case .began:
-            delegate?.gestureDidStart(location)
+            if let view = gesture.view {
+                delegate?.gestureDidStart(location, tag: tag)
+            }
         case .ended:
-            delegate?.gesturePressDidEnd(location)
+            if let view = gesture.view {
+                delegate?.gesturePressDidEnd(location, tag: tag)
+            }
         default:
             break
         }
