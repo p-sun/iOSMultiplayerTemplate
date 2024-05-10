@@ -35,6 +35,7 @@ class AirHockeyController {
     @objc private func malletUpdate(displayLink: CADisplayLink) {
         physics.update(deltaTime: CGFloat(displayLink.duration))
         
+        gameView.holeView.center = physics.hole.position
         gameView.puckView.center = physics.puck.position
         gameView.updateMallets(physics.mallets)
     }

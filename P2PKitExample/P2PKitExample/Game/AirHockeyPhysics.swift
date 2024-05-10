@@ -26,9 +26,11 @@ class Ball {
 class AirHockeyPhysics {
     private(set) var puck: Ball
     private(set) var mallets = [Ball]()
+    private(set) var hole: Ball
     private let boardSize: CGSize
     
     init(boardSize: CGSize) {
+        self.boardSize = boardSize
         self.puck = Ball(radius: GameConfig.ballRadius,
                          mass: GameConfig.ballMass,
                          velocity: GameConfig.ballInitialVelocity,
@@ -44,13 +46,13 @@ class AirHockeyPhysics {
                              mass: GameConfig.malletMass,
                              velocity: CGPoint.zero,
                              position: CGPoint(x: boardSize.width/2,
-                                               y: boardSize.height - 300)),
-                        Ball(radius: GameConfig.malletRadius,
-                             mass: GameConfig.malletMass,
-                             velocity: CGPoint.zero,
-                             position: CGPoint(x: boardSize.width/2,
-                                               y: boardSize.height - 600))]
-        self.boardSize = boardSize
+                                               y: boardSize.height - 300))]
+        self.hole = Ball(radius: GameConfig.ballRadius,
+                         mass: GameConfig.ballMass,
+                         velocity: GameConfig.ballInitialVelocity,
+                         position: randomPositionOnBoard(
+                            padding: GameConfig.ballRadius,
+                            boardSize: boardSize))
     }
     
     //MARK: - Update
@@ -254,4 +256,11 @@ extension AirHockeyPhysics: MultiGestureDetectorDelegate {
         mallets[tag].position = location
         mallets[tag].isGrabbed = false
     }
+}
+
+//MARK: - Private
+private func randomPositionOnBoard(padding: CGFloat, boardSize: CGSize) -> CGPoint {
+    return CGPoint(
+        x: CGFloat.random(in: padding...boardSize.width-padding),
+        y: CGFloat.random(in: padding...boardSize.height-padding))
 }

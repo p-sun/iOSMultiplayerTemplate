@@ -23,7 +23,7 @@ class GameBorderView: UIView {
         gameView.backgroundColor = .systemMint
         
         super.init(frame: .zero)
-        backgroundColor = .darkText
+        backgroundColor = UIColor(red: 10.0/255.0, green: 39.0/255.0, blue: 89.0/255.0, alpha: 1)
         
         addSubview(gameView)
         NSLayoutConstraint.activate([
@@ -50,16 +50,19 @@ class AirHockeyGameView: UIView {
     }()
     
     lazy var puckView: UIView = {
-        let view = UIView()
+        let view = createCircleView(radius: GameConfig.ballRadius)
         view.backgroundColor = .white
-        view.layer.cornerRadius = GameConfig.ballRadius
-        view.frame.size = CGSize(
-            width: GameConfig.ballRadius * 2,
-            height: GameConfig.ballRadius * 2)
         return view
     }()
     
     private var malletViews = [UIView]()
+ 
+    lazy var holeView: UIView = {
+        let view = createCircleView(radius: GameConfig.ballRadius)
+        view.backgroundColor = .black
+        return view
+    }()
+    
     private var gestureDetectors = [UIView: MultiGestureDetector]()
     
     weak var gestureDelegate: MultiGestureDetectorDelegate? {
@@ -74,14 +77,14 @@ class AirHockeyGameView: UIView {
         super.init(frame: frame)
         backgroundColor = .systemMint
         
+        addSubview(holeView)
+        addSubview(puckView)
         addSubview(debugLabel)
         NSLayoutConstraint.activate([
             debugLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             debugLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             debugLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
         ])
-        
-        addSubview(puckView)
     }
     
     required init?(coder: NSCoder) {
@@ -91,7 +94,7 @@ class AirHockeyGameView: UIView {
     func updateMallets(_ mallets: [Ball]) {
         for (i, mallet) in mallets.enumerated() {
             if i > malletViews.count - 1 {
-                let view = createMalletView()
+                let view = createCircleView(radius: GameConfig.malletRadius)
                 malletViews.append(view)
                 
                 let gestureDetector = MultiGestureDetector(tag: i)
@@ -112,13 +115,11 @@ class AirHockeyGameView: UIView {
         }
     }
     
-    private func createMalletView() -> UIView {
+    private func createCircleView(radius: CGFloat) -> UIView {
         let view = UIView()
         view.backgroundColor = .blue
-        view.layer.cornerRadius = GameConfig.malletRadius
-        view.frame.size = CGSize(
-            width: GameConfig.malletRadius * 2,
-            height: GameConfig.malletRadius * 2)
+        view.layer.cornerRadius = radius
+        view.frame.size = CGSize(width: radius * 2, height: radius * 2)
         addSubview(view)
         return view
     }
