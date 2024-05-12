@@ -8,15 +8,6 @@
 import Foundation
 import QuartzCore
 
-struct GameConfig {
-    static let malletRadius: CGFloat = 40
-    static let malletMass: CGFloat = 10
-    
-    static let ballRadius: CGFloat = 30
-    static let ballMass: CGFloat = 1
-    static let ballInitialVelocity = CGPoint(x: -100, y: 300)
-}
-
 class AirHockeyController {
     static var shared: AirHockeyController?
     
@@ -34,10 +25,7 @@ class AirHockeyController {
     
     @objc private func malletUpdate(displayLink: CADisplayLink) {
         physics.update(deltaTime: CGFloat(displayLink.duration))
-        
-        gameView.holeView.center = physics.hole.position
-        gameView.puckView.center = physics.puck.position
-        gameView.updateMallets(physics.mallets)
+        gameView.update(mallets: physics.mallets, puck: physics.puck, hole: physics.hole)
     }
     
     deinit {

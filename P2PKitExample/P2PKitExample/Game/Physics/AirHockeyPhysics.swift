@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class Ball {
+class Ball: Identifiable {
     let radius: CGFloat
     let mass: CGFloat
     var velocity: CGPoint
@@ -34,36 +34,46 @@ class AirHockeyPhysics {
         self.puck = Ball(radius: GameConfig.ballRadius,
                          mass: GameConfig.ballMass,
                          velocity: GameConfig.ballInitialVelocity,
-                         position: CGPoint(x: boardSize.width/2,
-                                           y: boardSize.height/2))
+                         position: CGPoint(
+                            x: boardSize.width/2,
+                            y: boardSize.height/2))
         
         self.mallets = [Ball(radius: GameConfig.malletRadius,
                              mass: GameConfig.malletMass,
                              velocity: CGPoint.zero,
-                             position: CGPoint(x: boardSize.width/2,
-                                               y: boardSize.height - 80)),
+                             position: CGPoint(
+                                x: boardSize.width/2,
+                                y: boardSize.height - 80)),
                         Ball(radius: GameConfig.malletRadius,
                              mass: GameConfig.malletMass,
                              velocity: CGPoint.zero,
-                             position: CGPoint(x: boardSize.width/2,
-                                               y: boardSize.height - 300))]
-        self.hole = Ball(radius: GameConfig.ballRadius,
-                         mass: GameConfig.ballMass,
-                         velocity: GameConfig.ballInitialVelocity,
+                             position: CGPoint(
+                                x: boardSize.width/2,
+                                y: boardSize.height - 300))]
+        self.hole = Ball(radius: GameConfig.holeRadius,
+                         mass: 0, // irrelevant
+                         velocity: CGPoint.zero, // irrelevant
                          position: randomPositionOnBoard(
-                            padding: GameConfig.ballRadius,
+                            padding: GameConfig.holeRadius,
                             boardSize: boardSize))
     }
     
     //MARK: - Update
     
     func update(deltaTime: CGFloat) {
+        updatePhysics(deltaTime: deltaTime)
+        puckIsInsideHole(puck: puck, hole: hole)
+    }
+    
+    func updatePhysics(deltaTime: CGFloat) {
         // MARK: Collisions updates velocity & position
         collideWithWalls(puck)
+        // Mallets with puck
         for i in mallets.indices {
             collide(mallets[i], puck)
             collideWithWalls(mallets[i])
         }
+        // Mallets with mallets
         if mallets.count > 1 {
             for i in 0..<mallets.count - 1 {
                 for j in i+1..<mallets.count {
@@ -79,10 +89,12 @@ class AirHockeyPhysics {
         }
         
         // MARK: Resolve overlapping
+        // Mallets with puck
         for i in mallets.indices {
             resolveOverlap(grabbable: mallets[i], freebody: puck)
             constrainWithinWalls(mallets[i])
         }
+        // Mallets with mallets
         constrainWithinWalls(puck)
     }
     
@@ -118,6 +130,16 @@ class AirHockeyPhysics {
         if b.position.y - r <= 0
             || b.position.y + r >= boardSize.height {
             b.velocity.y = -b.velocity.y
+        }
+    }
+    
+    private func puckIsInsideHole(puck: Ball, hole: Ball) {
+        let dx = hole.position.x - puck.position.x
+        let dy = hole.position.y - puck.position.y
+        let distance = sqrt(dx * dx + dy * dy)
+        
+        if distance < hole.radius - puck.radius {
+            return
         }
     }
     

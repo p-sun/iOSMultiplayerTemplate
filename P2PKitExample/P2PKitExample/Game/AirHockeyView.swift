@@ -40,6 +40,16 @@ class GameBorderView: UIView {
 }
 
 class AirHockeyGameView: UIView {
+    weak var gestureDelegate: MultiGestureDetectorDelegate? {
+        didSet {
+            for gestureDetector in gestureDetectors.values {
+                gestureDetector.delegate = gestureDelegate
+            }
+        }
+    }
+    
+    private var gestureDetectors = [UIView: MultiGestureDetector]()
+
     private lazy var debugLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -49,30 +59,20 @@ class AirHockeyGameView: UIView {
         return label
     }()
     
-    lazy var puckView: UIView = {
+    private lazy var puckView: UIView = {
         let view = createCircleView(radius: GameConfig.ballRadius)
         view.backgroundColor = .white
         return view
     }()
     
-    private var malletViews = [UIView]()
- 
-    lazy var holeView: UIView = {
-        let view = createCircleView(radius: GameConfig.ballRadius)
+    private lazy var holeView: UIView = {
+        let view = createCircleView(radius: GameConfig.holeRadius)
         view.backgroundColor = .black
         return view
     }()
     
-    private var gestureDetectors = [UIView: MultiGestureDetector]()
-    
-    weak var gestureDelegate: MultiGestureDetectorDelegate? {
-        didSet {
-            for gestureDetector in gestureDetectors.values {
-                gestureDetector.delegate = gestureDelegate
-            }
-        }
-    }
-    
+    private var malletViews = [UIView]()
+ 
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemMint
@@ -91,7 +91,13 @@ class AirHockeyGameView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateMallets(_ mallets: [Ball]) {
+    func update(mallets: [Ball], puck: Ball, hole: Ball) {
+        updateMallets(mallets)
+        holeView.center = hole.position
+        puckView.center = puck.position
+    }
+    
+    private func updateMallets(_ mallets: [Ball]) {
         for (i, mallet) in mallets.enumerated() {
             if i > malletViews.count - 1 {
                 let view = createCircleView(radius: GameConfig.malletRadius)
