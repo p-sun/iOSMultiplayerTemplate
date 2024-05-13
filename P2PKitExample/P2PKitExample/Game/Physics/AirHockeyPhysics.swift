@@ -9,13 +9,19 @@ import Foundation
 import UIKit
 
 class Ball: Identifiable {
+    enum Info {
+        case puck, mallet, hole
+    }
+    
+    let info: Info
     let radius: CGFloat
     let mass: CGFloat
     var velocity: CGPoint
     var position: CGPoint
-    var isGrabbed: Bool = false
+    var isGrabbed = false
     
-    init(radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint) {
+    fileprivate init(info: Info, radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint) {
+        self.info = info
         self.radius = radius
         self.mass = mass
         self.velocity = velocity
@@ -31,31 +37,15 @@ class AirHockeyPhysics {
     
     init(boardSize: CGSize) {
         self.boardSize = boardSize
-        self.puck = Ball(radius: GameConfig.ballRadius,
-                         mass: GameConfig.ballMass,
-                         velocity: GameConfig.ballInitialVelocity,
-                         position: CGPoint(
-                            x: boardSize.width/2,
-                            y: boardSize.height/2))
-        
-        self.mallets = [Ball(radius: GameConfig.malletRadius,
-                             mass: GameConfig.malletMass,
-                             velocity: CGPoint.zero,
-                             position: CGPoint(
-                                x: boardSize.width/2,
-                                y: boardSize.height - 80)),
-                        Ball(radius: GameConfig.malletRadius,
-                             mass: GameConfig.malletMass,
-                             velocity: CGPoint.zero,
-                             position: CGPoint(
-                                x: boardSize.width/2,
-                                y: boardSize.height - 300))]
-        self.hole = Ball(radius: GameConfig.holeRadius,
-                         mass: 0, // irrelevant
-                         velocity: CGPoint.zero, // irrelevant
-                         position: randomPositionOnBoard(
-                            padding: GameConfig.holeRadius,
-                            boardSize: boardSize))
+        self.puck = Ball.createPuck(position:  CGPoint(
+            x: boardSize.width/2,
+            y: boardSize.height/2))
+        self.mallets = [
+            Ball.createMallet(
+                position: CGPoint(x: boardSize.width/2, y: boardSize.height - 80)),
+            Ball.createMallet(
+                position: CGPoint(x: boardSize.width/2, y: boardSize.height - 300))]
+        self.hole = Ball.createHole(boardSize: boardSize)
     }
     
     //MARK: - Update
@@ -280,9 +270,34 @@ extension AirHockeyPhysics: MultiGestureDetectorDelegate {
     }
 }
 
-//MARK: - Private
-private func randomPositionOnBoard(padding: CGFloat, boardSize: CGSize) -> CGPoint {
-    return CGPoint(
-        x: CGFloat.random(in: padding...boardSize.width-padding),
-        y: CGFloat.random(in: padding...boardSize.height-padding))
+//MARK: - Private Create Balls
+
+extension Ball {
+    fileprivate static func createPuck(position: CGPoint) -> Ball {
+        return Ball(info: .puck,
+                    radius: GameConfig.ballRadius,
+                    mass: GameConfig.ballMass,
+                    velocity: GameConfig.ballInitialVelocity,
+                    position:position)
+    }
+    
+    fileprivate static func createMallet(position: CGPoint) -> Ball {
+        return Ball(info: .mallet,
+                    radius: GameConfig.malletRadius,
+                    mass: GameConfig.malletMass,
+                    velocity: CGPoint.zero,
+                    position: position)
+    }
+    
+    fileprivate static func createHole(boardSize: CGSize) -> Ball {
+        let radius = GameConfig.holeRadius
+        let randomPosition = CGPoint(
+            x: CGFloat.random(in: radius...boardSize.width-radius),
+            y: CGFloat.random(in: radius...boardSize.height-radius-80))
+        return Ball(info: .hole,
+                    radius: GameConfig.holeRadius,
+                    mass: 0,
+                    velocity: CGPoint.zero,
+                    position: randomPosition)
+    }
 }
