@@ -17,6 +17,7 @@
 		9B0434972BED7285005B1606 /* MathUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0434962BED7285005B1606 /* MathUtils.swift */; };
 		9BAA788C2BF13DD400BC1E1C /* GameConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BAA788B2BF13DD400BC1E1C /* GameConfig.swift */; };
 		9BAA78932BF144D300BC1E1C /* AirHockeyRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BAA78922BF144D300BC1E1C /* AirHockeyRoom.swift */; };
+		9BAA78952BF2968A00BC1E1C /* GameSounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BAA78942BF2968A00BC1E1C /* GameSounds.swift */; };
 		9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC382BD6C5ED0086AC78 /* P2PKitExampleApp.swift */; };
 		9BD2AC3B2BD6C5ED0086AC78 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC3A2BD6C5ED0086AC78 /* ContentView.swift */; };
 		9BD2AC3D2BD6C5EE0086AC78 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9BD2AC3C2BD6C5EE0086AC78 /* Assets.xcassets */; };
@@ -62,6 +63,7 @@
 		9B0434962BED7285005B1606 /* MathUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathUtils.swift; sourceTree = "<group>"; };
 		9BAA788B2BF13DD400BC1E1C /* GameConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConfig.swift; sourceTree = "<group>"; };
 		9BAA78922BF144D300BC1E1C /* AirHockeyRoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirHockeyRoom.swift; sourceTree = "<group>"; };
+		9BAA78942BF2968A00BC1E1C /* GameSounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSounds.swift; sourceTree = "<group>"; };
 		9BD2AC352BD6C5ED0086AC78 /* P2PKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = P2PKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BD2AC382BD6C5ED0086AC78 /* P2PKitExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PKitExampleApp.swift; sourceTree = "<group>"; };
 		9BD2AC3A2BD6C5ED0086AC78 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -142,6 +144,7 @@
 			children = (
 				9B04348E2BED230A005B1606 /* MultiGestureDetector.swift */,
 				9B0434962BED7285005B1606 /* MathUtils.swift */,
+				9BAA78942BF2968A00BC1E1C /* GameSounds.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -386,6 +389,7 @@
 				9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */,
 				9B04347F2BE56A73005B1606 /* P2PSyncedObject.swift in Sources */,
 				9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */,
+				9BAA78952BF2968A00BC1E1C /* GameSounds.swift in Sources */,
 				9B0434952BED3BDC005B1606 /* AirHockeyPhysics.swift in Sources */,
 				9B04347B2BE4149B005B1606 /* P2PNetwork.swift in Sources */,
 				9BD2AC712BDE94F10086AC78 /* SyncedCounter.swift in Sources */,
