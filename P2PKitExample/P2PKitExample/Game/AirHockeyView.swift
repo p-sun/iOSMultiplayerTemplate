@@ -3,48 +3,25 @@
 import SwiftUI
 
 struct AirHockeyView: UIViewRepresentable {
-    typealias UIViewType = AirHockeyRootUIView
+    typealias UIViewType = AirHockeyRootView
     
-    func makeUIView(context: Context) -> AirHockeyRootUIView {
-        let playAreaView = AirHockeyGameView()
-        return AirHockeyRootUIView(gameView: playAreaView)
+    let instance = AirHockeyInstance()
+        
+    func makeUIView(context: Context) -> AirHockeyRootView {
+        return instance.rootUIView
     }
     
-    func updateUIView(_ uiView: AirHockeyRootUIView, context: Context) {
+    func updateUIView(_ uiView: AirHockeyRootView, context: Context) {
     }
 }
 
-class AirHockeyRootUIView: UIView {
-    private var gameView: UIView
-    
-    private var scoreLabel: UILabel = {
-        let label = UILabel()
-        label.text = "hello"
-        label.font = .systemFont(ofSize: 24)
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    init(gameView: AirHockeyGameView) {
-        self.gameView = gameView
+class AirHockeyRootView: UIView {
+    init() {
         super.init(frame: .zero)
-        
-        gameView.backgroundColor = .systemMint
         backgroundColor = UIColor(red: 10.0/255.0, green: 39.0/255.0, blue: 89.0/255.0, alpha: 1)
-        
-        gameView.didLayout = { size in
-            if AirHockeyController.shared == nil {
-                AirHockeyController.shared = AirHockeyController(boardSize: size, gameView: gameView, scoreView: self)
-            }
-        }
-        constrainSubviews()
     }
     
-    func playersDidChange(_ players: [GamePlayer]) {
-        scoreLabel.text = players.map { player in "\(player.id): \(player.score)" }.joined(separator: "\n")
-    }
-    
-    private func constrainSubviews() {
+    func constrainSubviews(gameView: UIView, scoreView: UIView) {
         gameView.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(gameView)
@@ -55,20 +32,33 @@ class AirHockeyRootUIView: UIView {
             gameView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
         ])
         
-        addSubview(scoreLabel)
-        scoreLabel.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(scoreView)
+        scoreView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            scoreLabel.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 10),
-            scoreLabel.bottomAnchor.constraint(equalTo: gameView.bottomAnchor, constant: -10),
+            scoreView.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 10),
+            scoreView.bottomAnchor.constraint(equalTo: gameView.bottomAnchor, constant: -10),
         ])
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
+
+class AirHockeyScoreView: UILabel {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        font = .systemFont(ofSize: 24)
+        numberOfLines = 0
+    }
     
-    override func layoutSubviews() {
-        print("Game border layout")
+    func playersDidChange(_ players: [GamePlayer]) {
+        text = players.map { player in "\(player.id): \(player.score)" }.joined(separator: "\n")
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
