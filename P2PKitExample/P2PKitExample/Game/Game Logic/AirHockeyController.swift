@@ -11,19 +11,22 @@ import QuartzCore
 class AirHockeyController {
     static var shared: AirHockeyController?
     
+    private let room = GameRoom()
     private let physics: AirHockeyPhysics
     private let gameView: AirHockeyGameView
     private var displayLink: CADisplayLink!
     
-    init(boardSize: CGSize, playAreaView: AirHockeyGameView) {
+    init(boardSize: CGSize, gameView: AirHockeyGameView, scoreView: AirHockeyRootUIView) {
         self.physics = AirHockeyPhysics(boardSize: boardSize)
-        self.gameView = playAreaView
-        playAreaView.gestureDelegate = self.physics
-        self.displayLink = CADisplayLink(target: self, selector: #selector(malletUpdate))
+        self.gameView = gameView
+        gameView.gestureDelegate = self.physics
+        room.playersDidChange = scoreView.playersDidChange
+        
+        self.displayLink = CADisplayLink(target: self, selector: #selector(update))
         displayLink.add(to: .main, forMode: .common)
     }
     
-    @objc private func malletUpdate(displayLink: CADisplayLink) {
+    @objc private func update(displayLink: CADisplayLink) {
         physics.update(deltaTime: CGFloat(displayLink.duration))
         gameView.update(mallets: physics.mallets, puck: physics.puck, hole: physics.hole)
     }

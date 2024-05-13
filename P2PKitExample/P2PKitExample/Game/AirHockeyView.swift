@@ -3,27 +3,49 @@
 import SwiftUI
 
 struct AirHockeyView: UIViewRepresentable {
-    typealias UIViewType = GameBorderView
+    typealias UIViewType = AirHockeyRootUIView
     
-    func makeUIView(context: Context) -> GameBorderView {
+    func makeUIView(context: Context) -> AirHockeyRootUIView {
         let playAreaView = AirHockeyGameView()
-        return GameBorderView(gameView: playAreaView)
+        return AirHockeyRootUIView(gameView: playAreaView)
     }
     
-    func updateUIView(_ uiView: GameBorderView, context: Context) {
+    func updateUIView(_ uiView: AirHockeyRootUIView, context: Context) {
     }
 }
 
-class GameBorderView: UIView {
+class AirHockeyRootUIView: UIView {
     private var gameView: UIView
     
-    init(gameView: UIView) {
+    private var scoreLabel: UILabel = {
+        let label = UILabel()
+        label.text = "hello"
+        label.font = .systemFont(ofSize: 24)
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    init(gameView: AirHockeyGameView) {
         self.gameView = gameView
-        gameView.translatesAutoresizingMaskIntoConstraints = false
-        gameView.backgroundColor = .systemMint
-        
         super.init(frame: .zero)
+        
+        gameView.backgroundColor = .systemMint
         backgroundColor = UIColor(red: 10.0/255.0, green: 39.0/255.0, blue: 89.0/255.0, alpha: 1)
+        
+        gameView.didLayout = { size in
+            if AirHockeyController.shared == nil {
+                AirHockeyController.shared = AirHockeyController(boardSize: size, gameView: gameView, scoreView: self)
+            }
+        }
+        constrainSubviews()
+    }
+    
+    func playersDidChange(_ players: [GamePlayer]) {
+        scoreLabel.text = players.map { player in "\(player.id): \(player.score)" }.joined(separator: "\n")
+    }
+    
+    private func constrainSubviews() {
+        gameView.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(gameView)
         NSLayoutConstraint.activate([
@@ -32,14 +54,27 @@ class GameBorderView: UIView {
             gameView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
             gameView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
         ])
+        
+        addSubview(scoreLabel)
+        scoreLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            scoreLabel.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 10),
+            scoreLabel.bottomAnchor.constraint(equalTo: gameView.bottomAnchor, constant: -10),
+        ])
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func layoutSubviews() {
+        print("Game border layout")
+    }
 }
 
 class AirHockeyGameView: UIView {
+    var didLayout: ((CGSize) -> Void)?
+    
     weak var gestureDelegate: MultiGestureDetectorDelegate? {
         didSet {
             for gestureDetector in gestureDetectors.values {
@@ -49,7 +84,7 @@ class AirHockeyGameView: UIView {
     }
     
     private var gestureDetectors = [UIView: MultiGestureDetector]()
-
+    
     private lazy var debugLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -72,7 +107,7 @@ class AirHockeyGameView: UIView {
     }()
     
     private var malletViews = [UIView]()
- 
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemMint
@@ -116,9 +151,7 @@ class AirHockeyGameView: UIView {
     }
     
     override func layoutSubviews() {
-        if AirHockeyController.shared == nil {
-            AirHockeyController.shared = AirHockeyController(boardSize: frame.size, playAreaView: self)
-        }
+        didLayout?(frame.size)
     }
     
     private func createCircleView(radius: CGFloat) -> UIView {
