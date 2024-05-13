@@ -29,7 +29,15 @@ class Ball: Identifiable {
     }
 }
 
+protocol AirHockeyPhysicsDelegate: AnyObject {
+    func puckDidEnterHole(puck: Ball)
+    func puckDidCollide(puck: Ball, ball: Ball)
+    func puckDidCollideWithWall()
+}
+
 class AirHockeyPhysics {
+    weak var delegate: AirHockeyPhysicsDelegate? = nil
+    
     private(set) var puck: Ball
     private(set) var mallets = [Ball]()
     private(set) var hole: Ball
@@ -58,6 +66,7 @@ class AirHockeyPhysics {
     func updatePhysics(deltaTime: CGFloat) {
         // MARK: Collisions updates velocity & position
         collideWithWalls(puck)
+        
         // Mallets with puck
         for i in mallets.indices {
             collide(mallets[i], puck)
@@ -115,11 +124,13 @@ class AirHockeyPhysics {
         if b.position.x - r <= 0
             || b.position.x + r >= boardSize.width {
             b.velocity.x = -b.velocity.x
+            if b.info == .puck { delegate?.puckDidCollideWithWall() }
         }
         
         if b.position.y - r <= 0
             || b.position.y + r >= boardSize.height {
             b.velocity.y = -b.velocity.y
+            if b.info == .puck { delegate?.puckDidCollideWithWall() }
         }
     }
     
@@ -129,7 +140,8 @@ class AirHockeyPhysics {
         let distance = sqrt(dx * dx + dy * dy)
         
         if distance < hole.radius - puck.radius {
-            return
+            delegate?.puckDidEnterHole(puck: puck)
+            self.hole = Ball.createHole(boardSize: boardSize)
         }
     }
     
@@ -155,6 +167,10 @@ class AirHockeyPhysics {
             let malletSpeed: CGFloat = (dpNormA * 6).clamp(min: 330, max: 1200)
             b.velocity.x = nx * malletSpeed
             b.velocity.y = ny * malletSpeed
+            
+            if b.info == .puck {
+                delegate?.puckDidCollide(puck: b, ball: a)
+            }
         }
     }
     
@@ -197,6 +213,10 @@ class AirHockeyPhysics {
             a.position.y -= overlap * ny
             b.position.x += overlap * nx
             b.position.y += overlap * ny
+            
+            if b.info == .puck {
+                delegate?.puckDidCollide(puck: b, ball: a)
+            }
         }
     }
     
@@ -271,26 +291,25 @@ extension AirHockeyPhysics: MultiGestureDetectorDelegate {
 }
 
 //MARK: - Private Create Balls
-
 extension Ball {
     fileprivate static func createPuck(position: CGPoint) -> Ball {
         return Ball(info: .puck,
                     radius: GameConfig.ballRadius,
-                    mass: GameConfig.ballMass,
-                    velocity: GameConfig.ballInitialVelocity,
+                    mass: 1,
+                    velocity: CGPoint(x: -100, y: 300),
                     position:position)
     }
     
     fileprivate static func createMallet(position: CGPoint) -> Ball {
         return Ball(info: .mallet,
                     radius: GameConfig.malletRadius,
-                    mass: GameConfig.malletMass,
+                    mass: 10,
                     velocity: CGPoint.zero,
                     position: position)
     }
     
     fileprivate static func createHole(boardSize: CGSize) -> Ball {
-        let radius = GameConfig.holeRadius
+        let radius: CGFloat = 46
         let randomPosition = CGPoint(
             x: CGFloat.random(in: radius...boardSize.width-radius),
             y: CGFloat.random(in: radius...boardSize.height-radius-80))

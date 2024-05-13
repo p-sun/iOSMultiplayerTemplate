@@ -43,6 +43,7 @@ private class AirHockeyCoordinator {
     init(boardSize: CGSize, rootView: AirHockeyRootView, gameView: AirHockeyGameView, scoreView: AirHockeyScoreView) {
         self.rootView = rootView
         self.physics = AirHockeyPhysics(boardSize: boardSize)
+        
         self.gameView = gameView
         gameView.gestureDelegate = self.physics
         
@@ -50,6 +51,8 @@ private class AirHockeyCoordinator {
         
         self.displayLink = CADisplayLink(target: self, selector: #selector(update))
         displayLink.add(to: .main, forMode: .common)
+        
+        self.physics.delegate = self
     }
     
     @objc private func update(displayLink: CADisplayLink) {
@@ -59,5 +62,20 @@ private class AirHockeyCoordinator {
     
     fileprivate func invalidate() {
         displayLink.invalidate()
+    }
+}
+
+extension AirHockeyCoordinator: AirHockeyPhysicsDelegate {
+    func puckDidEnterHole(puck: Ball) {
+        room.incrementScore(GamePlayer(id: "Player 1", score: 9))
+        GameSounds.play(.ballEnteredHole)
+    }
+    
+    func puckDidCollide(puck: Ball, ball: Ball) {
+        GameSounds.play(.ballCollision)
+    }
+    
+    func puckDidCollideWithWall() {
+        GameSounds.play(.ballCollision)
     }
 }
