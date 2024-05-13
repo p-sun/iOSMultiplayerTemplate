@@ -19,7 +19,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var isPresented = false
     var body: some View {
         Group {
             TabView(selection: .constant(1)) {
@@ -34,12 +33,6 @@ struct ContentView: View {
                     .tabItem {
                         Label("Game", systemImage: "gamecontroller.fill")
                     }
-                
-                Button("Open Air Hockey In new Window") {
-                    isPresented = true
-                }.sheet(isPresented: $isPresented) {
-                    AirHockeyView()
-                }
             }
         }.tint(.mint)
     }

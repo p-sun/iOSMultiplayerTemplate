@@ -21,7 +21,6 @@ class GameRoom {
     }
     
     init() {
-        print("Init Game Room")
         self.players = [GamePlayer(id: "Player 1", score: 0),
                         GamePlayer(id: "Player 2", score: 0),
                         GamePlayer(id: "Player 3", score: 0)]
