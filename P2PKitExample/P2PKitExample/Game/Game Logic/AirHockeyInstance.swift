@@ -53,6 +53,10 @@ private class AirHockeyCoordinator {
         displayLink.add(to: .main, forMode: .common)
         
         self.physics.delegate = self
+        
+        for player in room.players {
+            self.physics.addMallet(for: player.id)
+        }
     }
     
     @objc private func update(displayLink: CADisplayLink) {
@@ -67,11 +71,16 @@ private class AirHockeyCoordinator {
 
 extension AirHockeyCoordinator: AirHockeyPhysicsDelegate {
     func puckDidEnterHole(puck: Ball) {
-        room.incrementScore(GamePlayer(id: "Player 1", score: 9))
+        if let ownerID = puck.ownerID {
+            room.incrementScore(ownerID)
+        }
         GameSounds.play(.ballEnteredHole)
     }
     
     func puckDidCollide(puck: Ball, ball: Ball) {
+        if ball.info == .mallet, let ownerID = ball.ownerID {
+            puck.ownerID = ownerID
+        }
         GameSounds.play(.ballCollision)
     }
     

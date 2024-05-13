@@ -7,9 +7,20 @@
 
 import Foundation
 
-struct GamePlayer {
+struct GamePlayer: Identifiable {
     let id: String
+    let displayName: String
     let score: Int
+    
+    fileprivate init(id: String, displayName: String, score: Int) {
+        self.id = id
+        self.displayName = displayName
+        self.score = score
+    }
+    
+    fileprivate func incrementingScore() -> GamePlayer {
+        return GamePlayer(id: id, displayName: displayName, score: score + 1)
+    }
 }
 
 class GameRoom {
@@ -21,15 +32,14 @@ class GameRoom {
     }
     
     init() {
-        self.players = [GamePlayer(id: "Player 1", score: 0),
-                        GamePlayer(id: "Player 2", score: 0),
-                        GamePlayer(id: "Player 3", score: 0)]
+        self.players = [GamePlayer(id: UUID().uuidString, displayName: "Player 1", score: 0),
+                        GamePlayer(id: UUID().uuidString, displayName: "Player 2", score: 0),
+                        GamePlayer(id: UUID().uuidString, displayName: "Player 3", score: 0)]
     }
     
-    func incrementScore(_ player: GamePlayer) {
-        let index = players.firstIndex { $0.id == player.id }
-        if let index = index {
-            players[index] = GamePlayer(id: player.id, score: players[index].score + 1)
+    func incrementScore(_ playerID: GamePlayer.ID) {
+        if let index = players.firstIndex(where: { $0.id == playerID }) {
+            players[index] = players[index].incrementingScore()
             playersDidChange?(players)
         }
     }

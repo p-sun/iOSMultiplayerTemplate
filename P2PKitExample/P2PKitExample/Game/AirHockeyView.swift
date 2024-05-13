@@ -54,7 +54,7 @@ class AirHockeyScoreView: UILabel {
     }
     
     func playersDidChange(_ players: [GamePlayer]) {
-        text = players.map { player in "\(player.id): \(player.score)" }.joined(separator: "\n")
+        text = players.map { player in "\(player.displayName): \(player.score)" }.joined(separator: "\n")
     }
     
     required init?(coder: NSCoder) {

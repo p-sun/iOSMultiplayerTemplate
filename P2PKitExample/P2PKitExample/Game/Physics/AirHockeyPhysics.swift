@@ -19,13 +19,15 @@ class Ball: Identifiable {
     var velocity: CGPoint
     var position: CGPoint
     var isGrabbed = false
+    var ownerID: GamePlayer.ID?
     
-    fileprivate init(info: Info, radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint) {
+    fileprivate init(info: Info, radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint, ownerID: GamePlayer.ID?) {
         self.info = info
         self.radius = radius
         self.mass = mass
         self.velocity = velocity
         self.position = position
+        self.ownerID = ownerID
     }
 }
 
@@ -48,15 +50,19 @@ class AirHockeyPhysics {
         self.puck = Ball.createPuck(position:  CGPoint(
             x: boardSize.width/2,
             y: boardSize.height/2))
-        self.mallets = [
-            Ball.createMallet(
-                position: CGPoint(x: boardSize.width/2, y: boardSize.height - 80)),
-            Ball.createMallet(
-                position: CGPoint(x: boardSize.width/2, y: boardSize.height - 300))]
         self.hole = Ball.createHole(boardSize: boardSize)
     }
     
     //MARK: - Update
+    
+    func addMallet(for playerID: GamePlayer.ID) {
+        let ball = Ball.createMallet(boardSize: boardSize, ownerID: playerID)
+        mallets.append(ball)
+    }
+    
+    func removeMallet(for playerID: GamePlayer.ID) {
+        mallets.removeAll(where: { $0.ownerID == playerID })
+    }
     
     func update(deltaTime: CGFloat) {
         updatePhysics(deltaTime: deltaTime)
@@ -124,6 +130,7 @@ class AirHockeyPhysics {
         if b.position.x - r <= 0
             || b.position.x + r >= boardSize.width {
             b.velocity.x = -b.velocity.x
+
             if b.info == .puck { delegate?.puckDidCollideWithWall() }
         }
         
@@ -297,26 +304,33 @@ extension Ball {
                     radius: GameConfig.ballRadius,
                     mass: 1,
                     velocity: CGPoint(x: -100, y: 300),
-                    position:position)
+                    position:position,
+                    ownerID: nil)
     }
     
-    fileprivate static func createMallet(position: CGPoint) -> Ball {
+    fileprivate static func createMallet(boardSize: CGSize, ownerID: GamePlayer.ID) -> Ball {
+        let radius: CGFloat = GameConfig.malletRadius
+        let position = CGPoint(
+            x: .random(in: radius...boardSize.width-radius),
+            y: .random(in: radius...boardSize.height-radius-80))
         return Ball(info: .mallet,
                     radius: GameConfig.malletRadius,
                     mass: 10,
                     velocity: CGPoint.zero,
-                    position: position)
+                    position: position,
+                    ownerID: ownerID)
     }
     
     fileprivate static func createHole(boardSize: CGSize) -> Ball {
-        let radius: CGFloat = 46
-        let randomPosition = CGPoint(
-            x: CGFloat.random(in: radius...boardSize.width-radius),
-            y: CGFloat.random(in: radius...boardSize.height-radius-80))
+        let radius: CGFloat = GameConfig.holeRadius
+        let position = CGPoint(
+            x: .random(in: radius...boardSize.width-radius),
+            y: .random(in: radius...boardSize.height-radius-80))
         return Ball(info: .hole,
                     radius: GameConfig.holeRadius,
                     mass: 0,
                     velocity: CGPoint.zero,
-                    position: randomPosition)
+                    position: position,
+                    ownerID: nil)
     }
 }
