@@ -50,13 +50,9 @@ class MultiGestureDetector: NSObject {
         let location = gesture.location(in: relativeToView)
         switch gesture.state {
         case .began, .changed:
-            if let view = gesture.view {
-                delegate?.gestureDidMoveTo(location, velocity: gesture.velocity(in: relativeToView), tag: tag)
-            }
+            delegate?.gestureDidMoveTo(location, velocity: gesture.velocity(in: relativeToView), tag: tag)
         case .ended:
-            if let view = gesture.view {
-                delegate?.gesturePanDidEnd(location, velocity: gesture.velocity(in: relativeToView), tag: tag)
-            }
+            delegate?.gesturePanDidEnd(location, velocity: gesture.velocity(in: relativeToView), tag: tag)
         default:
             break
         }
@@ -66,13 +62,9 @@ class MultiGestureDetector: NSObject {
         let location = gesture.location(in: relativeToView)
         switch gesture.state {
         case .began:
-            if let view = gesture.view {
-                delegate?.gestureDidStart(location, tag: tag)
-            }
+            delegate?.gestureDidStart(location, tag: tag)
         case .ended:
-            if let view = gesture.view {
-                delegate?.gesturePressDidEnd(location, tag: tag)
-            }
+            delegate?.gesturePressDidEnd(location, tag: tag)
         default:
             break
         }
