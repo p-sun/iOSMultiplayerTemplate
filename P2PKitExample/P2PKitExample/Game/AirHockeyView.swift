@@ -1,6 +1,7 @@
 //  Created by Paige Sun on 5/8/24.
 
 import SwiftUI
+import UIKit
 
 struct AirHockeyView: UIViewRepresentable {
     typealias UIViewType = AirHockeyRootView
@@ -101,7 +102,6 @@ class AirHockeyGameView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemMint
-        
         addSubview(holeView)
         addSubview(puckView)
         addSubview(debugLabel)
@@ -116,13 +116,13 @@ class AirHockeyGameView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func update(mallets: [Ball], puck: Ball, hole: Ball) {
-        updateMallets(mallets)
+    func update(mallets: [Ball], puck: Ball, hole: Ball, players: [GamePlayer]) {
+        updateMallets(mallets, players: players)
         holeView.center = hole.position
         puckView.center = puck.position
     }
     
-    private func updateMallets(_ mallets: [Ball]) {
+    private func updateMallets(_ mallets: [Ball], players: [GamePlayer]) {
         for (i, mallet) in mallets.enumerated() {
             if i > malletViews.count - 1 {
                 let view = createCircleView(radius: GameConfig.malletRadius)
@@ -133,9 +133,14 @@ class AirHockeyGameView: UIView {
                 gestureDetector.attachTo(view: view, relativeToView: self)
                 gestureDetector.delegate = gestureDelegate
             }
+            let malletView = malletViews[i]
+            malletView.center = mallet.position
             
-            malletViews[i].center = mallet.position
-            malletViews[i].backgroundColor = mallet.isGrabbed ? .systemOrange : .systemIndigo
+            malletView.layer.borderWidth = 6
+            if let player = players.first(where: { $0.id == mallet.ownerID }) {
+                malletView.backgroundColor = player.color
+            }
+            malletView.layer.borderColor = mallet.isGrabbed ? UIColor.white.cgColor : UIColor.black.cgColor
         }
         // TODO: Move other malletViews out of view. Keep a reusable pool of malletViews
     }
