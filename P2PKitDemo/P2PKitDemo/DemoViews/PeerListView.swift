@@ -36,7 +36,7 @@ class PeerListViewModel: ObservableObject {
     }
 }
 
-extension PeerListViewModel: P2PNetworkPlayerDelegate {
+extension PeerListViewModel: P2PNetworkPeerDelegate {
     func p2pNetwork(didUpdate peer: Peer) {
         DispatchQueue.main.async { [weak self] in
             self?.peerList = P2PNetwork.allPeers

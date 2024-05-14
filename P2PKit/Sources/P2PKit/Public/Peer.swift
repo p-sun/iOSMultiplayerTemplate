@@ -1,5 +1,5 @@
 //
-//  Player.swift
+//  Peer.swift
 //  P2PKitExample
 //
 //  Created by Paige Sun on 4/24/24.

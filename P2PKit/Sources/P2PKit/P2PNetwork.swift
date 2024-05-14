@@ -21,7 +21,7 @@ public protocol P2PNetworkDataDelegate: AnyObject {
     func p2pNetwork(didReceive data: Data, dataAsJson json: [String: Any]?, from peer: Peer) -> Bool
 }
 
-public protocol P2PNetworkPlayerDelegate: AnyObject {
+public protocol P2PNetworkPeerDelegate: AnyObject {
     func p2pNetwork(didUpdate peer: Peer) -> Void
 }
 
@@ -45,8 +45,10 @@ public class P2PNetwork {
     }
     
     public static func start() {
-        session.delegate = sessionListener
-        session.start()
+        if session.delegate == nil {
+            session.delegate = sessionListener
+            session.start()
+        }
     }
     
     public static func sendEvent<T: Codable>(eventName: String, payload: T, senderID: String?, to peers: [MCPeerID] = []) -> EventInfo {
@@ -83,12 +85,12 @@ public class P2PNetwork {
         sessionListener.removeDataDelegate(delegate)
     }
     
-    public static func addPeerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
-        sessionListener.addPlayerDelegate(delegate)
+    public static func addPeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
+        sessionListener.addPeerDelegate(delegate)
     }
     
-    public static func removePlayerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
-        sessionListener.removePlayerDelegate(delegate)
+    public static func removePeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
+        sessionListener.removePeerDelegate(delegate)
     }
     
     public static func connectionState(for peer: MCPeerID) -> MCSessionState? {
@@ -115,7 +117,7 @@ public class P2PNetwork {
 }
 
 private class P2PNetworkSessionListener {
-    private var peerDelegates = [WeakPlayerDelegate]()
+    private var peerDelegates = [WeakPeerDelegate]()
     
     // Delegates for specific Event with event name
     private var dataDelegates = [String: [WeakDataDelegate]]()
@@ -150,14 +152,14 @@ private class P2PNetworkSessionListener {
         }
     }
     
-    func addPlayerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
+    func addPeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
         if !peerDelegates.contains(where: { $0.delegate === delegate }) {
-            peerDelegates.append(WeakPlayerDelegate(delegate))
+            peerDelegates.append(WeakPeerDelegate(delegate))
         }
         peerDelegates.removeAll(where: { $0.delegate == nil })
     }
     
-    func removePlayerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
+    func removePeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
         peerDelegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
     }
 }
@@ -195,10 +197,10 @@ private class WeakDataDelegate {
     }
 }
 
-private class WeakPlayerDelegate {
-    weak var delegate: P2PNetworkPlayerDelegate?
+private class WeakPeerDelegate {
+    weak var delegate: P2PNetworkPeerDelegate?
     
-    init(_ delegate: P2PNetworkPlayerDelegate) {
+    init(_ delegate: P2PNetworkPeerDelegate) {
         self.delegate = delegate
     }
 }

@@ -162,11 +162,11 @@
 		9B6E23462BF3D6D8003E600B /* DemoViews */ = {
 			isa = PBXGroup;
 			children = (
-				9B6E23542BF3D795003E600B /* DebugDataView.swift */,
 				9B6E23522BF3D795003E600B /* PeerListView.swift */,
-				9B6E23552BF3D795003E600B /* ShowBrowserButton.swift */,
-				9B6E23532BF3D795003E600B /* SyncedCircles.swift */,
 				9B6E23512BF3D795003E600B /* SyncedCounter.swift */,
+				9B6E23532BF3D795003E600B /* SyncedCircles.swift */,
+				9B6E23542BF3D795003E600B /* DebugDataView.swift */,
+				9B6E23552BF3D795003E600B /* ShowBrowserButton.swift */,
 				9B07F3A62BF3E6C700DFCDC5 /* View+Extensions.swift */,
 			);
 			path = DemoViews;
