@@ -10,15 +10,14 @@ import MultipeerConnectivity
 // MARK: - P2PSession
 
 protocol P2PSessionDelegate: AnyObject {
-    func p2pSession(_ session: P2PSession, didUpdate player: Player) -> Void
-    
-    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String: Any]?, from player: Player)
+    func p2pSession(_ session: P2PSession, didUpdate peer: Peer) -> Void
+    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String: Any]?, from peer: Peer)
 }
 
 class P2PSession: NSObject {
     weak var delegate: P2PSessionDelegate?
     
-    let myPlayer: Player
+    let myPeer: Peer
     private let myDiscoveryInfo = DiscoveryInfo()
     
     private let session: MCSession
@@ -31,15 +30,15 @@ class P2PSession: NSObject {
     private var sessionStates = [MCPeerID: MCSessionState]() // protected with peersLock
     private var invitesHistory = [MCPeerID: InviteHistory]() // protected with peersLock
     
-    var allPeers: [Player] {
+    var allPeers: [Peer] {
         peersLock.lock(); defer { peersLock.unlock() }
         prettyPrint(level: .debug, "connectedPeers: \(session.connectedPeers)")
-        return session.connectedPeers.filter { foundPeers.contains($0) }.map { Player($0) }
+        return session.connectedPeers.filter { foundPeers.contains($0) }.map { Peer($0) }
     }
     
-    init(myPlayer: Player) {
-        self.myPlayer = myPlayer
-        let myPeerID = myPlayer.peerID
+    init(myPeer: Peer) {
+        self.myPeer = myPeer
+        let myPeerID = myPeer.peerID
         session = MCSession(peer: myPeerID, securityIdentity: nil, encryptionPreference: .required)
         advertiser = MCNearbyServiceAdvertiser(peer: myPeerID,
                                                discoveryInfo: ["discoveryId": "\(myDiscoveryInfo.discoveryId)"],
@@ -56,7 +55,7 @@ class P2PSession: NSObject {
     func start() {
         advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
-        delegate?.p2pSession(self, didUpdate: myPlayer)
+        delegate?.p2pSession(self, didUpdate: myPeer)
     }
     
     deinit {
@@ -130,7 +129,7 @@ class P2PSession: NSObject {
             }
             peersLock.unlock()
             
-            delegate?.p2pSession(self, didUpdate: Player(peerID))
+            delegate?.p2pSession(self, didUpdate: Peer(peerID))
             return true
         }
         return false
@@ -158,7 +157,7 @@ extension P2PSession: MCSessionDelegate {
         }
         peersLock.unlock()
         
-        delegate?.p2pSession(self, didUpdate: Player(peerID))
+        delegate?.p2pSession(self, didUpdate: Peer(peerID))
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
@@ -171,7 +170,7 @@ extension P2PSession: MCSessionDelegate {
             }
         }
         
-        delegate?.p2pSession(self, didReceive: data, dataAsJson: json, from: Player(peerID))
+        delegate?.p2pSession(self, didReceive: data, dataAsJson: json, from: Peer(peerID))
     }
     
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
@@ -209,7 +208,7 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
             invitePeerIfNeeded(peerID)
             peersLock.unlock()
             
-            delegate?.p2pSession(self, didUpdate: Player(peerID))
+            delegate?.p2pSession(self, didUpdate: Peer(peerID))
         }
     }
     
@@ -224,7 +223,7 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
         sessionStates[peerID] = nil
         peersLock.unlock()
         
-        delegate?.p2pSession(self, didUpdate: Player(peerID))
+        delegate?.p2pSession(self, didUpdate: Peer(peerID))
     }
 }
 

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import P2PKit
 
 struct SyncedCounter: View {
     @StateObject private var networking = P2PSyncedObject<Int>(name: "SyncedCounter", initial: 1)

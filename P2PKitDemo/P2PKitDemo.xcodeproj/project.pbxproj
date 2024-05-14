@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9B07F3A72BF3E6C700DFCDC5 /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B07F3A62BF3E6C700DFCDC5 /* View+Extensions.swift */; };
 		9B6E22CE2BF3D344003E600B /* P2PKitDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E22CD2BF3D344003E600B /* P2PKitDemoApp.swift */; };
 		9B6E22D02BF3D344003E600B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E22CF2BF3D344003E600B /* ContentView.swift */; };
 		9B6E22D22BF3D345003E600B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9B6E22D12BF3D345003E600B /* Assets.xcassets */; };
@@ -19,12 +20,6 @@
 		9B6E23582BF3D795003E600B /* SyncedCircles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23532BF3D795003E600B /* SyncedCircles.swift */; };
 		9B6E23592BF3D795003E600B /* DebugDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23542BF3D795003E600B /* DebugDataView.swift */; };
 		9B6E235A2BF3D795003E600B /* ShowBrowserButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23552BF3D795003E600B /* ShowBrowserButton.swift */; };
-		9B6E23632BF3D7D8003E600B /* P2PNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E235C2BF3D7D8003E600B /* P2PNetwork.swift */; };
-		9B6E23642BF3D7D8003E600B /* P2PUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E235E2BF3D7D8003E600B /* P2PUtils.swift */; };
-		9B6E23652BF3D7D8003E600B /* P2PSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E235F2BF3D7D8003E600B /* P2PSession.swift */; };
-		9B6E23662BF3D7D8003E600B /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23602BF3D7D8003E600B /* Player.swift */; };
-		9B6E23672BF3D7D8003E600B /* P2PLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23612BF3D7D8003E600B /* P2PLogger.swift */; };
-		9B6E23682BF3D7D8003E600B /* P2PSyncedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23622BF3D7D8003E600B /* P2PSyncedObject.swift */; };
 		9B6E23742BF3D7E8003E600B /* AirHockeyInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E236B2BF3D7E8003E600B /* AirHockeyInstance.swift */; };
 		9B6E23752BF3D7E8003E600B /* AirHockeyRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E236C2BF3D7E8003E600B /* AirHockeyRoom.swift */; };
 		9B6E23762BF3D7E8003E600B /* GameSounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E236E2BF3D7E8003E600B /* GameSounds.swift */; };
@@ -32,6 +27,7 @@
 		9B6E23782BF3D7E8003E600B /* MultiGestureDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23702BF3D7E8003E600B /* MultiGestureDetector.swift */; };
 		9B6E23792BF3D7E8003E600B /* AirHockeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23712BF3D7E8003E600B /* AirHockeyView.swift */; };
 		9B6E237A2BF3D7E8003E600B /* AirHockeyPhysics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23732BF3D7E8003E600B /* AirHockeyPhysics.swift */; };
+		9B6E237D2BF3DBD5003E600B /* P2PKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9B6E237C2BF3DBD5003E600B /* P2PKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +48,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9B07F3A62BF3E6C700DFCDC5 /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
 		9B6E22CA2BF3D344003E600B /* P2PKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = P2PKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B6E22CD2BF3D344003E600B /* P2PKitDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PKitDemoApp.swift; sourceTree = "<group>"; };
 		9B6E22CF2BF3D344003E600B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -68,12 +65,6 @@
 		9B6E23532BF3D795003E600B /* SyncedCircles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncedCircles.swift; sourceTree = "<group>"; };
 		9B6E23542BF3D795003E600B /* DebugDataView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugDataView.swift; sourceTree = "<group>"; };
 		9B6E23552BF3D795003E600B /* ShowBrowserButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowBrowserButton.swift; sourceTree = "<group>"; };
-		9B6E235C2BF3D7D8003E600B /* P2PNetwork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = P2PNetwork.swift; sourceTree = "<group>"; };
-		9B6E235E2BF3D7D8003E600B /* P2PUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = P2PUtils.swift; sourceTree = "<group>"; };
-		9B6E235F2BF3D7D8003E600B /* P2PSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = P2PSession.swift; sourceTree = "<group>"; };
-		9B6E23602BF3D7D8003E600B /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
-		9B6E23612BF3D7D8003E600B /* P2PLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = P2PLogger.swift; sourceTree = "<group>"; };
-		9B6E23622BF3D7D8003E600B /* P2PSyncedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = P2PSyncedObject.swift; sourceTree = "<group>"; };
 		9B6E236B2BF3D7E8003E600B /* AirHockeyInstance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirHockeyInstance.swift; sourceTree = "<group>"; };
 		9B6E236C2BF3D7E8003E600B /* AirHockeyRoom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirHockeyRoom.swift; sourceTree = "<group>"; };
 		9B6E236E2BF3D7E8003E600B /* GameSounds.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameSounds.swift; sourceTree = "<group>"; };
@@ -88,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B6E237D2BF3DBD5003E600B /* P2PKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,12 +123,11 @@
 		9B6E22CC2BF3D344003E600B /* P2PKitDemo */ = {
 			isa = PBXGroup;
 			children = (
-				9B6E235B2BF3D7D8003E600B /* P2PKit */,
-				9B6E23692BF3D7E8003E600B /* Game */,
 				9B6E23462BF3D6D8003E600B /* DemoViews */,
-				9B6E23282BF3D556003E600B /* Info.plist */,
+				9B6E23692BF3D7E8003E600B /* Game */,
 				9B6E22CD2BF3D344003E600B /* P2PKitDemoApp.swift */,
 				9B6E22CF2BF3D344003E600B /* ContentView.swift */,
+				9B6E23282BF3D556003E600B /* Info.plist */,
 				9B6E22D12BF3D345003E600B /* Assets.xcassets */,
 				9B6E22D32BF3D345003E600B /* Preview Content */,
 			);
@@ -176,29 +167,9 @@
 				9B6E23552BF3D795003E600B /* ShowBrowserButton.swift */,
 				9B6E23532BF3D795003E600B /* SyncedCircles.swift */,
 				9B6E23512BF3D795003E600B /* SyncedCounter.swift */,
+				9B07F3A62BF3E6C700DFCDC5 /* View+Extensions.swift */,
 			);
 			path = DemoViews;
-			sourceTree = "<group>";
-		};
-		9B6E235B2BF3D7D8003E600B /* P2PKit */ = {
-			isa = PBXGroup;
-			children = (
-				9B6E235D2BF3D7D8003E600B /* Internal */,
-				9B6E235C2BF3D7D8003E600B /* P2PNetwork.swift */,
-				9B6E23622BF3D7D8003E600B /* P2PSyncedObject.swift */,
-			);
-			path = P2PKit;
-			sourceTree = "<group>";
-		};
-		9B6E235D2BF3D7D8003E600B /* Internal */ = {
-			isa = PBXGroup;
-			children = (
-				9B6E235E2BF3D7D8003E600B /* P2PUtils.swift */,
-				9B6E235F2BF3D7D8003E600B /* P2PSession.swift */,
-				9B6E23602BF3D7D8003E600B /* Player.swift */,
-				9B6E23612BF3D7D8003E600B /* P2PLogger.swift */,
-			);
-			path = Internal;
 			sourceTree = "<group>";
 		};
 		9B6E23692BF3D7E8003E600B /* Game */ = {
@@ -255,6 +226,9 @@
 			dependencies = (
 			);
 			name = P2PKitDemo;
+			packageProductDependencies = (
+				9B6E237C2BF3DBD5003E600B /* P2PKit */,
+			);
 			productName = P2PKitDemo;
 			productReference = 9B6E22CA2BF3D344003E600B /* P2PKitDemo.app */;
 			productType = "com.apple.product-type.application";
@@ -327,6 +301,9 @@
 				Base,
 			);
 			mainGroup = 9B6E22C12BF3D344003E600B;
+			packageReferences = (
+				9B6E237B2BF3DBD5003E600B /* XCLocalSwiftPackageReference "../P2PKit" */,
+			);
 			productRefGroup = 9B6E22CB2BF3D344003E600B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -369,26 +346,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9B6E23662BF3D7D8003E600B /* Player.swift in Sources */,
 				9B6E23762BF3D7E8003E600B /* GameSounds.swift in Sources */,
-				9B6E23642BF3D7D8003E600B /* P2PUtils.swift in Sources */,
 				9B6E23772BF3D7E8003E600B /* MathUtils.swift in Sources */,
 				9B6E23752BF3D7E8003E600B /* AirHockeyRoom.swift in Sources */,
 				9B6E235A2BF3D795003E600B /* ShowBrowserButton.swift in Sources */,
 				9B6E23572BF3D795003E600B /* PeerListView.swift in Sources */,
-				9B6E23672BF3D7D8003E600B /* P2PLogger.swift in Sources */,
 				9B6E23792BF3D7E8003E600B /* AirHockeyView.swift in Sources */,
 				9B6E22D02BF3D344003E600B /* ContentView.swift in Sources */,
 				9B6E22CE2BF3D344003E600B /* P2PKitDemoApp.swift in Sources */,
 				9B6E237A2BF3D7E8003E600B /* AirHockeyPhysics.swift in Sources */,
-				9B6E23682BF3D7D8003E600B /* P2PSyncedObject.swift in Sources */,
 				9B6E23582BF3D795003E600B /* SyncedCircles.swift in Sources */,
 				9B6E23592BF3D795003E600B /* DebugDataView.swift in Sources */,
 				9B6E23742BF3D7E8003E600B /* AirHockeyInstance.swift in Sources */,
 				9B6E23562BF3D795003E600B /* SyncedCounter.swift in Sources */,
+				9B07F3A72BF3E6C700DFCDC5 /* View+Extensions.swift in Sources */,
 				9B6E23782BF3D7E8003E600B /* MultiGestureDetector.swift in Sources */,
-				9B6E23632BF3D7D8003E600B /* P2PNetwork.swift in Sources */,
-				9B6E23652BF3D7D8003E600B /* P2PSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -716,6 +688,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		9B6E237B2BF3DBD5003E600B /* XCLocalSwiftPackageReference "../P2PKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../P2PKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9B6E237C2BF3DBD5003E600B /* P2PKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = P2PKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9B6E22C22BF3D344003E600B /* Project object */;
 }

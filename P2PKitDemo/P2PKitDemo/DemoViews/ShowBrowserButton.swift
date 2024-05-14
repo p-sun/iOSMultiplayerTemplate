@@ -8,6 +8,7 @@
 import SwiftUI
 import Foundation
 import MultipeerConnectivity
+import P2PKit
 
 struct ShowBrowserButton: View {
     @State private var isPresented = false

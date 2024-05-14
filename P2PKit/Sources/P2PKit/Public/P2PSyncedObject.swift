@@ -7,8 +7,8 @@
 
 import Foundation
 
-class P2PSyncedObject<T: Codable>: ObservableObject {
-    var value: T {
+public class P2PSyncedObject<T: Codable>: ObservableObject {
+    public var value: T {
         get {
             return val
         }
@@ -21,12 +21,12 @@ class P2PSyncedObject<T: Codable>: ObservableObject {
     private let networking: P2PNetworkedEvent
     private var lastUpdated = Date().timeIntervalSince1970
     
-    init(name: String, initial: T) {
+    public init(name: String, initial: T) {
         prettyPrint("P2PSynced init: " + name)
         val = initial
         
         networking = P2PNetworkedEvent(eventName: name)
-        networking.listen { (event: Event<T>, sender: Player) in
+        networking.listen { (event: Event<T>, sender: Peer) in
             DispatchQueue.main.async { [weak self] in
                 
                 guard let self = self else { return }
@@ -51,7 +51,7 @@ class P2PSyncedObject<T: Codable>: ObservableObject {
 }
 
 private class P2PNetworkedEvent {
-    private typealias DidReceiveData = (Data, [String : Any]?, Player) -> Void
+    private typealias DidReceiveData = (Data, [String : Any]?, Peer) -> Void
 
     let eventName: String
     let entityID = UUID().uuidString
@@ -67,7 +67,7 @@ private class P2PNetworkedEvent {
         return P2PNetwork.sendEvent(eventName: eventName, payload: payload, senderID: entityID)
     }
     
-    func listen<T: Codable>(_ callback: @escaping (_ event: Event<T>, _ sender: Player) -> Void) {
+    func listen<T: Codable>(_ callback: @escaping (_ event: Event<T>, _ sender: Peer) -> Void) {
         let castedCallback: DidReceiveData = { [weak self] (data, json, sender) in
             guard let self = self else { return }
             do {
@@ -84,7 +84,7 @@ private class P2PNetworkedEvent {
 }
 
 extension P2PNetworkedEvent: P2PNetworkDataDelegate {
-    func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
-        return ((didReceiveData?(data, json, player)) != nil) == true
+    func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from peer: Peer) -> Bool {
+        return ((didReceiveData?(data, json, peer)) != nil) == true
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import P2PKit
 
 class DebugDataViewModel: ObservableObject {
     @Published var recentJsons = Array(repeating: "", count: 10)
@@ -16,7 +17,7 @@ class DebugDataViewModel: ObservableObject {
 }
 
 extension DebugDataViewModel: P2PNetworkDataDelegate {
-    func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) -> Bool {
+    func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from peer: Peer) -> Bool {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let json = json else { return }
             

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import P2PKit
 
 struct SendableCircle: Codable {
     var point: CGPoint

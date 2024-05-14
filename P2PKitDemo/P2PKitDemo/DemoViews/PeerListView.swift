@@ -6,12 +6,13 @@
 //
 
 import SwiftUI
+import P2PKit
 
 class PeerListViewModel: ObservableObject {
-    @Published var playerList = [Player]()
+    @Published var peerList = [Peer]()
         
     init() {
-        P2PNetwork.addPlayerDelegate(self)
+        P2PNetwork.addPeerDelegate(self)
         P2PNetwork.start()
     }
     
@@ -21,7 +22,7 @@ class PeerListViewModel: ObservableObject {
     }
     
     func resetSession() {
-        P2PNetwork.resetSession(displayName: newDisplayName(from: P2PNetwork.myPlayer.displayName))
+        P2PNetwork.resetSession(displayName: newDisplayName(from: P2PNetwork.myPeer.displayName))
     }
     
     // oldName: "My iPhone <<7>>"
@@ -36,9 +37,9 @@ class PeerListViewModel: ObservableObject {
 }
 
 extension PeerListViewModel: P2PNetworkPlayerDelegate {
-    func p2pNetwork(didUpdate player: Player) {
+    func p2pNetwork(didUpdate peer: Peer) {
         DispatchQueue.main.async { [weak self] in
-            self?.playerList = P2PNetwork.allPeers
+            self?.peerList = P2PNetwork.allPeers
         }
     }
 }
@@ -49,7 +50,7 @@ struct PeerListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Current Device").p2pTitleStyle()
-            Text(P2PNetwork.myPlayer.displayName)
+            Text(P2PNetwork.myPeer.displayName)
             HStack {
                 Button("Change Name") {
                     model.changeName()
@@ -61,10 +62,10 @@ struct PeerListView: View {
             
             Text("Found Devices").p2pTitleStyle()
             VStack(alignment: .leading, spacing: 10) {
-                if model.playerList.isEmpty {
+                if model.peerList.isEmpty {
                     ProgressView()
                 } else {
-                    ForEach(model.playerList, id: \.peerID) { peer in
+                    ForEach(model.peerList, id: \.peerID) { peer in
                         let connectionState = P2PNetwork.connectionState(for: peer.peerID)
                         let connectionStateStr = connectionState != nil ? connectionState!.debugDescription : "No Session"
                         Text("\(peer.peerID.displayName): \(connectionStateStr)")

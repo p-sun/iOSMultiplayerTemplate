@@ -8,54 +8,48 @@
 import Foundation
 import MultipeerConnectivity
 
-struct P2PConstants {
-    static let networkChannelName = "my-p2p-service"
-    static let loggerEnabled = true
+public struct P2PConstants {
+    public static var networkChannelName = "my-p2p-service"
+    public static var loggerEnabled = true
     
     struct UserDefaultsKeys {
-        static let myPlayer = "MyPlayerIDKey"
+        static let myPeer = "com.P2PKit.MyPeerIDKey"
     }
 }
 
-protocol P2PNetworkDataDelegate: AnyObject {
-    func p2pNetwork(didReceive data: Data, dataAsJson json: [String: Any]?, from player: Player) -> Bool
+public protocol P2PNetworkDataDelegate: AnyObject {
+    func p2pNetwork(didReceive data: Data, dataAsJson json: [String: Any]?, from peer: Peer) -> Bool
 }
 
-protocol P2PNetworkPlayerDelegate: AnyObject {
-    func p2pNetwork(didUpdate player: Player) -> Void
+public protocol P2PNetworkPlayerDelegate: AnyObject {
+    func p2pNetwork(didUpdate peer: Peer) -> Void
 }
 
-struct Event<T: Codable>: Codable {
-    let eventName: String
-    let info: EventInfo
-    let payload: T
+public struct EventInfo: Codable {
+    public let senderEntityID: String?
+    public let sendTime: Double
 }
 
-struct EventInfo: Codable {
-    let senderEntityID: String?
-    let sendTime: Double
-}
-
-class P2PNetwork {
-    private static var session = P2PSession(myPlayer: UserDefaults.standard.myPlayer)
+public class P2PNetwork {
+    private static var session = P2PSession(myPeer: UserDefaults.standard.myPeer)
     private static let sessionListener = P2PNetworkSessionListener()
     
     private static var eventListeners = [String: [(Any) -> Void]]()
     
-    static var myPlayer: Player {
-        return session.myPlayer
+    public static var myPeer: Peer {
+        return session.myPeer
     }
     
-    static var allPeers: [Player] {
+    public static var allPeers: [Peer] {
         return session.allPeers
     }
     
-    static func start() {
+    public static func start() {
         session.delegate = sessionListener
         session.start()
     }
     
-    static func sendEvent<T: Codable>(eventName: String, payload: T, senderID: String?, to peers: [MCPeerID] = []) -> EventInfo {
+    public static func sendEvent<T: Codable>(eventName: String, payload: T, senderID: String?, to peers: [MCPeerID] = []) -> EventInfo {
         let eventInfo = EventInfo(senderEntityID: senderID, sendTime: Date().timeIntervalSince1970)
         session.send(Event(eventName: eventName,
                            info: eventInfo,
@@ -64,7 +58,7 @@ class P2PNetwork {
         return eventInfo
     }
     
-    static func onEventReceived<T: Decodable>(eventName: String, callback: @escaping (T) -> Void) {
+    public static func onEventReceived<T: Decodable>(eventName: String, callback: @escaping (T) -> Void) {
         
         let castedCallback: (Any) -> Void = { any in
             guard let value = any as? T else {
@@ -81,47 +75,47 @@ class P2PNetwork {
     }
     
     // If eventName is nil, the data delegate recieves all events
-    static func addDataDelegate(_ delegate: P2PNetworkDataDelegate, forEventName eventName: String? = nil) {
+    public static func addDataDelegate(_ delegate: P2PNetworkDataDelegate, forEventName eventName: String? = nil) {
         sessionListener.addDataDelegate(delegate, forEventName: eventName)
     }
     
-    static func removeDataDelegate(_ delegate: P2PNetworkDataDelegate) {
+    public static func removeDataDelegate(_ delegate: P2PNetworkDataDelegate) {
         sessionListener.removeDataDelegate(delegate)
     }
     
-    static func addPlayerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
+    public static func addPeerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
         sessionListener.addPlayerDelegate(delegate)
     }
     
-    static func removePlayerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
+    public static func removePlayerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
         sessionListener.removePlayerDelegate(delegate)
     }
     
-    static func connectionState(for peer: MCPeerID) -> MCSessionState? {
+    public static func connectionState(for peer: MCPeerID) -> MCSessionState? {
         session.connectionState(for: peer)
     }
     
-    static func resetSession(displayName: String? = nil) {
+    public static func resetSession(displayName: String? = nil) {
         prettyPrint(level: .error, "♻️ Resetting Session!")
         let oldSession = session
         oldSession.disconnect()
         
-        let newPeerId = MCPeerID(displayName: displayName ?? oldSession.myPlayer.displayName)
-        let myPlayer = Player(newPeerId)
-        UserDefaults.standard.myPlayer = myPlayer
+        let newPeerId = MCPeerID(displayName: displayName ?? oldSession.myPeer.displayName)
+        let myPeer = Peer(newPeerId)
+        UserDefaults.standard.myPeer = myPeer
         
-        session = P2PSession(myPlayer: myPlayer)
+        session = P2PSession(myPeer: myPeer)
         session.delegate = sessionListener
         session.start()
     }
     
-    static func makeBrowserViewController() -> MCBrowserViewController {
+    public static func makeBrowserViewController() -> MCBrowserViewController {
         return session.makeBrowserViewController()
     }
 }
 
 private class P2PNetworkSessionListener {
-    private var playerDelegates = [WeakPlayerDelegate]()
+    private var peerDelegates = [WeakPlayerDelegate]()
     
     // Delegates for specific Event with event name
     private var dataDelegates = [String: [WeakDataDelegate]]()
@@ -157,27 +151,27 @@ private class P2PNetworkSessionListener {
     }
     
     func addPlayerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
-        if !playerDelegates.contains(where: { $0.delegate === delegate }) {
-            playerDelegates.append(WeakPlayerDelegate(delegate))
+        if !peerDelegates.contains(where: { $0.delegate === delegate }) {
+            peerDelegates.append(WeakPlayerDelegate(delegate))
         }
-        playerDelegates.removeAll(where: { $0.delegate == nil })
+        peerDelegates.removeAll(where: { $0.delegate == nil })
     }
     
     func removePlayerDelegate(_ delegate: P2PNetworkPlayerDelegate) {
-        playerDelegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
+        peerDelegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
     }
 }
 
 extension P2PNetworkSessionListener: P2PSessionDelegate {
-    func p2pSession(_ session: P2PSession, didUpdate player: Player) {
-        for playerDelegateWrapper in playerDelegates {
-            playerDelegateWrapper.delegate?.p2pNetwork(didUpdate: player)
+    func p2pSession(_ session: P2PSession, didUpdate peer: Peer) {
+        for peerDelegateWrapper in peerDelegates {
+            peerDelegateWrapper.delegate?.p2pNetwork(didUpdate: peer)
         }
     }
     
-    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from player: Player) {
+    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from peer: Peer) {
         for wrapper in dataDelegatesAllEvents {
-            if wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: player) == true {
+            if wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: peer) == true {
                 return
             }
         }
@@ -185,7 +179,7 @@ extension P2PNetworkSessionListener: P2PSessionDelegate {
         if let eventName = json?["eventName"] as? String,
            let wrappers = dataDelegates[eventName] {
             for wrapper in wrappers {
-                if wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: player) == true {
+                if wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: peer) == true {
                     return
                 }
             }
@@ -215,4 +209,10 @@ private class WeakRef<T: AnyObject> {
     init(_ delegate: T) {
         self.delegate = delegate
     }
+}
+
+struct Event<T: Codable>: Codable {
+    let eventName: String
+    let info: EventInfo
+    let payload: T
 }

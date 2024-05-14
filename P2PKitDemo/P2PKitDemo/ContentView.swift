@@ -17,6 +17,12 @@
  **/
 
 import SwiftUI
+import P2PKit
+
+func setupP2PKit() {
+    P2PConstants.networkChannelName = "my-p2p-service"
+    P2PConstants.loggerEnabled = true
+}
 
 struct ContentView: View {
     var body: some View {
@@ -35,7 +41,11 @@ struct ContentView: View {
                         Label("Game", systemImage: "gamecontroller.fill")
                     }
             }
-        }.tint(.mint)
+        }
+        .tint(.mint)
+        .task {
+            setupP2PKit()
+        }
     }
         
     var DebugTab: some View {
