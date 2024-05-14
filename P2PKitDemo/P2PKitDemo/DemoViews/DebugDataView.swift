@@ -9,7 +9,9 @@ import SwiftUI
 import P2PKit
 
 class DebugDataViewModel: ObservableObject {
-    @Published var recentJsons = Array(repeating: "", count: 10)
+    @Published var text = ""
+    
+    private var recentJsons = Array(repeating: "", count: 10)
     
     init() {
         P2PNetwork.addDataDelegate(self)
@@ -27,6 +29,7 @@ extension DebugDataViewModel: P2PNetworkDataDelegate {
             )
             let jsonStr = String(data: data, encoding: .utf8)!
             self.recentJsons = ["\(jsonStr)"] +  Array(self.recentJsons[0..<self.recentJsons.count - 1])
+            text = recentJsons.joined(separator: "/n")
         }
         return false
     }
@@ -37,18 +40,10 @@ struct DebugDataView: View {
     
     var body: some View {
         VStack {
-            Text("Receive Data")
-                .p2pTitleStyle()
-            ScrollView {
-                HStack {
-                    VStack(alignment: .leading) {
-                        ForEach(model.recentJsons.indices, id: \.self) { index in
-                            Text(model.recentJsons[index])
-                        }
-                    }
-                    Spacer()
-                }
-            }
+            Text("Receive Data").p2pTitleStyle()
+            TextEditor(text: $model.text)
+                .font(.subheadline)
+                .scrollContentBackground(.hidden)
         }
         .background(Color.mint.opacity(0.3))
     }
