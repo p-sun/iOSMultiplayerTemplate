@@ -65,6 +65,16 @@ class AirHockeyScoreView: UIView {
     }
     
     func playersDidChange(_ players: [GamePlayer]) {
+        for subview in hStack.arrangedSubviews {
+            subview.removeFromSuperview()
+        }
+        for player in players {
+            let label = UILabel()
+            label.text = "\(player.score)"
+            label.textColor = player.color
+            label.font = .boldSystemFont(ofSize: 46)
+            hStack.addArrangedSubview(label)
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -129,6 +139,11 @@ class AirHockeyGameView: UIView {
         updateMallets(mallets, players: players)
         holeView.center = hole.position
         puckView.center = puck.position
+        if let puckOwnerID = puck.ownerID {
+            if let player = players.first(where: { player in player.id == puckOwnerID }) {
+                puckView.layer.borderColor = player.color.cgColor
+            }
+        }
     }
     
     private func updateMallets(_ mallets: [Ball], players: [GamePlayer]) {
@@ -147,12 +162,18 @@ class AirHockeyGameView: UIView {
             malletView.center = mallet.position
             
             malletView.layer.borderWidth = 6
-            if let player = players.first(where: { $0.id == mallet.ownerID }) {
+            if let player = players.first(where: { player in player.id == mallet.ownerID }) {
                 malletView.backgroundColor = player.color
+                malletView.layer.borderColor = mallet.isGrabbed ? UIColor.black.cgColor : player.color.cgColor
             }
-            malletView.layer.borderColor = mallet.isGrabbed ? UIColor.white.cgColor : UIColor.black.cgColor
         }
-        // TODO: Move other malletViews out of view. Keep a reusable pool of malletViews
+        
+        // Remove unused malletViews.
+        if malletViews.count > mallets.count {
+            for i in mallets.count - 1..<malletViews.count {
+                malletViews[i].removeFromSuperview()
+            }
+        }
     }
     
     override func layoutSubviews() {
