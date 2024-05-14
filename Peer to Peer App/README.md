@@ -1,3 +1,0 @@
-# MuPeer
-
-A bonjour wrapper
