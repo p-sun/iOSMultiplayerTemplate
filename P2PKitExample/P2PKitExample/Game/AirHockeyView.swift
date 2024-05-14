@@ -6,8 +6,8 @@ import UIKit
 struct AirHockeyView: UIViewRepresentable {
     typealias UIViewType = AirHockeyRootView
     
-    let instance = AirHockeyInstance()
-        
+    private let instance = AirHockeyInstance()
+    
     func makeUIView(context: Context) -> AirHockeyRootView {
         return instance.rootUIView
     }
@@ -19,25 +19,27 @@ struct AirHockeyView: UIViewRepresentable {
 class AirHockeyRootView: UIView {
     init() {
         super.init(frame: .zero)
-        backgroundColor = UIColor(red: 10.0/255.0, green: 39.0/255.0, blue: 89.0/255.0, alpha: 1)
+        backgroundColor = #colorLiteral(red: 0.7988162041, green: 0.868170917, blue: 0.8175464272, alpha: 1)
     }
     
     func constrainSubviews(gameView: UIView, scoreView: UIView) {
-        gameView.translatesAutoresizingMaskIntoConstraints = false
-        
+        gameView.backgroundColor = #colorLiteral(red: 0.9941810966, green: 0.9735670686, blue: 0.9148231149, alpha: 1)
         addSubview(gameView)
+        gameView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
+            gameView.topAnchor.constraint(equalTo: topAnchor, constant: 80),
             gameView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             gameView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            gameView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
-            gameView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
+            gameView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -80),
         ])
         
         addSubview(scoreView)
         scoreView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            scoreView.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 10),
-            scoreView.bottomAnchor.constraint(equalTo: gameView.bottomAnchor, constant: -10),
+            scoreView.topAnchor.constraint(equalTo: gameView.bottomAnchor, constant: 8),
+            scoreView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 40),
+            scoreView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -40),
+            scoreView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
         ])
     }
     
@@ -46,16 +48,23 @@ class AirHockeyRootView: UIView {
     }
 }
 
-class AirHockeyScoreView: UILabel {
+class AirHockeyScoreView: UIView {
+    private var hStack = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.distribution = .equalCentering
+        return stack
+    }()
+    
+    private var labels = [UILabel]()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        font = .systemFont(ofSize: 24)
-        numberOfLines = 0
+        addSubview(hStack)
+        hStack.constrainTo(self)
     }
     
     func playersDidChange(_ players: [GamePlayer]) {
-        text = players.map { player in "\(player.displayName): \(player.score)" }.joined(separator: "\n")
     }
     
     required init?(coder: NSCoder) {
@@ -88,6 +97,7 @@ class AirHockeyGameView: UIView {
     private lazy var puckView: UIView = {
         let view = createCircleView(radius: GameConfig.ballRadius)
         view.backgroundColor = .white
+        view.layer.borderWidth = 10
         return view
     }()
     
@@ -101,7 +111,6 @@ class AirHockeyGameView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .systemMint
         addSubview(holeView)
         addSubview(puckView)
         addSubview(debugLabel)
@@ -126,6 +135,7 @@ class AirHockeyGameView: UIView {
         for (i, mallet) in mallets.enumerated() {
             if i > malletViews.count - 1 {
                 let view = createCircleView(radius: GameConfig.malletRadius)
+                addSubview(view)
                 malletViews.append(view)
                 
                 let gestureDetector = MultiGestureDetector(tag: i)
@@ -151,10 +161,21 @@ class AirHockeyGameView: UIView {
     
     private func createCircleView(radius: CGFloat) -> UIView {
         let view = UIView()
-        view.backgroundColor = .blue
         view.layer.cornerRadius = radius
         view.frame.size = CGSize(width: radius * 2, height: radius * 2)
         addSubview(view)
         return view
+    }
+}
+
+extension UIView {
+    fileprivate func constrainTo(_ view: UIView, insets: UIEdgeInsets = .zero) {
+        translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: insets.left),
+            trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -insets.right),
+            topAnchor.constraint(equalTo: view.topAnchor, constant: insets.top),
+            bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -insets.bottom),
+        ])
     }
 }

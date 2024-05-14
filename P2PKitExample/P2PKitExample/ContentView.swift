@@ -30,6 +30,7 @@ struct ContentView: View {
                     }
                 AirHockeyView()
                     .tag(1)
+                    .ignoresSafeArea(edges: .top)
                     .tabItem {
                         Label("Game", systemImage: "gamecontroller.fill")
                     }

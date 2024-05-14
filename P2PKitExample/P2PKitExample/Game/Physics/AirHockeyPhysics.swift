@@ -130,7 +130,7 @@ class AirHockeyPhysics {
         if b.position.x - r <= 0
             || b.position.x + r >= boardSize.width {
             b.velocity.x = -b.velocity.x
-
+            
             if b.info == .puck { delegate?.puckDidCollideWithWall() }
         }
         
@@ -298,6 +298,7 @@ extension AirHockeyPhysics: MultiGestureDetectorDelegate {
 }
 
 //MARK: - Private Create Balls
+
 extension Ball {
     fileprivate static func createPuck(position: CGPoint) -> Ball {
         return Ball(info: .puck,
