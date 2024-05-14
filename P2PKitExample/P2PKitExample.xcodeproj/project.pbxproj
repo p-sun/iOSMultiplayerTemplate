@@ -15,7 +15,6 @@
 		9B0434912BED23CC005B1606 /* AirHockeyInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0434902BED23CC005B1606 /* AirHockeyInstance.swift */; };
 		9B0434952BED3BDC005B1606 /* AirHockeyPhysics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0434942BED3BDC005B1606 /* AirHockeyPhysics.swift */; };
 		9B0434972BED7285005B1606 /* MathUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0434962BED7285005B1606 /* MathUtils.swift */; };
-		9B0855612BF2B04500BF1776 /* GameConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0855602BF2B04500BF1776 /* GameConfig.swift */; };
 		9BAA78932BF144D300BC1E1C /* AirHockeyRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BAA78922BF144D300BC1E1C /* AirHockeyRoom.swift */; };
 		9BAA78952BF2968A00BC1E1C /* GameSounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BAA78942BF2968A00BC1E1C /* GameSounds.swift */; };
 		9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD2AC382BD6C5ED0086AC78 /* P2PKitExampleApp.swift */; };
@@ -61,7 +60,6 @@
 		9B0434902BED23CC005B1606 /* AirHockeyInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirHockeyInstance.swift; sourceTree = "<group>"; };
 		9B0434942BED3BDC005B1606 /* AirHockeyPhysics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirHockeyPhysics.swift; sourceTree = "<group>"; };
 		9B0434962BED7285005B1606 /* MathUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathUtils.swift; sourceTree = "<group>"; };
-		9B0855602BF2B04500BF1776 /* GameConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConfig.swift; sourceTree = "<group>"; };
 		9BAA78922BF144D300BC1E1C /* AirHockeyRoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirHockeyRoom.swift; sourceTree = "<group>"; };
 		9BAA78942BF2968A00BC1E1C /* GameSounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSounds.swift; sourceTree = "<group>"; };
 		9BD2AC352BD6C5ED0086AC78 /* P2PKitExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = P2PKitExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -144,7 +142,6 @@
 				9B04348E2BED230A005B1606 /* MultiGestureDetector.swift */,
 				9B0434962BED7285005B1606 /* MathUtils.swift */,
 				9BAA78942BF2968A00BC1E1C /* GameSounds.swift */,
-				9B0855602BF2B04500BF1776 /* GameConfig.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -388,7 +385,6 @@
 				9BD2AC6B2BD972810086AC78 /* Player.swift in Sources */,
 				9B04347F2BE56A73005B1606 /* P2PSyncedObject.swift in Sources */,
 				9BD2AC392BD6C5ED0086AC78 /* P2PKitExampleApp.swift in Sources */,
-				9B0855612BF2B04500BF1776 /* GameConfig.swift in Sources */,
 				9BAA78952BF2968A00BC1E1C /* GameSounds.swift in Sources */,
 				9B0434952BED3BDC005B1606 /* AirHockeyPhysics.swift in Sources */,
 				9B04347B2BE4149B005B1606 /* P2PNetwork.swift in Sources */,
@@ -564,6 +560,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarHidden = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -598,6 +595,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarHidden = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

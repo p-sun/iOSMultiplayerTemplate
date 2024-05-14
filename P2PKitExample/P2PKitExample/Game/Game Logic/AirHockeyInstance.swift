@@ -64,7 +64,7 @@ private class AirHockeyCoordinator {
     @objc private func update(displayLink: CADisplayLink) {
         frame += 1
         physics.update(deltaTime: CGFloat(displayLink.duration))
-        gameView.update(mallets: physics.mallets, puck: physics.puck, hole: physics.hole, players: room.players)
+        gameView.update(mallets: physics.mallets, pucks: physics.pucks, holes: physics.holes, players: room.players)
     }
     
     fileprivate func invalidate() {

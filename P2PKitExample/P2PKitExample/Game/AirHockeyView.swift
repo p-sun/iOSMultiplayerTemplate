@@ -24,6 +24,8 @@ class AirHockeyRootView: UIView {
     
     func constrainSubviews(gameView: UIView, scoreView: UIView) {
         gameView.backgroundColor = #colorLiteral(red: 0.9941810966, green: 0.9735670686, blue: 0.9148231149, alpha: 1)
+        gameView.layer.cornerRadius = 10
+        
         addSubview(gameView)
         gameView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -94,97 +96,87 @@ class AirHockeyGameView: UIView {
     }
     
     private var gestureDetectors = [UIView: MultiGestureDetector]()
-    
-    private lazy var debugLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .title1)
-        label.text = ""
-        label.textAlignment = .center
-        return label
-    }()
-    
-    private lazy var puckView: UIView = {
-        let view = createCircleView(radius: GameConfig.ballRadius)
-        view.backgroundColor = .white
-        view.layer.borderWidth = 10
-        return view
-    }()
-    
-    private lazy var holeView: UIView = {
-        let view = createCircleView(radius: GameConfig.holeRadius)
-        view.backgroundColor = .black
-        return view
-    }()
-    
-    private var malletViews = [UIView]()
+
+    private var holesView = UIView()
+    private var pucksView = UIView()
+    private var malletsView = UIView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        addSubview(holeView)
-        addSubview(puckView)
-        addSubview(debugLabel)
-        NSLayoutConstraint.activate([
-            debugLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            debugLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            debugLabel.topAnchor.constraint(equalTo: topAnchor, constant: 20),
-        ])
+        addSubview(holesView)
+        addSubview(pucksView)
+        addSubview(malletsView)
+        
+        holesView.constrainTo(self)
+        pucksView.constrainTo(self)
+        malletsView.constrainTo(self)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func update(mallets: [Ball], puck: Ball, hole: Ball, players: [GamePlayer]) {
-        updateMallets(mallets, players: players)
-        holeView.center = hole.position
-        puckView.center = puck.position
-        if let puckOwnerID = puck.ownerID {
-            if let player = players.first(where: { player in player.id == puckOwnerID }) {
-                puckView.layer.borderColor = player.color.cgColor
-            }
-        }
-    }
-    
-    private func updateMallets(_ mallets: [Ball], players: [GamePlayer]) {
-        for (i, mallet) in mallets.enumerated() {
-            if i > malletViews.count - 1 {
-                let view = createCircleView(radius: GameConfig.malletRadius)
-                addSubview(view)
-                malletViews.append(view)
-                
-                let gestureDetector = MultiGestureDetector(tag: i)
-                gestureDetectors[view] = gestureDetector
-                gestureDetector.attachTo(view: view, relativeToView: self)
-                gestureDetector.delegate = gestureDelegate
-            }
-            let malletView = malletViews[i]
-            malletView.center = mallet.position
-            
-            malletView.layer.borderWidth = 6
-            if let player = players.first(where: { player in player.id == mallet.ownerID }) {
-                malletView.backgroundColor = player.color
-                malletView.layer.borderColor = mallet.isGrabbed ? UIColor.black.cgColor : player.color.cgColor
-            }
-        }
-        
-        // Remove unused malletViews.
-        if malletViews.count > mallets.count {
-            for i in mallets.count - 1..<malletViews.count {
-                malletViews[i].removeFromSuperview()
-            }
-        }
-    }
-    
     override func layoutSubviews() {
         didLayout?(frame.size)
     }
     
-    private func createCircleView(radius: CGFloat) -> UIView {
+    func update(mallets: [Ball], pucks: [Ball], holes: [Ball], players: [GamePlayer]) {
+        updateBalls(in: holesView, balls: holes, players: players)
+        updateBalls(in: pucksView, balls: pucks, players: players)
+        updateBalls(in: malletsView, balls: mallets, players: players)
+    }
+
+    private func updateBalls(in parent: UIView, balls: [Ball], players: [GamePlayer]) {
+        for (i, ball) in balls.enumerated() {
+            if i > parent.subviews.count - 1 {
+                let ballView = createBallView(ball, index: i)
+                parent.addSubview(ballView)
+            }
+            
+            let ballView = parent.subviews[i]
+            ballView.center = ball.position
+            switch ball.info {
+            case .hole:
+                break
+            case .puck:
+                if let puckOwnerID = ball.ownerID,
+                   let player = players.first(where: { player in player.id == puckOwnerID }) {
+                    ballView.layer.borderColor = player.color.cgColor
+                }
+            case .mallet:
+                if let player = players.first(where: { player in player.id == ball.ownerID }) {
+                    ballView.backgroundColor = player.color
+                    ballView.layer.borderColor = ball.isGrabbed ? UIColor.black.cgColor : player.color.cgColor
+                }
+            }
+        }
+        
+        // Remove unused ball views
+        if parent.subviews.count > balls.count {
+            for i in balls.count - 1..<parent.subviews.count {
+                parent.subviews[i].removeFromSuperview()
+            }
+        }
+    }
+    
+    private func createBallView(_ ball: Ball, index: Int) -> UIView {
         let view = UIView()
-        view.layer.cornerRadius = radius
-        view.frame.size = CGSize(width: radius * 2, height: radius * 2)
-        addSubview(view)
+        view.layer.cornerRadius = ball.radius
+        view.frame.size = CGSize(width: ball.radius * 2, height: ball.radius * 2)
+        switch ball.info {
+        case .hole:
+            view.backgroundColor = .black
+        case .puck:
+            view.backgroundColor = .white
+            view.layer.borderWidth = 10
+        case .mallet:
+            view.layer.borderWidth = 6
+            
+            let gestureDetector = MultiGestureDetector(tag: index)
+            gestureDetectors[view] = gestureDetector
+            gestureDetector.attachTo(view: view, relativeToView: self)
+            gestureDetector.delegate = gestureDelegate
+        }
         return view
     }
 }

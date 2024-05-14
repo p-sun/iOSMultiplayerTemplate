@@ -14,7 +14,7 @@ struct GamePlayer: Identifiable {
     let score: Int
     let color: UIColor
         
-    private static var nextHue = CGFloat.random(in: 0.2...0.9)
+    private static var nextHue = 0.88//CGFloat.random(in: 0.2...0.9)
     
     static func create(displayName: String) -> GamePlayer {
         let color = UIColor.init(hue: nextHue, saturation: 0.8, brightness: 0.8, alpha: 1)
@@ -53,12 +53,5 @@ class GameRoom {
             players[index] = players[index].incrementScore()
             playersDidChange?(players)
         }
-    }
-    
-    func incrementScore(everyoneExcept playerID: GamePlayer.ID) {
-        for (i, player) in players.enumerated() where player.id != playerID {
-            players[i] = players[i].incrementScore()
-        }
-        playersDidChange?(players)
     }
 }

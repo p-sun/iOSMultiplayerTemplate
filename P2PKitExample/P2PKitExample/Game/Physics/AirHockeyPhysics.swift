@@ -40,17 +40,21 @@ protocol AirHockeyPhysicsDelegate: AnyObject {
 class AirHockeyPhysics {
     weak var delegate: AirHockeyPhysicsDelegate? = nil
     
-    private(set) var puck: Ball
+    private(set) var pucks = [Ball]()
     private(set) var mallets = [Ball]()
-    private(set) var hole: Ball
+    private(set) var holes = [Ball]()
     private let boardSize: CGSize
     
     init(boardSize: CGSize) {
         self.boardSize = boardSize
-        self.puck = Ball.createPuck(position:  CGPoint(
-            x: boardSize.width/2,
-            y: boardSize.height/2))
-        self.hole = Ball.createHole(boardSize: boardSize)
+
+        self.pucks = [
+            Ball.createPuck(position: CGPoint(x: boardSize.width/2, y: boardSize.height/4)),
+            Ball.createPuck(position: CGPoint(x: boardSize.width/2, y: boardSize.height/4*3))
+        ]
+
+        self.holes = [Ball.createHole(boardSize: boardSize, awayFrom: [])]
+        self.holes.append(Ball.createHole(boardSize: boardSize, awayFrom: self.holes.map {$0.position }))
     }
     
     //MARK: - Update
@@ -66,16 +70,24 @@ class AirHockeyPhysics {
     
     func update(deltaTime: CGFloat) {
         updatePhysics(deltaTime: deltaTime)
-        puckIsInsideHole(puck: puck, hole: hole)
+        for hole in holes {
+            for puck in pucks {
+                puckIsInsideHole(puck: puck, hole: hole)
+            }
+        }
     }
     
     func updatePhysics(deltaTime: CGFloat) {
         // MARK: Collisions updates velocity & position
-        collideWithWalls(puck)
+        for puck in pucks {
+            collideWithWalls(puck)
+        }
         
         // Mallets with puck
         for i in mallets.indices {
-            collide(mallets[i], puck)
+            for puck in pucks {
+                collide(mallets[i], puck)
+            }
             collideWithWalls(mallets[i])
         }
         // Mallets with mallets
@@ -88,7 +100,9 @@ class AirHockeyPhysics {
         }
         
         // MARK: Update position on free bodies
-        updateFreeBodyPosition(puck, deltaTime: deltaTime)
+        for puck in pucks {
+            updateFreeBodyPosition(puck, deltaTime: deltaTime)
+        }
         for i in mallets.indices {
             updateFreeBodyPosition(mallets[i], deltaTime: deltaTime)
         }
@@ -96,11 +110,15 @@ class AirHockeyPhysics {
         // MARK: Resolve overlapping
         // Mallets with puck
         for i in mallets.indices {
-            resolveOverlap(grabbable: mallets[i], freebody: puck)
+            for puck in pucks {
+                resolveOverlap(grabbable: mallets[i], freebody: puck)
+            }
             constrainWithinWalls(mallets[i])
         }
         // Mallets with mallets
-        constrainWithinWalls(puck)
+        for puck in pucks {
+            constrainWithinWalls(puck)
+        }
     }
     
     private func updateFreeBodyPosition(_ b: Ball, deltaTime: CGFloat) {
@@ -148,7 +166,9 @@ class AirHockeyPhysics {
         
         if distance < hole.radius - puck.radius {
             delegate?.puckDidEnterHole(puck: puck)
-            self.hole = Ball.createHole(boardSize: boardSize)
+            if let i = self.holes.firstIndex(where: {$0.id == hole.id }) {
+                self.holes[i] = Ball.createHole(boardSize: boardSize, awayFrom: self.holes.map { $0.position })
+            }
         }
     }
     
@@ -302,7 +322,7 @@ extension AirHockeyPhysics: MultiGestureDetectorDelegate {
 extension Ball {
     fileprivate static func createPuck(position: CGPoint) -> Ball {
         return Ball(info: .puck,
-                    radius: GameConfig.ballRadius,
+                    radius: 30,
                     mass: 1,
                     velocity: CGPoint(x: -100, y: 300),
                     position:position,
@@ -310,28 +330,42 @@ extension Ball {
     }
     
     fileprivate static func createMallet(boardSize: CGSize, ownerID: GamePlayer.ID) -> Ball {
-        let radius: CGFloat = GameConfig.malletRadius
+        let radius: CGFloat = 40
         let position = CGPoint(
             x: .random(in: radius...boardSize.width-radius),
-            y: .random(in: radius...boardSize.height-radius-80))
+            y: .random(in: radius...boardSize.height-radius))
         return Ball(info: .mallet,
-                    radius: GameConfig.malletRadius,
+                    radius: radius,
                     mass: 10,
                     velocity: CGPoint.zero,
                     position: position,
                     ownerID: ownerID)
     }
     
-    fileprivate static func createHole(boardSize: CGSize) -> Ball {
-        let radius: CGFloat = GameConfig.holeRadius
-        let position = CGPoint(
-            x: .random(in: radius...boardSize.width-radius),
-            y: .random(in: radius...boardSize.height-radius-80))
+    // Create a hole that doesn't overlap with existing holes
+    fileprivate static func createHole(boardSize: CGSize, awayFrom positions: [CGPoint]) -> Ball {
+        func isPositionFarEnoughAway(_ newPos: CGPoint) -> Bool {
+            for position in positions {
+                if (position - newPos).magnitude() < 200 {
+                    return false
+                }
+            }
+            return true
+        }
+        
+        let radius: CGFloat = 46
+        var newPos: CGPoint!
+        repeat {
+            newPos = CGPoint(
+                x: .random(in: radius...boardSize.width-radius),
+                y: .random(in: radius...boardSize.height-radius))
+        } while !isPositionFarEnoughAway(newPos)
+        
         return Ball(info: .hole,
-                    radius: GameConfig.holeRadius,
+                    radius: radius,
                     mass: 0,
                     velocity: CGPoint.zero,
-                    position: position,
+                    position: newPos,
                     ownerID: nil)
     }
 }
