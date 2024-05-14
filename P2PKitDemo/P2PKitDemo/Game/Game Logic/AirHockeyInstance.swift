@@ -36,6 +36,7 @@ class AirHockeyInstance {
 private class AirHockeyCoordinator {
     fileprivate let rootView: AirHockeyRootView
     private let gameView: AirHockeyGameView
+    private weak var scoreView: AirHockeyScoreView?
     private let room = GameRoom()
     private let physics: AirHockeyPhysics
     private var displayLink: CADisplayLink!
@@ -44,21 +45,17 @@ private class AirHockeyCoordinator {
     
     init(boardSize: CGSize, rootView: AirHockeyRootView, gameView: AirHockeyGameView, scoreView: AirHockeyScoreView) {
         self.rootView = rootView
+        self.scoreView = scoreView
         self.physics = AirHockeyPhysics(boardSize: boardSize)
         
         self.gameView = gameView
         gameView.gestureDelegate = self.physics
         
-        room.playersDidChange = scoreView.playersDidChange
-        
         self.displayLink = CADisplayLink(target: self, selector: #selector(update))
         displayLink.add(to: .main, forMode: .common)
         
         self.physics.delegate = self
-        
-        for player in room.players {
-            self.physics.addMallet(for: player.id)
-        }
+        room.delegate = self
     }
     
     @objc private func update(displayLink: CADisplayLink) {
@@ -69,6 +66,13 @@ private class AirHockeyCoordinator {
     
     fileprivate func invalidate() {
         displayLink.invalidate()
+    }
+}
+
+extension AirHockeyCoordinator: GameRoomPlayerDelegate {
+    func playersDidChange(_ players: [GamePlayer]) {
+        scoreView?.playersDidChange(players)
+        self.physics.updateMallets(for: players)
     }
 }
 

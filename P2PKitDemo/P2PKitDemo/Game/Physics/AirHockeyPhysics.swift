@@ -49,8 +49,7 @@ class AirHockeyPhysics {
         self.boardSize = boardSize
 
         self.pucks = [
-            Ball.createPuck(position: CGPoint(x: boardSize.width/2, y: boardSize.height/4)),
-            Ball.createPuck(position: CGPoint(x: boardSize.width/2, y: boardSize.height/4*3))
+            Ball.createPuck(position: CGPoint(x: boardSize.width/2, y: boardSize.height/2)),
         ]
 
         self.holes = [Ball.createHole(boardSize: boardSize, awayFrom: [])]
@@ -59,13 +58,14 @@ class AirHockeyPhysics {
     
     //MARK: - Update
     
-    func addMallet(for playerID: GamePlayer.ID) {
-        let ball = Ball.createMallet(boardSize: boardSize, ownerID: playerID)
-        mallets.append(ball)
-    }
-    
-    func removeMallet(for playerID: GamePlayer.ID) {
-        mallets.removeAll(where: { $0.ownerID == playerID })
+    func updateMallets(for players: [GamePlayer]) {
+        mallets = players.map { player in
+            if let existing = mallets.first(where: { $0.ownerID == player.id }) {
+                return existing
+            } else {
+                return Ball.createMallet(boardSize: boardSize, ownerID: player.id)
+            }
+        }
     }
     
     func update(deltaTime: CGFloat) {
@@ -77,7 +77,7 @@ class AirHockeyPhysics {
         }
     }
     
-    func updatePhysics(deltaTime: CGFloat) {
+    private func updatePhysics(deltaTime: CGFloat) {
         // MARK: Collisions updates velocity & position
         for puck in pucks {
             collideWithWalls(puck)

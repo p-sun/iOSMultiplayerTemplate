@@ -67,15 +67,20 @@ class AirHockeyScoreView: UIView {
     }
     
     func playersDidChange(_ players: [GamePlayer]) {
-        for subview in hStack.arrangedSubviews {
-            subview.removeFromSuperview()
-        }
-        for player in players {
-            let label = UILabel()
-            label.text = "\(player.score)"
-            label.textColor = player.color
-            label.font = .boldSystemFont(ofSize: 46)
-            hStack.addArrangedSubview(label)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            for subview in hStack.arrangedSubviews {
+                subview.removeFromSuperview()
+            }
+            for player in players {
+                let label = UILabel()
+                label.textAlignment = .center
+                label.text = "\(player.score)"
+                label.textColor = player.color
+                label.font = .boldSystemFont(ofSize: 46)
+                hStack.addArrangedSubview(label)
+            }
         }
     }
     
@@ -121,9 +126,11 @@ class AirHockeyGameView: UIView {
     }
     
     func update(mallets: [Ball], pucks: [Ball], holes: [Ball], players: [GamePlayer]) {
-        updateBalls(in: holesView, balls: holes, players: players)
-        updateBalls(in: pucksView, balls: pucks, players: players)
-        updateBalls(in: malletsView, balls: mallets, players: players)
+        DispatchQueue.main.async {
+            self.updateBalls(in: self.holesView, balls: holes, players: players)
+            self.updateBalls(in: self.pucksView, balls: pucks, players: players)
+            self.updateBalls(in: self.malletsView, balls: mallets, players: players)
+        }
     }
 
     private func updateBalls(in parent: UIView, balls: [Ball], players: [GamePlayer]) {
@@ -153,8 +160,8 @@ class AirHockeyGameView: UIView {
         
         // Remove unused ball views
         if parent.subviews.count > balls.count {
-            for i in balls.count - 1..<parent.subviews.count {
-                parent.subviews[i].removeFromSuperview()
+            for _ in balls.count..<parent.subviews.count {
+                parent.subviews.last?.removeFromSuperview()
             }
         }
     }
