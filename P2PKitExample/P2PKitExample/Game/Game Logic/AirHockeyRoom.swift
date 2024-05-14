@@ -13,10 +13,12 @@ struct GamePlayer: Identifiable {
     let displayName: String
     let score: Int
     let color: UIColor
+        
+    private static var nextHue = CGFloat.random(in: 0.2...0.9)
     
     static func create(displayName: String) -> GamePlayer {
-        let color = UIColor.init(
-            hue: CGFloat.random(in: 0...0.9), saturation: 0.8, brightness: 1, alpha: 1)
+        let color = UIColor.init(hue: nextHue, saturation: 0.8, brightness: 0.8, alpha: 1)
+        nextHue = (nextHue + 0.37).truncatingRemainder(dividingBy: 1)
         return GamePlayer(id: UUID().uuidString, displayName: displayName, score: 0, color: color)
     }
     
