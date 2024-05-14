@@ -34,7 +34,7 @@ class Ball: Identifiable {
 protocol AirHockeyPhysicsDelegate: AnyObject {
     func puckDidEnterHole(puck: Ball)
     func puckDidCollide(puck: Ball, ball: Ball)
-    func puckDidCollideWithWall()
+    func puckDidCollideWithWall(puck: Ball)
 }
 
 class AirHockeyPhysics {
@@ -131,13 +131,13 @@ class AirHockeyPhysics {
             || b.position.x + r >= boardSize.width {
             b.velocity.x = -b.velocity.x
             
-            if b.info == .puck { delegate?.puckDidCollideWithWall() }
+            if b.info == .puck { delegate?.puckDidCollideWithWall(puck: b) }
         }
         
         if b.position.y - r <= 0
             || b.position.y + r >= boardSize.height {
             b.velocity.y = -b.velocity.y
-            if b.info == .puck { delegate?.puckDidCollideWithWall() }
+            if b.info == .puck { delegate?.puckDidCollideWithWall(puck: b) }
         }
     }
     

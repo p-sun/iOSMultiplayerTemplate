@@ -39,6 +39,8 @@ private class AirHockeyCoordinator {
     private let room = GameRoom()
     private let physics: AirHockeyPhysics
     private var displayLink: CADisplayLink!
+    private var lastCollisonSounds = [Ball.ID: (position: CGPoint, frame: Int)]()
+    private var frame = 0
     
     init(boardSize: CGSize, rootView: AirHockeyRootView, gameView: AirHockeyGameView, scoreView: AirHockeyScoreView) {
         self.rootView = rootView
@@ -60,6 +62,7 @@ private class AirHockeyCoordinator {
     }
     
     @objc private func update(displayLink: CADisplayLink) {
+        frame += 1
         physics.update(deltaTime: CGFloat(displayLink.duration))
         gameView.update(mallets: physics.mallets, puck: physics.puck, hole: physics.hole, players: room.players)
     }
@@ -71,20 +74,33 @@ private class AirHockeyCoordinator {
 
 extension AirHockeyCoordinator: AirHockeyPhysicsDelegate {
     func puckDidEnterHole(puck: Ball) {
+        GameSounds.play(.ballEnteredHole)
         if let ownerID = puck.ownerID {
             room.incrementScore(ownerID)
         }
-        GameSounds.play(.ballEnteredHole)
     }
     
     func puckDidCollide(puck: Ball, ball: Ball) {
         if ball.info == .mallet, let ownerID = ball.ownerID {
             puck.ownerID = ownerID
         }
-        GameSounds.play(.ballCollision)
+        playCollisonSound(for: puck)
     }
     
-    func puckDidCollideWithWall() {
-        GameSounds.play(.ballCollision)
+    func puckDidCollideWithWall(puck: Ball) {
+        playCollisonSound(for: puck)
+    }
+    
+    private func playCollisonSound(for ball: Ball) {
+        if let lastCollision = lastCollisonSounds[ball.id] {
+            if (ball.position - lastCollision.position).magnitude() > 50
+                && (frame - lastCollision.frame) > 2 {
+                GameSounds.play(.ballCollision)
+                lastCollisonSounds[ball.id] = (position: ball.position, frame: frame)
+            }
+        } else {
+            GameSounds.play(.ballCollision)
+            lastCollisonSounds[ball.id] = (position: ball.position, frame: frame)
+        }
     }
 }
