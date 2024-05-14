@@ -54,6 +54,7 @@ struct ContentView: View {
             SyncedCounter()
             SyncedCircles()
             DebugDataView()
+            Spacer()
         }
     }
 }
