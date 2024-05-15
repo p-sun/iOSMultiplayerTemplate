@@ -11,20 +11,20 @@ import P2PKit
 import MultipeerConnectivity
 
 struct GamePlayer: Identifiable {
-    let id: ObjectIdentifier
+    let id: String
     let displayName: String
     let score: Int
     let color: UIColor
     
     private static var nextHue = 0.83//CGFloat.random(in: 0.2...0.9)
     
-    static func create(id: ObjectIdentifier = ObjectIdentifier(UIColor()), displayName: String) -> GamePlayer {
+    static func create(id: String = UUID().uuidString, displayName: String) -> GamePlayer {
         let color = UIColor(hue: nextHue, saturation: 0.8, brightness: 0.8, alpha: 1)
         nextHue = (nextHue + 0.37).truncatingRemainder(dividingBy: 1)
         return GamePlayer(id: id, displayName: displayName, score: 0, color: color)
     }
     
-    private init(id: ObjectIdentifier, displayName: String, score: Int, color: UIColor) {
+    private init(id: String, displayName: String, score: Int, color: UIColor) {
         self.id = id
         self.displayName = displayName
         self.score = score
@@ -72,9 +72,9 @@ class GameRoom {
         P2PNetwork.addPeerDelegate(self)
         P2PNetwork.start()
         
-//        self.players = [GamePlayer.create(displayName: "Player 1"),
-//                        GamePlayer.create(displayName: "Player 2"),
-//                        GamePlayer.create(displayName: "Player 3")]
+        self.players = [GamePlayer.create(displayName: "Player 1"),
+                        GamePlayer.create(displayName: "Player 2"),
+                        GamePlayer.create(displayName: "Player 3")]
     }
     
     func incrementScore(_ playerID: GamePlayer.ID) {
@@ -86,14 +86,14 @@ class GameRoom {
 
 extension GameRoom: P2PNetworkPeerDelegate {
     func p2pNetwork(didUpdate peer: Peer) {
-        let otherPlayers = P2PNetwork.allPeers.map { gamePlayer(for: $0) }
-        players = [gamePlayer(for: P2PNetwork.myPeer)] + otherPlayers
+//        let otherPlayers = P2PNetwork.allPeers.map { gamePlayer(for: $0) }
+//        players = [gamePlayer(for: P2PNetwork.myPeer)] + otherPlayers
     }
     
     private func gamePlayer(for peer: Peer) -> GamePlayer {
-        if let existingPlayer = players.first(where: { $0.id == peer.id }) {
+        if let existingPlayer = players.first(where: { $0.id == "\(peer.id)" }) {
             return existingPlayer.withDisplayName(peer.displayName)
         }
-        return GamePlayer.create(id: peer.id, displayName: peer.displayName)
+        return GamePlayer.create(id: "\(peer.id)", displayName: peer.displayName)
     }
 }

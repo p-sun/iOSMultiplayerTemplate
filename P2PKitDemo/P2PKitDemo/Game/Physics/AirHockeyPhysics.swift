@@ -50,6 +50,7 @@ class AirHockeyPhysics {
 
         self.pucks = [
             Ball.createPuck(position: CGPoint(x: boardSize.width/2, y: boardSize.height/2)),
+            Ball.createPuck(position: CGPoint(x: boardSize.width/2, y: boardSize.height/2)),
         ]
 
         self.holes = [Ball.createHole(boardSize: boardSize, awayFrom: [])]
