@@ -70,7 +70,8 @@ private class AirHockeyCoordinator {
 }
 
 extension AirHockeyCoordinator: GameRoomPlayerDelegate {
-    func playersDidChange(_ players: [GamePlayer]) {
+    func gameRoomPlayersDidChange(_ gameRoom: GameRoom) {
+        let players = gameRoom.players
         scoreView?.playersDidChange(players)
         self.physics.updateMallets(for: players)
     }

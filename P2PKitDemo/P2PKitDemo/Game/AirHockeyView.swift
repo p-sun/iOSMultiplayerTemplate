@@ -147,11 +147,11 @@ class AirHockeyGameView: UIView {
                 break
             case .puck:
                 if let puckOwnerID = ball.ownerID,
-                   let player = players.first(where: { player in player.id == puckOwnerID }) {
+                   let player = players.first(where: { player in player.peerID == puckOwnerID }) {
                     ballView.layer.borderColor = player.color.cgColor
                 }
             case .mallet:
-                if let player = players.first(where: { player in player.id == ball.ownerID }) {
+                if let player = players.first(where: { player in player.peerID == ball.ownerID }) {
                     ballView.backgroundColor = player.color
                     ballView.layer.borderColor = ball.isGrabbed ? UIColor.black.cgColor : player.color.cgColor
                 }

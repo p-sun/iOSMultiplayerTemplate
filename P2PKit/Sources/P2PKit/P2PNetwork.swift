@@ -189,6 +189,12 @@ extension P2PNetworkSessionListener: P2PSessionDelegate {
     }
 }
 
+struct Event<T: Codable>: Codable {
+    let eventName: String
+    let info: EventInfo
+    let payload: T
+}
+
 private class WeakDataDelegate {
     weak var delegate: P2PNetworkDataDelegate?
     
@@ -211,10 +217,4 @@ private class WeakRef<T: AnyObject> {
     init(_ delegate: T) {
         self.delegate = delegate
     }
-}
-
-struct Event<T: Codable>: Codable {
-    let eventName: String
-    let info: EventInfo
-    let payload: T
 }

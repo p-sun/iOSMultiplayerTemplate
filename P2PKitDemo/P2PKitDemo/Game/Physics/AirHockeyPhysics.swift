@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import MultipeerConnectivity
 
 class Ball: Identifiable {
     enum Info {
@@ -19,9 +20,9 @@ class Ball: Identifiable {
     var velocity: CGPoint
     var position: CGPoint
     var isGrabbed = false
-    var ownerID: GamePlayer.ID?
+    var ownerID: MCPeerID?
     
-    fileprivate init(info: Info, radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint, ownerID: GamePlayer.ID?) {
+    fileprivate init(info: Info, radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint, ownerID: MCPeerID?) {
         self.info = info
         self.radius = radius
         self.mass = mass
@@ -60,10 +61,10 @@ class AirHockeyPhysics {
     
     func updateMallets(for players: [GamePlayer]) {
         mallets = players.map { player in
-            if let existing = mallets.first(where: { $0.ownerID == player.id }) {
+            if let existing = mallets.first(where: { $0.ownerID == player.peerID }) {
                 return existing
             } else {
-                return Ball.createMallet(boardSize: boardSize, ownerID: player.id)
+                return Ball.createMallet(boardSize: boardSize, ownerID: player.peerID)
             }
         }
     }
@@ -329,7 +330,7 @@ extension Ball {
                     ownerID: nil)
     }
     
-    fileprivate static func createMallet(boardSize: CGSize, ownerID: GamePlayer.ID) -> Ball {
+    fileprivate static func createMallet(boardSize: CGSize, ownerID: MCPeerID) -> Ball {
         let radius: CGFloat = 40
         let position = CGPoint(
             x: .random(in: radius...boardSize.width-radius),

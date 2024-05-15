@@ -107,7 +107,7 @@ class P2PSession: NSObject {
             prettyPrint(level: .error, "error sending data to peers: \(error.localizedDescription)")
         }
     }
-
+    
     // MARK: - Loopback Test
     // Test whether a connection is still alive.
     
@@ -166,7 +166,7 @@ extension P2PSession: MCSessionDelegate {
             if malletLoopbackTest(session, didReceive: json, fromPeer: peerID) {
                 return
             } else {
-//                prettyPrint("Received: \(json)")
+                //                prettyPrint("Received: \(json)")
             }
         }
         
@@ -220,7 +220,7 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
         
         // When a peer enters background, session.connectedPeers still contains that peer.
         // Setting this to nil ensures we make a loopback test to test the connection.
-        sessionStates[peerID] = nil
+//        sessionStates[peerID] = nil
         peersLock.unlock()
         
         delegate?.p2pSession(self, didUpdate: Peer(peerID))

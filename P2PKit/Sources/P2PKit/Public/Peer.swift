@@ -7,11 +7,7 @@
 
 import MultipeerConnectivity
 
-public struct Peer: Identifiable {
-    public var id: ObjectIdentifier {
-        return ObjectIdentifier(peerID)
-    }
-    
+public struct Peer {
     public let peerID: MCPeerID
     public var displayName: String { return peerID.displayName }
     
