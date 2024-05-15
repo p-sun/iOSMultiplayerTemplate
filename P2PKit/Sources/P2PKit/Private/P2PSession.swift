@@ -30,10 +30,22 @@ class P2PSession: NSObject {
     private var sessionStates = [MCPeerID: MCSessionState]() // protected with peersLock
     private var invitesHistory = [MCPeerID: InviteHistory]() // protected with peersLock
     
+    var connectedPeers: [Peer] {
+        peersLock.lock(); defer { peersLock.unlock() }
+        let peers = session.connectedPeers.filter {
+            foundPeers.contains($0) && sessionStates[$0] == .connected
+        }
+        prettyPrint(level: .debug, "connectedPeers: \(peers)")
+        return peers.map { Peer($0) }
+    }
+    
     var allPeers: [Peer] {
         peersLock.lock(); defer { peersLock.unlock() }
-        prettyPrint(level: .debug, "connectedPeers: \(session.connectedPeers)")
-        return session.connectedPeers.filter { foundPeers.contains($0) }.map { Peer($0) }
+        let peers = session.connectedPeers.filter {
+            foundPeers.contains($0)
+        }
+        prettyPrint(level: .debug, "all peers: \(peers)")
+        return peers.map { Peer($0) }
     }
     
     init(myPeer: Peer) {
@@ -116,7 +128,7 @@ class P2PSession: NSObject {
         send(["ping": ""], to: [peerID])
     }
     
-    private func malletLoopbackTest(_ session: MCSession, didReceive json: [String: Any], fromPeer peerID: MCPeerID) -> Bool {
+    private func receiveLoopbackTest(_ session: MCSession, didReceive json: [String: Any], fromPeer peerID: MCPeerID) -> Bool {
         if json["ping"] as? String == "" {
             prettyPrint("Received ping from \(peerID.displayName). Sending Pong.")
             send(["pong": ""], to: [peerID])
@@ -163,10 +175,8 @@ extension P2PSession: MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         if let json = json {
-            if malletLoopbackTest(session, didReceive: json, fromPeer: peerID) {
+            if receiveLoopbackTest(session, didReceive: json, fromPeer: peerID) {
                 return
-            } else {
-                //                prettyPrint("Received: \(json)")
             }
         }
         

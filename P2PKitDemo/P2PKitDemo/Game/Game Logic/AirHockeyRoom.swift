@@ -84,7 +84,7 @@ class GameRoom {
 
 extension GameRoom: P2PNetworkPeerDelegate {
     func p2pNetwork(didUpdate peer: Peer) {
-        peersIDs = [P2PNetwork.myPeer.peerID] + P2PNetwork.allPeers.map { $0.peerID }
+        peersIDs = [P2PNetwork.myPeer.peerID] + P2PNetwork.connectedPeers.map { $0.peerID }
         delegate?.gameRoomPlayersDidChange(self)
     }
 }

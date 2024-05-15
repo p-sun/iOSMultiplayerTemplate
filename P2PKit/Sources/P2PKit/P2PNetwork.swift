@@ -40,6 +40,10 @@ public class P2PNetwork {
         return session.myPeer
     }
     
+    public static var connectedPeers: [Peer] {
+        return session.connectedPeers
+    }
+    
     public static var allPeers: [Peer] {
         return session.allPeers
     }
