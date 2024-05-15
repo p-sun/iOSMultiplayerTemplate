@@ -36,14 +36,6 @@ struct GamePlayer {
         self.score = score
         self.color = color
     }
-    
-    fileprivate func updateFromPeer(_ peer: Peer) -> GamePlayer {
-        return GamePlayer(peerID: peerID, score: score, color: color)
-    }
-    
-    fileprivate func withDisplayName(_ displayName: String) -> GamePlayer {
-        return GamePlayer(peerID: peerID, score: score, color: color)
-    }
 }
 
 protocol GameRoomPlayerDelegate: AnyObject {
@@ -71,10 +63,6 @@ class GameRoom {
     init() {
         P2PNetwork.addPeerDelegate(self)
         P2PNetwork.start()
-//        self.peersIDs = [
-//            MCPeerID(displayName: "Player 1"),
-//            MCPeerID(displayName: "Player 2"),
-//            MCPeerID(displayName: "Player 3")]
     }
     
     func incrementScore(_ peerID: MCPeerID) {
