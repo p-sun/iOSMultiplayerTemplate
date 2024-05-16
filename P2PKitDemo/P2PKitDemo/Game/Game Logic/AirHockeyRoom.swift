@@ -56,13 +56,18 @@ class GameRoom {
             return GamePlayer(peerID: $0, score: info.score, color: info.color)
         }
     }
-    
+     
     private var playerInfos = [MCPeerID: PlayerInfo]()
     private var peersIDs = [MCPeerID]()
     
     init() {
         P2PNetwork.addPeerDelegate(self)
         P2PNetwork.start()
+        
+        self.peersIDs = [
+            MCPeerID(displayName: "Player 1"),
+            MCPeerID(displayName: "Player 2"),
+            MCPeerID(displayName: "Player 3")]
     }
     
     func incrementScore(_ peerID: MCPeerID) {

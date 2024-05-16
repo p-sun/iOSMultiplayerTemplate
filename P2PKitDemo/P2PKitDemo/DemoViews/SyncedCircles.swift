@@ -13,8 +13,8 @@ struct SendableCircle: Codable {
 }
 
 struct SyncedCircles: View {
-    @StateObject var blueCircle = P2PSyncedObject(name: "blue", initial: SendableCircle(point: CGPoint(x: 300, y: -58)))
-    @StateObject var greenCircle = P2PSyncedObject(name: "green", initial: SendableCircle(point: CGPoint(x: 260, y: -30)))
+    @StateObject var blueCircle = P2PSynced(name: "blue", initial: SendableCircle(point: CGPoint(x: 300, y: -58)))
+    @StateObject var greenCircle = P2PSynced(name: "green", initial: SendableCircle(point: CGPoint(x: 260, y: -30)))
     
     var body: some View {
         VStack {
@@ -33,7 +33,7 @@ struct SyncedCircles: View {
 
 struct DraggableCircle: View {
     let color: Color
-    @ObservedObject var networking: P2PSyncedObject<SendableCircle>
+    @ObservedObject var networking: P2PSynced<SendableCircle>
     
     var body: some View {
         VStack {

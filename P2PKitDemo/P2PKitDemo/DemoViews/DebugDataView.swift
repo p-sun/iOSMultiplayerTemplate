@@ -16,6 +16,10 @@ class DebugDataViewModel: ObservableObject {
     init() {
         P2PNetwork.addDataDelegate(self)
     }
+    
+    deinit {
+        P2PNetwork.removeDataDelegate(self)
+    }
 }
 
 extension DebugDataViewModel: P2PNetworkDataDelegate {

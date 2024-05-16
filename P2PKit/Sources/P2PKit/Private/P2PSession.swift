@@ -230,7 +230,7 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
         
         // When a peer enters background, session.connectedPeers still contains that peer.
         // Setting this to nil ensures we make a loopback test to test the connection.
-//        sessionStates[peerID] = nil
+        sessionStates[peerID] = nil
         peersLock.unlock()
         
         delegate?.p2pSession(self, didUpdate: Peer(peerID))

@@ -10,7 +10,7 @@ import SwiftUI
 import P2PKit
 
 struct SyncedCounter: View {
-    @StateObject private var networking = P2PSyncedObject<Int>(name: "SyncedCounter", initial: 1)
+    @StateObject private var networking = P2PSynced<Int>(name: "SyncedCounter", initial: 1)
     
     var body: some View {
         VStack(alignment: .leading) {
