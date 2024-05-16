@@ -48,6 +48,7 @@ struct DebugDataView: View {
             TextEditor(text: $model.text)
                 .font(.subheadline)
                 .scrollContentBackground(.hidden)
+                .disabled(true)
         }
         .background(Color.mint.opacity(0.3))
     }

@@ -114,7 +114,7 @@ class P2PSession: NSObject {
         }
         
         do {
-            try session.send(data, toPeers: session.connectedPeers, with: .reliable)
+            try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
         } catch {
             prettyPrint(level: .error, "error sending data to peers: \(error.localizedDescription)")
         }
