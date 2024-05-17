@@ -98,23 +98,24 @@ class P2PSession: NSObject {
     
     // MARK: - Sending
     
-    func send(_ encodable: Encodable, to peers: [MCPeerID] = []) {
+    func send(_ encodable: Encodable, to peers: [MCPeerID] = [], reliable: Bool) {
         do {
             let data = try JSONEncoder().encode(encodable)
-            send(data: data, to: peers)
+            send(data: data, to: peers, reliable: reliable)
         } catch {
             prettyPrint(level: .error, "Could not encode: \(error.localizedDescription)")
         }
     }
     
-    func send(data: Data, to peers: [MCPeerID] = []) {
+    // Reliable is slower
+    func send(data: Data, to peers: [MCPeerID] = [], reliable: Bool) {
         let sendToPeers = peers == [] ? session.connectedPeers : peers
         guard !sendToPeers.isEmpty else {
             return
         }
         
         do {
-            try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
+            try session.send(data, toPeers: session.connectedPeers, with: reliable ? .reliable : .unreliable)
         } catch {
             prettyPrint(level: .error, "error sending data to peers: \(error.localizedDescription)")
         }
@@ -125,13 +126,13 @@ class P2PSession: NSObject {
     
     private func startLoopbackTest(_ peerID: MCPeerID) {
         prettyPrint("Sending Ping to \(peerID.displayName)")
-        send(["ping": ""], to: [peerID])
+        send(["ping": ""], to: [peerID], reliable: true)
     }
     
     private func receiveLoopbackTest(_ session: MCSession, didReceive json: [String: Any], fromPeer peerID: MCPeerID) -> Bool {
         if json["ping"] as? String == "" {
             prettyPrint("Received ping from \(peerID.displayName). Sending Pong.")
-            send(["pong": ""], to: [peerID])
+            send(["pong": ""], to: [peerID], reliable: true)
             return true
         } else if json["pong"] as? String == "" {
             prettyPrint("Received Pong from \(peerID.displayName)")

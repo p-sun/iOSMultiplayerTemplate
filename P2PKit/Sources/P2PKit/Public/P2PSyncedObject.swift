@@ -8,7 +8,7 @@
 import Foundation
 import MultipeerConnectivity
 
-public class P2PSynced<T: Codable>: ObservableObject {
+public class P2PSyncedObject<T: Codable>: ObservableObject {
     public var value: T {
         get {
             return synced.value
@@ -21,10 +21,10 @@ public class P2PSynced<T: Codable>: ObservableObject {
         }
     }
     
-    private let synced: P2PSynced_<T>
+    private let synced: P2PSynced<T>
     
     public init(name: String, initial: T) {
-        self.synced = P2PSynced_(name: name, initial: initial)
+        self.synced = P2PSynced(name: name, initial: initial)
         self.synced.didChange = { newVal in
             DispatchQueue.main.async { [weak self] in
                 self?.objectWillChange.send()
@@ -33,7 +33,7 @@ public class P2PSynced<T: Codable>: ObservableObject {
     }
 }
 
-public class P2PSynced_<T: Codable> {
+public class P2PSynced<T: Codable> {
     public var value: T {
         get {
             return _value
@@ -50,10 +50,12 @@ public class P2PSynced_<T: Codable> {
     private var _value: T
     private let _network = P2PEventNetwork<T>()
     private var _lastUpdated = Date().timeIntervalSince1970
+    private var _reliable: Bool
     
-    public init(name: String, initial: T) {
+    public init(name: String, initial: T, reliable: Bool = false) {
         self.eventName = name
         _value = initial
+        _reliable = reliable
         
         _network.onReceive(eventName: eventName) { [weak self] (eventInfo: EventInfo, payload: T, json: [String: Any]?, sender: Peer) in
             guard let self = self else { return }
@@ -66,20 +68,23 @@ public class P2PSynced_<T: Codable> {
     }
     
     private func send(_ payload: T) {
-        let sendTime = P2PNetwork.send(eventName: eventName, payload: payload, senderID: syncID).sendTime
+        let sendTime = P2PNetwork.send(eventName: eventName, payload: payload, senderID: syncID, reliable: _reliable).sendTime
         _lastUpdated = sendTime
         _value = payload
     }
 }
 
-private class P2PEventNetwork<T: Codable> {
+public class P2PEventNetwork<T: Codable> {
     private var handlers = [OnReceivedHandler]()
+    
+    public init() {}
     
     public func onReceive(eventName: String, callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ sender: Peer) -> Void) {
         handlers.append(P2PNetwork.onReceive(eventName: eventName, callback))
     }
     
-    public func send(eventName: String, payload: T, senderID: String, to peers: [MCPeerID] = []) -> EventInfo {
-        return P2PNetwork.send(eventName: eventName, payload: payload, senderID: senderID)
+    @discardableResult
+    public func send(eventName: String, payload: T, senderID: String, to peers: [MCPeerID] = [], reliable: Bool) -> EventInfo {
+        return P2PNetwork.send(eventName: eventName, payload: payload, senderID: senderID, reliable: reliable)
     }
 }

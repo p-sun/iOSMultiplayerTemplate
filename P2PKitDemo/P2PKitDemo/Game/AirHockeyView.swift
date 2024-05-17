@@ -136,7 +136,7 @@ class AirHockeyGameView: UIView {
     private func updateBalls(in parent: UIView, balls: [Ball], players: [GamePlayer]) {
         for (i, ball) in balls.enumerated() {
             if i > parent.subviews.count - 1 {
-                let ballView = createBallView(ball, index: i)
+                let ballView = createBallView(ball, tag: i)
                 parent.addSubview(ballView)
             }
             
@@ -166,7 +166,7 @@ class AirHockeyGameView: UIView {
         }
     }
     
-    private func createBallView(_ ball: Ball, index: Int) -> UIView {
+    private func createBallView(_ ball: Ball, tag: Int) -> UIView {
         let view = UIView()
         view.layer.cornerRadius = ball.radius
         view.frame.size = CGSize(width: ball.radius * 2, height: ball.radius * 2)
@@ -179,7 +179,7 @@ class AirHockeyGameView: UIView {
         case .mallet:
             view.layer.borderWidth = 6
             
-            let gestureDetector = MultiGestureDetector(tag: index)
+            let gestureDetector = MultiGestureDetector(tag: tag)
             gestureDetectors[view] = gestureDetector
             gestureDetector.attachTo(view: view, relativeToView: self)
             gestureDetector.delegate = gestureDelegate

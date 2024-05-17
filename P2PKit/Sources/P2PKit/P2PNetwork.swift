@@ -36,6 +36,11 @@ public struct P2PNetwork {
 
     // MARK: - Public P2PSession Getters
     
+    // TODO: Set a device as session host
+    public static var isHost: Bool = {
+        return UIDevice.current.name == "iPhone"
+    }()
+    
     public static var myPeer: Peer {
         return session.myPeer
     }
@@ -100,14 +105,15 @@ public struct P2PNetwork {
     
     // MARK: - Internal - Send and Receive Events
 
-    static func send<T: Codable>(eventName: String, payload: T, senderID: String?, to peers: [MCPeerID] = []) -> EventInfo {
+    static func send<T: Codable>(eventName: String, payload: T, senderID: String?, to peers: [MCPeerID] = [], reliable: Bool) -> EventInfo {
         let eventInfo = EventInfo(
             senderEntityID: senderID,
             sendTime: Date().timeIntervalSince1970)
         session.send(Event(eventName: eventName,
                            info: eventInfo,
                            payload: payload),
-                     to: peers)
+                     to: peers,
+                     reliable: reliable)
         return eventInfo
     }
     

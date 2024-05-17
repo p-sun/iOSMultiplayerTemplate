@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import MultipeerConnectivity
+import P2PKit
 
 class Ball: Identifiable {
     enum Info {
@@ -59,12 +60,39 @@ class AirHockeyPhysics {
     
     //MARK: - Update
     
+    // TODO: Use Ball View Model to update views. No need to touch 'physics'
+    func updateMalletViews(for ballVMs: [BallVM]) {
+        mallets = ballVMs.enumerated().map { (i, ballVM) in
+            if i < mallets.count {
+                mallets[i].position = ballVM.position
+                return mallets[i]
+            } else {
+                let ball = Ball.createMallet(boardSize: boardSize, ownerID: P2PNetwork.myPeer.peerID)
+                ball.position = ballVM.position
+                return ball
+            }
+        }
+    }
+    
     func updateMallets(for players: [GamePlayer]) {
         mallets = players.map { player in
             if let existing = mallets.first(where: { $0.ownerID == player.peerID }) {
                 return existing
             } else {
                 return Ball.createMallet(boardSize: boardSize, ownerID: player.peerID)
+            }
+        }
+    }
+    
+    func updateHoleViews(for ballVMs: [BallVM]) {
+        holes = ballVMs.enumerated().map { (i, ballVM) in
+            if i < holes.count {
+                holes[i].position = ballVM.position
+                return holes[i]
+            } else {
+                let hole = Ball.createHole(boardSize: boardSize, awayFrom: [])
+                hole.position = ballVM.position
+                return hole
             }
         }
     }
@@ -290,31 +318,6 @@ class AirHockeyPhysics {
         if b.position.y + r >= boardSize.height {
             b.position.y = boardSize.height - r
         }
-    }
-}
-
-extension AirHockeyPhysics: MultiGestureDetectorDelegate {
-    func gestureDidStart(_ location: CGPoint, tag: Int) {
-        mallets[tag].position = location
-        mallets[tag].isGrabbed = true
-        mallets[tag].velocity = CGPoint.zero
-    }
-    
-    func gestureDidMoveTo(_ location: CGPoint, velocity: CGPoint, tag: Int) {
-        mallets[tag].position = location
-        mallets[tag].isGrabbed = true
-        mallets[tag].velocity = (velocity / 7).clampingMagnitude(max: 300)
-    }
-    
-    func gesturePanDidEnd(_ location: CGPoint, velocity: CGPoint, tag: Int) {
-        mallets[tag].position = location
-        mallets[tag].isGrabbed = false
-        mallets[tag].velocity = (velocity / 7).clampingMagnitude(max: 300)
-    }
-    
-    func gesturePressDidEnd(_ location: CGPoint, tag: Int) {
-        mallets[tag].position = location
-        mallets[tag].isGrabbed = false
     }
 }
 
