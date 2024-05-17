@@ -7,16 +7,24 @@
 
 import Foundation
 import UIKit
+import P2PKit
 
-struct RoomVM: Codable {
-    struct PlayerVM: Codable {
-        let playerID: String
-        let color: ColorVM
+struct Player: Codable {
+    let playerID: Peer.Identifier
+    let score: Int
+    var color: UIColor {
+        _color.color
     }
-    
-    let players: [PlayerVM]
+    private let _color: ColorVM
+
+    init(playerID: String, score: Int, color: UIColor) {
+        self.score = score
+        self._color = ColorVM(color)
+        self.playerID = playerID
+    }
 }
 
+// Codable UIColor
 struct ColorVM: Codable {
     let color: UIColor
     

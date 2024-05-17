@@ -28,9 +28,9 @@
 		9B6E23792BF3D7E8003E600B /* AirHockeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23712BF3D7E8003E600B /* AirHockeyView.swift */; };
 		9B6E237A2BF3D7E8003E600B /* AirHockeyPhysics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23732BF3D7E8003E600B /* AirHockeyPhysics.swift */; };
 		9B6E237D2BF3DBD5003E600B /* P2PKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9B6E237C2BF3DBD5003E600B /* P2PKit */; };
-		9BFCD4182BF6898D00B7F9AF /* PhysicsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFCD4172BF6898D00B7F9AF /* PhysicsViewModel.swift */; };
+		9BFCD4182BF6898D00B7F9AF /* Ball.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFCD4172BF6898D00B7F9AF /* Ball.swift */; };
 		9BFCD41A2BF6E1F600B7F9AF /* NetworkEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFCD4192BF6E1F600B7F9AF /* NetworkEvents.swift */; };
-		9BFCD41C2BF6E52C00B7F9AF /* RoomViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFCD41B2BF6E52C00B7F9AF /* RoomViewModel.swift */; };
+		9BFCD41C2BF6E52C00B7F9AF /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFCD41B2BF6E52C00B7F9AF /* Player.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,9 +75,9 @@
 		9B6E23702BF3D7E8003E600B /* MultiGestureDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiGestureDetector.swift; sourceTree = "<group>"; };
 		9B6E23712BF3D7E8003E600B /* AirHockeyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirHockeyView.swift; sourceTree = "<group>"; };
 		9B6E23732BF3D7E8003E600B /* AirHockeyPhysics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirHockeyPhysics.swift; sourceTree = "<group>"; };
-		9BFCD4172BF6898D00B7F9AF /* PhysicsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsViewModel.swift; sourceTree = "<group>"; };
+		9BFCD4172BF6898D00B7F9AF /* Ball.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ball.swift; sourceTree = "<group>"; };
 		9BFCD4192BF6E1F600B7F9AF /* NetworkEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkEvents.swift; sourceTree = "<group>"; };
-		9BFCD41B2BF6E52C00B7F9AF /* RoomViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomViewModel.swift; sourceTree = "<group>"; };
+		9BFCD41B2BF6E52C00B7F9AF /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -220,8 +220,8 @@
 		9BFCD4162BF6897D00B7F9AF /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				9BFCD4172BF6898D00B7F9AF /* PhysicsViewModel.swift */,
-				9BFCD41B2BF6E52C00B7F9AF /* RoomViewModel.swift */,
+				9BFCD4172BF6898D00B7F9AF /* Ball.swift */,
+				9BFCD41B2BF6E52C00B7F9AF /* Player.swift */,
 				9BFCD4192BF6E1F600B7F9AF /* NetworkEvents.swift */,
 			);
 			path = Models;
@@ -368,7 +368,7 @@
 				9BFCD41A2BF6E1F600B7F9AF /* NetworkEvents.swift in Sources */,
 				9B6E23752BF3D7E8003E600B /* AirHockeyRoom.swift in Sources */,
 				9B6E235A2BF3D795003E600B /* ShowBrowserButton.swift in Sources */,
-				9BFCD4182BF6898D00B7F9AF /* PhysicsViewModel.swift in Sources */,
+				9BFCD4182BF6898D00B7F9AF /* Ball.swift in Sources */,
 				9B6E23572BF3D795003E600B /* PeerListView.swift in Sources */,
 				9B6E23792BF3D7E8003E600B /* AirHockeyView.swift in Sources */,
 				9B6E22D02BF3D344003E600B /* ContentView.swift in Sources */,
@@ -376,7 +376,7 @@
 				9B6E237A2BF3D7E8003E600B /* AirHockeyPhysics.swift in Sources */,
 				9B6E23582BF3D795003E600B /* SyncedCircles.swift in Sources */,
 				9B6E23592BF3D795003E600B /* DebugDataView.swift in Sources */,
-				9BFCD41C2BF6E52C00B7F9AF /* RoomViewModel.swift in Sources */,
+				9BFCD41C2BF6E52C00B7F9AF /* Player.swift in Sources */,
 				9B6E23742BF3D7E8003E600B /* AirHockeyInstance.swift in Sources */,
 				9B6E23562BF3D795003E600B /* SyncedCounter.swift in Sources */,
 				9B07F3A72BF3E6C700DFCDC5 /* View+Extensions.swift in Sources */,

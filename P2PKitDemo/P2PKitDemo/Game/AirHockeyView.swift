@@ -66,7 +66,7 @@ class AirHockeyScoreView: UIView {
         hStack.constrainTo(self)
     }
     
-    func playersDidChange(_ players: [GamePlayer]) {
+    func playersDidChange(_ players: [Player]) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
@@ -125,7 +125,7 @@ class AirHockeyGameView: UIView {
         didLayout?(frame.size)
     }
     
-    func update(mallets: [Ball], pucks: [Ball], holes: [Ball], players: [GamePlayer]) {
+    func update(mallets: [Ball], pucks: [Ball], holes: [Ball], players: [Player]) {
         DispatchQueue.main.async {
             self.updateBalls(in: self.holesView, balls: holes, players: players)
             self.updateBalls(in: self.pucksView, balls: pucks, players: players)
@@ -133,7 +133,7 @@ class AirHockeyGameView: UIView {
         }
     }
 
-    private func updateBalls(in parent: UIView, balls: [Ball], players: [GamePlayer]) {
+    private func updateBalls(in parent: UIView, balls: [Ball], players: [Player]) {
         for (i, ball) in balls.enumerated() {
             if i > parent.subviews.count - 1 {
                 let ballView = createBallView(ball, tag: i)
@@ -142,16 +142,16 @@ class AirHockeyGameView: UIView {
             
             let ballView = parent.subviews[i]
             ballView.center = ball.position
-            switch ball.info {
+            switch ball.kind {
             case .hole:
                 break
             case .puck:
                 if let puckOwnerID = ball.ownerID,
-                   let player = players.first(where: { player in player.peerID == puckOwnerID }) {
+                   let player = players.first(where: { player in player.playerID == puckOwnerID }) {
                     ballView.layer.borderColor = player.color.cgColor
                 }
             case .mallet:
-                if let player = players.first(where: { player in player.peerID == ball.ownerID }) {
+                if let player = players.first(where: { player in player.playerID == ball.ownerID }) {
                     ballView.backgroundColor = player.color
                     ballView.layer.borderColor = ball.isGrabbed ? UIColor.black.cgColor : player.color.cgColor
                 }
@@ -170,7 +170,7 @@ class AirHockeyGameView: UIView {
         let view = UIView()
         view.layer.cornerRadius = ball.radius
         view.frame.size = CGSize(width: ball.radius * 2, height: ball.radius * 2)
-        switch ball.info {
+        switch ball.kind {
         case .hole:
             view.backgroundColor = .black
         case .puck:

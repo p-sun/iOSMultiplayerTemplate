@@ -10,29 +10,6 @@ import UIKit
 import MultipeerConnectivity
 import P2PKit
 
-class Ball: Identifiable {
-    enum Info {
-        case puck, mallet, hole
-    }
-    
-    let info: Info
-    let radius: CGFloat
-    let mass: CGFloat
-    var velocity: CGPoint
-    var position: CGPoint
-    var isGrabbed = false
-    var ownerID: MCPeerID?
-    
-    fileprivate init(info: Info, radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint, ownerID: MCPeerID?) {
-        self.info = info
-        self.radius = radius
-        self.mass = mass
-        self.velocity = velocity
-        self.position = position
-        self.ownerID = ownerID
-    }
-}
-
 protocol AirHockeyPhysicsDelegate: AnyObject {
     func puckDidEnterHole(puck: Ball)
     func puckDidCollide(puck: Ball, ball: Ball)
@@ -49,51 +26,59 @@ class AirHockeyPhysics {
     
     init(boardSize: CGSize) {
         self.boardSize = boardSize
-
+        
         self.pucks = [
             Ball.createPuck(position: CGPoint(x: boardSize.width/2, y: boardSize.height/2)),
         ]
-
+        
         self.holes = [Ball.createHole(boardSize: boardSize, awayFrom: [])]
         self.holes.append(Ball.createHole(boardSize: boardSize, awayFrom: self.holes.map {$0.position }))
     }
     
     //MARK: - Update
     
-    // TODO: Use Ball View Model to update views. No need to touch 'physics'
-    func updateMalletViews(for ballVMs: [BallVM]) {
-        mallets = ballVMs.enumerated().map { (i, ballVM) in
-            if i < mallets.count {
-                mallets[i].position = ballVM.position
-                return mallets[i]
-            } else {
-                let ball = Ball.createMallet(boardSize: boardSize, ownerID: P2PNetwork.myPeer.peerID)
-                ball.position = ballVM.position
-                return ball
-            }
-        }
-    }
-    
-    func updateMallets(for players: [GamePlayer]) {
+    func updateMallets(for players: [Player]) {
         mallets = players.map { player in
-            if let existing = mallets.first(where: { $0.ownerID == player.peerID }) {
+            if let existing = mallets.first(where: { $0.ownerID == player.playerID }) {
                 return existing
             } else {
-                return Ball.createMallet(boardSize: boardSize, ownerID: player.peerID)
+                return Ball.createMallet(boardSize: boardSize, ownerID: player.playerID)
             }
         }
     }
     
-    func updateHoleViews(for ballVMs: [BallVM]) {
-        holes = ballVMs.enumerated().map { (i, ballVM) in
-            if i < holes.count {
-                holes[i].position = ballVM.position
-                return holes[i]
-            } else {
-                let hole = Ball.createHole(boardSize: boardSize, awayFrom: [])
-                hole.position = ballVM.position
-                return hole
+    func applyViewModels(ballVMs: [BallVM], kind: Ball.Kind) {
+        func newBall() -> Ball {
+            switch kind {
+            case .hole:
+                return Ball.createHole(boardSize: boardSize, awayFrom: [])
+            case .mallet:
+                return Ball.createMallet(boardSize: boardSize, ownerID: nil)
+            case .puck:
+                return Ball.createPuck(position: CGPoint.zero)
             }
+        }
+        
+        func updating(balls: [Ball]) -> [Ball] {
+            return ballVMs.enumerated().map { (i, ballVM) in
+                if i < balls.count {
+                    ballVM.apply(on: balls[i])
+                    return balls[i]
+                } else {
+                    let ball = newBall()
+                    ballVM.apply(on: ball)
+                    return ball
+                }
+            }
+        }
+        
+        switch kind {
+        case .hole:
+            holes = updating(balls: holes)
+        case .mallet:
+            mallets = updating(balls: mallets)
+        case .puck:
+            pucks = updating(balls: pucks)
         }
     }
     
@@ -178,13 +163,13 @@ class AirHockeyPhysics {
             || b.position.x + r >= boardSize.width {
             b.velocity.x = -b.velocity.x
             
-            if b.info == .puck { delegate?.puckDidCollideWithWall(puck: b) }
+            if b.kind == .puck { delegate?.puckDidCollideWithWall(puck: b) }
         }
         
         if b.position.y - r <= 0
             || b.position.y + r >= boardSize.height {
             b.velocity.y = -b.velocity.y
-            if b.info == .puck { delegate?.puckDidCollideWithWall(puck: b) }
+            if b.kind == .puck { delegate?.puckDidCollideWithWall(puck: b) }
         }
     }
     
@@ -224,7 +209,7 @@ class AirHockeyPhysics {
             b.velocity.x = nx * malletSpeed
             b.velocity.y = ny * malletSpeed
             
-            if b.info == .puck {
+            if b.kind == .puck {
                 delegate?.puckDidCollide(puck: b, ball: a)
             }
         }
@@ -270,7 +255,7 @@ class AirHockeyPhysics {
             b.position.x += overlap * nx
             b.position.y += overlap * ny
             
-            if b.info == .puck {
+            if b.kind == .puck {
                 delegate?.puckDidCollide(puck: b, ball: a)
             }
         }
@@ -333,7 +318,7 @@ extension Ball {
                     ownerID: nil)
     }
     
-    fileprivate static func createMallet(boardSize: CGSize, ownerID: MCPeerID) -> Ball {
+    fileprivate static func createMallet(boardSize: CGSize, ownerID: Peer.Identifier?) -> Ball {
         let radius: CGFloat = 40
         let position = CGPoint(
             x: .random(in: radius...boardSize.width-radius),

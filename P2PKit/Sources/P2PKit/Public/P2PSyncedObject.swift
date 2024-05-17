@@ -25,7 +25,7 @@ public class P2PSyncedObject<T: Codable>: ObservableObject {
     
     public init(name: String, initial: T) {
         self.synced = P2PSynced(name: name, initial: initial)
-        self.synced.didChange = { newVal in
+        self.synced.onReceiveSync = { newVal in
             DispatchQueue.main.async { [weak self] in
                 self?.objectWillChange.send()
             }
@@ -45,7 +45,7 @@ public class P2PSynced<T: Codable> {
     
     let eventName: String
     let syncID = UUID().uuidString
-    public var didChange: ((T) -> Void)? = nil
+    public var onReceiveSync: ((T) -> Void)? = nil
     
     private var _value: T
     private let _network = P2PEventNetwork<T>()
@@ -62,7 +62,7 @@ public class P2PSynced<T: Codable> {
             if _lastUpdated < eventInfo.sendTime {
                 _value = payload
                 _lastUpdated = eventInfo.sendTime
-                didChange?(payload)
+                onReceiveSync?(payload)
             }
         }
     }

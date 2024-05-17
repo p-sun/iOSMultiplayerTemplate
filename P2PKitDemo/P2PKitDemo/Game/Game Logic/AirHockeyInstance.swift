@@ -70,7 +70,7 @@ private class AirHockeyCoordinator {
                 }
             }
         } else {
-            syncedGameState.didChange = { [weak self] gameState in
+            syncedGameState.onReceiveSync = { [weak self] gameState in
                 guard let self = self else { return }
                 gameState.update(physics)
             }
@@ -173,7 +173,7 @@ extension AirHockeyCoordinator: AirHockeyPhysicsDelegate {
     }
     
     func puckDidCollide(puck: Ball, ball: Ball) {
-        if ball.info == .mallet, let ownerID = ball.ownerID {
+        if ball.kind == .mallet, let ownerID = ball.ownerID {
             puck.ownerID = ownerID
         }
         playCollisonSound(for: puck)
