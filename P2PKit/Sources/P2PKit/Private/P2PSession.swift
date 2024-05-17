@@ -11,7 +11,7 @@ import MultipeerConnectivity
 
 protocol P2PSessionDelegate: AnyObject {
     func p2pSession(_ session: P2PSession, didUpdate peer: Peer) -> Void
-    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String: Any]?, from peer: Peer)
+    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String: Any]?, from peerID: MCPeerID)
 }
 
 class P2PSession: NSObject {
@@ -48,7 +48,8 @@ class P2PSession: NSObject {
         return peerIDs.compactMap { peer(for: $0) }
     }
     
-    func peer(for peerID: MCPeerID) -> Peer? {
+    // Callers need to protect this with peersLock
+    private func peer(for peerID: MCPeerID) -> Peer? {
         guard let discoverID = discoveryInfos[peerID]?.discoveryId else { return nil }
         return Peer(peerID, id: discoverID)
     }
@@ -147,9 +148,10 @@ class P2PSession: NSObject {
             if sessionStates[peerID] == nil {
                 sessionStates[peerID] = .connected
             }
+            let peer = peer(for: peerID)
             peersLock.unlock()
             
-            if let peer = peer(for: peerID) {
+            if let peer = peer {
                 delegate?.p2pSession(self, didUpdate: peer)
             }
             return true
@@ -177,9 +179,10 @@ extension P2PSession: MCSessionDelegate {
         default:
             fatalError(#function + " - Unexpected multipeer connectivity state.")
         }
+        let peer = peer(for: peerID)
         peersLock.unlock()
         
-        if let peer = peer(for: peerID) {
+        if let peer = peer {
             delegate?.p2pSession(self, didUpdate: peer)
         }
     }
@@ -192,9 +195,8 @@ extension P2PSession: MCSessionDelegate {
             }
         }
         
-        if let peer = peer(for: peerID) {
-            delegate?.p2pSession(self, didReceive: data, dataAsJson: json, from: peer)
-        }
+        // Recieving data is from different threads, so don't get Peer.Identifier here.
+        delegate?.p2pSession(self, didReceive: data, dataAsJson: json, from: peerID)
     }
     
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
@@ -230,9 +232,10 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
             }
             
             invitePeerIfNeeded(peerID)
+            let peer = peer(for: peerID)
             peersLock.unlock()
             
-            if let peer = peer(for: peerID) {
+            if let peer = peer {
                 delegate?.p2pSession(self, didUpdate: peer)
             }
         }
@@ -247,9 +250,10 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
         // When a peer enters background, session.connectedPeers still contains that peer.
         // Setting this to nil ensures we make a loopback test to test the connection.
         sessionStates[peerID] = nil
+        let peer = peer(for: peerID)
         peersLock.unlock()
         
-        if let peer = peer(for: peerID) {
+        if let peer = peer {
             delegate?.p2pSession(self, didUpdate: peer)
         }
     }

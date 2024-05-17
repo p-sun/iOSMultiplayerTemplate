@@ -7,6 +7,7 @@
 
 import SwiftUI
 import P2PKit
+import MultipeerConnectivity
 
 class DebugDataViewModel: ObservableObject {
     @Published var text = ""
@@ -23,7 +24,7 @@ class DebugDataViewModel: ObservableObject {
 }
 
 extension DebugDataViewModel: P2PNetworkDataDelegate {
-    func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from peer: Peer) -> Bool {
+    func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from peer: MCPeerID) -> Bool {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let json = json else { return }
             

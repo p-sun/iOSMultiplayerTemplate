@@ -57,7 +57,7 @@ public class P2PSynced<T: Codable> {
         _value = initial
         _reliable = reliable
         
-        _network.onReceive(eventName: eventName) { [weak self] (eventInfo: EventInfo, payload: T, json: [String: Any]?, sender: Peer) in
+        _network.onReceive(eventName: eventName) { [weak self] (eventInfo: EventInfo, payload: T, json: [String: Any]?, sender: MCPeerID) in
             guard let self = self else { return }
             if _lastUpdated < eventInfo.sendTime {
                 _value = payload
@@ -79,7 +79,7 @@ public class P2PEventNetwork<T: Codable> {
     
     public init() {}
     
-    public func onReceive(eventName: String, callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ sender: Peer) -> Void) {
+    public func onReceive(eventName: String, callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ sender: MCPeerID) -> Void) {
         handlers.append(P2PNetwork.onReceive(eventName: eventName, callback))
     }
     

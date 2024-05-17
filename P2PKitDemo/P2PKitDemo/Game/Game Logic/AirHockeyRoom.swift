@@ -61,7 +61,7 @@ extension GameRoom {
         }
     }
     
-    private func getOrCreateGamePlayer(by peer: Peer) -> Player {
+    private func getOrCreateGamePlayer(from peer: Peer) -> Player {
         if let i = syncedPlayers.value.firstIndex(where: { player in
                 player.playerID == peer.id }) {
             return players[i]
@@ -85,8 +85,7 @@ extension GameRoom: P2PNetworkPeerDelegate {
     func p2pNetwork(didUpdate peer: Peer) {
         if P2PNetwork.isHost {
             let peers = [P2PNetwork.myPeer] + P2PNetwork.connectedPeers
-            let players = peers.map { getOrCreateGamePlayer(by: $0) }
-            print("*** didUpdate peer \(players)")
+            let players = peers.map { peer in getOrCreateGamePlayer(from: peer) }
             syncedPlayers.value = players
             delegate?.gameRoomPlayersDidChange(self)
         }

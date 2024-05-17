@@ -19,7 +19,7 @@ public struct P2PConstants {
 }
 
 public protocol P2PNetworkDataDelegate: AnyObject {
-    func p2pNetwork(didReceive data: Data, dataAsJson json: [String: Any]?, from peer: Peer) -> Bool
+    func p2pNetwork(didReceive data: Data, dataAsJson json: [String: Any]?, from peer: MCPeerID) -> Bool
 }
 
 public protocol P2PNetworkPeerDelegate: AnyObject {
@@ -34,7 +34,7 @@ public struct EventInfo: Codable {
 public struct P2PNetwork {
     private static var session = P2PSession(myPeer: Peer.getMyPeer())
     private static let sessionListener = P2PNetworkSessionListener()
-
+    
     // MARK: - Public P2PSession Getters
     
     // TODO: Set a device as session host
@@ -61,10 +61,6 @@ public struct P2PNetwork {
         }
     }
     
-    public static func peer(for peerID: MCPeerID) -> Peer? {
-        return session.peer(for: peerID)
-    }
-    
     // MARK: - Public P2PSession Functions
     
     public static func connectionState(for peer: MCPeerID) -> MCSessionState? {
@@ -88,7 +84,7 @@ public struct P2PNetwork {
     }
     
     // MARK: - Delegates
-
+    
     // If eventName is nil, the data delegate recieves all events
     public static func addDataDelegate(_ delegate: P2PNetworkDataDelegate, forEventName eventName: String = "") {
         sessionListener.addDataDelegate(delegate, eventName: eventName)
@@ -107,7 +103,7 @@ public struct P2PNetwork {
     }
     
     // MARK: - Internal - Send and Receive Events
-
+    
     static func send<T: Codable>(eventName: String, payload: T, senderID: String?, to peers: [MCPeerID] = [], reliable: Bool) -> EventInfo {
         let eventInfo = EventInfo(
             senderEntityID: senderID,
@@ -121,13 +117,13 @@ public struct P2PNetwork {
     }
     
     // If eventName is empty, receive callbacks on all events
-    static func onReceive<T: Codable>(eventName: String, _ callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ sender: Peer) -> Void) -> OnReceivedHandler {
+    static func onReceive<T: Codable>(eventName: String, _ callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ fromPeerID: MCPeerID) -> Void) -> OnReceivedHandler {
         
-        let castedCallback: OnReceivedHandler.Callback = { (data, json, sender) in
+        let castedCallback: OnReceivedHandler.Callback = { (data, json, fromPeerID) in
             do {
                 let event = try JSONDecoder().decode(Event<T>.self, from: data)
                 if event.eventName == eventName {
-                    callback(event.info, event.payload, json, sender)
+                    callback(event.info, event.payload, json, fromPeerID)
                 }
             } catch {
                 fatalError("Could not decode event of type \(Event<T>.self).\nJSON: \(String(describing: json))")
@@ -146,7 +142,7 @@ private class P2PNetworkSessionListener {
     private var dataDelegates = [String: [WeakDataDelegate]]()
     
     private var onReceiveHandlers = [String: [Weak<OnReceivedHandler>]]()
-        
+    
     fileprivate func onReceivedData(_ handler: OnReceivedHandler, eventName: String) {
         let eventName = !eventName.isEmpty ? eventName : ""
         if let handlers = onReceiveHandlers[eventName] {
@@ -198,34 +194,34 @@ extension P2PNetworkSessionListener: P2PSessionDelegate {
         }
     }
     
-    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from peer: Peer) {
+    func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from peerID: MCPeerID) {
         if let eventName = json?["eventName"] as? String {
             if let wrappers = dataDelegates[eventName] {
                 for wrapper in wrappers {
-                    wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: peer)
+                    wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: peerID)
                 }
             }
             
             if let wrappers = onReceiveHandlers[eventName] {
                 for wrapper in wrappers {
-                    wrapper.ref?.callback(data, json, peer)
+                    wrapper.ref?.callback(data, json, peerID)
                 }
             }
         }
         
         if let wrappers = dataDelegates[""] {
             for wrapper in wrappers {
-                wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: peer)
+                wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: peerID)
             }
         }
     }
 }
 
 class OnReceivedHandler {
-    fileprivate typealias Callback = (_ data: Data, _ dataAsJson: [String : Any]?, _ fromPeer: Peer) -> Void
-
+    fileprivate typealias Callback = (_ data: Data, _ dataAsJson: [String : Any]?, _ fromPeerID: MCPeerID) -> Void
+    
     fileprivate var callback: Callback
-
+    
     fileprivate init(callback: @escaping Callback) {
         self.callback = callback
     }
