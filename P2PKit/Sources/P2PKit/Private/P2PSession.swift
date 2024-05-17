@@ -18,7 +18,7 @@ class P2PSession: NSObject {
     weak var delegate: P2PSessionDelegate?
     
     let myPeer: Peer
-    private let myDiscoveryInfo = DiscoveryInfo()
+    private let myDiscoveryInfo: DiscoveryInfo
     
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
@@ -32,24 +32,31 @@ class P2PSession: NSObject {
     
     var connectedPeers: [Peer] {
         peersLock.lock(); defer { peersLock.unlock() }
-        let peers = session.connectedPeers.filter {
+        let peerIDs = session.connectedPeers.filter {
             foundPeers.contains($0) && sessionStates[$0] == .connected
         }
-        prettyPrint(level: .debug, "connectedPeers: \(peers)")
-        return peers.map { Peer($0) }
+        prettyPrint(level: .debug, "connectedPeers: \(peerIDs)")
+        return peerIDs.compactMap { peer(for: $0) }
     }
     
     var allPeers: [Peer] {
         peersLock.lock(); defer { peersLock.unlock() }
-        let peers = session.connectedPeers.filter {
+        let peerIDs = session.connectedPeers.filter {
             foundPeers.contains($0)
         }
-        prettyPrint(level: .debug, "all peers: \(peers)")
-        return peers.map { Peer($0) }
+        prettyPrint(level: .debug, "all peers: \(peerIDs)")
+        return peerIDs.compactMap { peer(for: $0) }
+    }
+    
+    func peer(for peerID: MCPeerID) -> Peer? {
+        guard let discoverID = discoveryInfos[peerID]?.discoveryId else { return nil }
+        return Peer(peerID, id: discoverID)
     }
     
     init(myPeer: Peer) {
         self.myPeer = myPeer
+        self.myDiscoveryInfo = DiscoveryInfo(discoveryId: myPeer.id)
+        discoveryInfos[myPeer.peerID] = self.myDiscoveryInfo
         let myPeerID = myPeer.peerID
         session = MCSession(peer: myPeerID, securityIdentity: nil, encryptionPreference: .required)
         advertiser = MCNearbyServiceAdvertiser(peer: myPeerID,
@@ -142,7 +149,9 @@ class P2PSession: NSObject {
             }
             peersLock.unlock()
             
-            delegate?.p2pSession(self, didUpdate: Peer(peerID))
+            if let peer = peer(for: peerID) {
+                delegate?.p2pSession(self, didUpdate: peer)
+            }
             return true
         }
         return false
@@ -170,7 +179,9 @@ extension P2PSession: MCSessionDelegate {
         }
         peersLock.unlock()
         
-        delegate?.p2pSession(self, didUpdate: Peer(peerID))
+        if let peer = peer(for: peerID) {
+            delegate?.p2pSession(self, didUpdate: peer)
+        }
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
@@ -181,7 +192,9 @@ extension P2PSession: MCSessionDelegate {
             }
         }
         
-        delegate?.p2pSession(self, didReceive: data, dataAsJson: json, from: Peer(peerID))
+        if let peer = peer(for: peerID) {
+            delegate?.p2pSession(self, didReceive: data, dataAsJson: json, from: peer)
+        }
     }
     
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
@@ -219,7 +232,9 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
             invitePeerIfNeeded(peerID)
             peersLock.unlock()
             
-            delegate?.p2pSession(self, didUpdate: Peer(peerID))
+            if let peer = peer(for: peerID) {
+                delegate?.p2pSession(self, didUpdate: peer)
+            }
         }
     }
     
@@ -234,7 +249,9 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
         sessionStates[peerID] = nil
         peersLock.unlock()
         
-        delegate?.p2pSession(self, didUpdate: Peer(peerID))
+        if let peer = peer(for: peerID) {
+            delegate?.p2pSession(self, didUpdate: peer)
+        }
     }
 }
 
@@ -264,7 +281,9 @@ extension P2PSession {
             invitesHistory[peerID] = InviteHistory(attempt: attempt, nextInviteAfter: Date().addingTimeInterval(retryWaitTime))
         }
         
-        guard discoveryInfos[peerID]?.shouldBeInvited(by: myDiscoveryInfo) == true,
+        // Between any pair of devices, only one invites.
+        guard let otherDiscoverID = discoveryInfos[peerID]?.discoveryId,
+              myDiscoveryInfo.discoveryId < otherDiscoverID,
               isNotConnected(peerID) else {
             return
         }
@@ -325,14 +344,5 @@ private struct InviteHistory {
 // MARK: - Private
 
 private struct DiscoveryInfo {
-    let discoveryId: String
-    
-    init(discoveryId: String? = nil) {
-        // Ensure that between any pair of devices, only one invites.
-        self.discoveryId = discoveryId ?? "\(UIDevice.current.identifierForVendor!)"
-    }
-    
-    func shouldBeInvited(by myInfo: DiscoveryInfo) -> Bool {
-        return myInfo.discoveryId < discoveryId
-    }
+    let discoveryId: Peer.Identifier
 }

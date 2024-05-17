@@ -13,7 +13,8 @@ public struct P2PConstants {
     public static var loggerEnabled = true
     
     struct UserDefaultsKeys {
-        static let myPeer = "com.P2PKit.MyPeerIDKey"
+        static let myMCPeerID = "com.P2PKit.MyMCPeerIDKey"
+        static let myPeerID = "com.P2PKit.MyPeerIDKey"
     }
 }
 
@@ -31,7 +32,7 @@ public struct EventInfo: Codable {
 }
 
 public struct P2PNetwork {
-    private static var session = P2PSession(myPeer: UserDefaults.standard.myPeer)
+    private static var session = P2PSession(myPeer: Peer.getMyPeer())
     private static let sessionListener = P2PNetworkSessionListener()
 
     // MARK: - Public P2PSession Getters
@@ -60,6 +61,10 @@ public struct P2PNetwork {
         }
     }
     
+    public static func peer(for peerID: MCPeerID) -> Peer? {
+        return session.peer(for: peerID)
+    }
+    
     // MARK: - Public P2PSession Functions
     
     public static func connectionState(for peer: MCPeerID) -> MCSessionState? {
@@ -72,9 +77,7 @@ public struct P2PNetwork {
         oldSession.disconnect()
         
         let newPeerId = MCPeerID(displayName: displayName ?? oldSession.myPeer.displayName)
-        let myPeer = Peer(newPeerId)
-        UserDefaults.standard.myPeer = myPeer
-        
+        let myPeer = Peer.resetMyPeer(with: newPeerId)
         session = P2PSession(myPeer: myPeer)
         session.delegate = sessionListener
         session.start()
