@@ -42,6 +42,7 @@ class GameRoom {
             createPlayer(from: Peer(MCPeerID(displayName: "Player 2"), id: "222")),
             createPlayer(from: Peer(MCPeerID(displayName: "Player 3"), id: "333"))
         ]
+        delegate?.gameRoomPlayersDidChange(self)
     }
 }
 
@@ -58,6 +59,7 @@ extension GameRoom {
                 score: players[i].score + 1,
                 color: players[i].color)
             syncedPlayers.value = players
+            delegate?.gameRoomPlayersDidChange(self)
         }
     }
     
