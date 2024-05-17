@@ -104,16 +104,15 @@ public struct P2PNetwork {
     
     // MARK: - Internal - Send and Receive Events
     
-    static func send<T: Codable>(eventName: String, payload: T, senderID: String?, to peers: [MCPeerID] = [], reliable: Bool) -> EventInfo {
+    static func send<T: Codable>(eventName: String, payload: T, senderID: String?, sendTime: TimeInterval? = nil, to peers: [MCPeerID] = [], reliable: Bool) {
         let eventInfo = EventInfo(
             senderEntityID: senderID,
-            sendTime: Date().timeIntervalSince1970)
+            sendTime: sendTime ?? Date().timeIntervalSince1970)
         session.send(Event(eventName: eventName,
                            info: eventInfo,
                            payload: payload),
                      to: peers,
                      reliable: reliable)
-        return eventInfo
     }
     
     // If eventName is empty, receive callbacks on all events

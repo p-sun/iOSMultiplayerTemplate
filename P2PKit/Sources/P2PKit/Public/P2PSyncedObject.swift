@@ -43,14 +43,17 @@ public class P2PSynced<T: Codable> {
         }
     }
     
-    let eventName: String
-    let syncID = UUID().uuidString
     public var onReceiveSync: ((T) -> Void)? = nil
     
-    private var _value: T
+    let eventName: String
+    let syncID = UUID().uuidString
+    
     private let _network = P2PEventNetwork<T>()
+    private let _reliable: Bool
+    
+    private let lock = NSLock()
+    private var _value: T
     private var _lastUpdated = Date().timeIntervalSince1970
-    private var _reliable: Bool
     
     public init(name: String, initial: T, reliable: Bool = false) {
         self.eventName = name
@@ -59,18 +62,25 @@ public class P2PSynced<T: Codable> {
         
         _network.onReceive(eventName: eventName) { [weak self] (eventInfo: EventInfo, payload: T, json: [String: Any]?, sender: MCPeerID) in
             guard let self = self else { return }
+            lock.lock()
             if _lastUpdated < eventInfo.sendTime {
                 _value = payload
                 _lastUpdated = eventInfo.sendTime
-                onReceiveSync?(payload)
             }
+            lock.unlock()
+            
+            onReceiveSync?(payload)
         }
     }
     
     private func send(_ payload: T) {
-        let sendTime = P2PNetwork.send(eventName: eventName, payload: payload, senderID: syncID, reliable: _reliable).sendTime
+        let sendTime = Date().timeIntervalSince1970
+        lock.lock()
         _lastUpdated = sendTime
         _value = payload
+        lock.unlock()
+        
+        P2PNetwork.send(eventName: eventName, payload: payload, senderID: syncID, sendTime: sendTime, reliable: _reliable)
     }
 }
 
@@ -83,8 +93,7 @@ public class P2PEventNetwork<T: Codable> {
         handlers.append(P2PNetwork.onReceive(eventName: eventName, callback))
     }
     
-    @discardableResult
-    public func send(eventName: String, payload: T, senderID: String, to peers: [MCPeerID] = [], reliable: Bool) -> EventInfo {
-        return P2PNetwork.send(eventName: eventName, payload: payload, senderID: senderID, reliable: reliable)
+    public func send(eventName: String, payload: T, senderID: String, to peers: [MCPeerID] = [], reliable: Bool) {
+        P2PNetwork.send(eventName: eventName, payload: payload, senderID: senderID, reliable: reliable)
     }
 }
