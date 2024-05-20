@@ -46,10 +46,12 @@ public struct P2PNetwork {
         return session.myPeer
     }
     
+    // Connected Peers, not including self
     public static var connectedPeers: [Peer] {
         return session.connectedPeers
     }
     
+    // Debug only, use connectedPeers instead.
     public static var allPeers: [Peer] {
         return session.allPeers
     }

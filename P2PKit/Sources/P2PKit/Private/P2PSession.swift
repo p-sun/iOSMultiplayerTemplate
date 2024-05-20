@@ -39,6 +39,7 @@ class P2PSession: NSObject {
         return peerIDs.compactMap { peer(for: $0) }
     }
     
+    // Debug only, use connectedPeers instead.
     var allPeers: [Peer] {
         peersLock.lock(); defer { peersLock.unlock() }
         let peerIDs = session.connectedPeers.filter {
@@ -221,7 +222,7 @@ extension P2PSession: MCSessionDelegate {
 extension P2PSession: MCNearbyServiceBrowserDelegate {
     public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
         if let discoveryId = info?["discoveryId"], discoveryId != myDiscoveryInfo.discoveryId {
-            prettyPrint("Found peer: [\(peerID)]")
+            prettyPrint("Found Peer: [\(peerID)], with id: [\(discoveryId)]")
             
             peersLock.lock()
             foundPeers.insert(peerID)

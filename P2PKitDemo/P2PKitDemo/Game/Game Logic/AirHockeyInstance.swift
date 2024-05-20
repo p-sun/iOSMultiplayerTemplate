@@ -39,7 +39,7 @@ private class AirHockeyCoordinator {
     fileprivate let rootView: AirHockeyRootView
     private let gameView: AirHockeyGameView
     private weak var scoreView: AirHockeyScoreView?
-    private let room = GameRoom()
+    private let room = RoomServer()
     private let physics: AirHockeyPhysics
     private var displayLink: CADisplayLink!
     private var lastCollisonSounds = [Ball.ID: (position: CGPoint, frame: Int)]()
@@ -104,7 +104,7 @@ private class AirHockeyCoordinator {
 }
 
 extension AirHockeyCoordinator: GameRoomPlayerDelegate {
-    func gameRoomPlayersDidChange(_ gameRoom: GameRoom) {
+    func gameRoomPlayersDidChange(_ gameRoom: RoomServer) {
         let players = gameRoom.players
         scoreView?.playersDidChange(players)
         if P2PNetwork.isHost {

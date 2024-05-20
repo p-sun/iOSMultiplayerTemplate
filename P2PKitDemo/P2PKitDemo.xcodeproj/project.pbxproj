@@ -21,7 +21,7 @@
 		9B6E23592BF3D795003E600B /* DebugDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23542BF3D795003E600B /* DebugDataView.swift */; };
 		9B6E235A2BF3D795003E600B /* ShowBrowserButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23552BF3D795003E600B /* ShowBrowserButton.swift */; };
 		9B6E23742BF3D7E8003E600B /* AirHockeyInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E236B2BF3D7E8003E600B /* AirHockeyInstance.swift */; };
-		9B6E23752BF3D7E8003E600B /* AirHockeyRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E236C2BF3D7E8003E600B /* AirHockeyRoom.swift */; };
+		9B6E23752BF3D7E8003E600B /* GameRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E236C2BF3D7E8003E600B /* GameRoom.swift */; };
 		9B6E23762BF3D7E8003E600B /* GameSounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E236E2BF3D7E8003E600B /* GameSounds.swift */; };
 		9B6E23772BF3D7E8003E600B /* MathUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E236F2BF3D7E8003E600B /* MathUtils.swift */; };
 		9B6E23782BF3D7E8003E600B /* MultiGestureDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23702BF3D7E8003E600B /* MultiGestureDetector.swift */; };
@@ -69,7 +69,7 @@
 		9B6E23542BF3D795003E600B /* DebugDataView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugDataView.swift; sourceTree = "<group>"; };
 		9B6E23552BF3D795003E600B /* ShowBrowserButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowBrowserButton.swift; sourceTree = "<group>"; };
 		9B6E236B2BF3D7E8003E600B /* AirHockeyInstance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirHockeyInstance.swift; sourceTree = "<group>"; };
-		9B6E236C2BF3D7E8003E600B /* AirHockeyRoom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirHockeyRoom.swift; sourceTree = "<group>"; };
+		9B6E236C2BF3D7E8003E600B /* GameRoom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameRoom.swift; sourceTree = "<group>"; };
 		9B6E236E2BF3D7E8003E600B /* GameSounds.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameSounds.swift; sourceTree = "<group>"; };
 		9B6E236F2BF3D7E8003E600B /* MathUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MathUtils.swift; sourceTree = "<group>"; };
 		9B6E23702BF3D7E8003E600B /* MultiGestureDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiGestureDetector.swift; sourceTree = "<group>"; };
@@ -194,7 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				9B6E236B2BF3D7E8003E600B /* AirHockeyInstance.swift */,
-				9B6E236C2BF3D7E8003E600B /* AirHockeyRoom.swift */,
+				9B6E236C2BF3D7E8003E600B /* GameRoom.swift */,
 			);
 			path = "Game Logic";
 			sourceTree = "<group>";
@@ -366,7 +366,7 @@
 				9B6E23762BF3D7E8003E600B /* GameSounds.swift in Sources */,
 				9B6E23772BF3D7E8003E600B /* MathUtils.swift in Sources */,
 				9BFCD41A2BF6E1F600B7F9AF /* NetworkEvents.swift in Sources */,
-				9B6E23752BF3D7E8003E600B /* AirHockeyRoom.swift in Sources */,
+				9B6E23752BF3D7E8003E600B /* GameRoom.swift in Sources */,
 				9B6E235A2BF3D795003E600B /* ShowBrowserButton.swift in Sources */,
 				9BFCD4182BF6898D00B7F9AF /* Ball.swift in Sources */,
 				9B6E23572BF3D795003E600B /* PeerListView.swift in Sources */,
