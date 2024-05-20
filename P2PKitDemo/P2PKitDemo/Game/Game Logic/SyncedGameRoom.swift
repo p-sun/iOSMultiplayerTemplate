@@ -11,10 +11,10 @@ import P2PKit
 import MultipeerConnectivity
 
 protocol GameRoomPlayerDelegate: AnyObject {
-    func gameRoomPlayersDidChange(_ gameRoom: GameRoom)
+    func gameRoomPlayersDidChange(_ gameRoom: SyncedGameRoom)
 }
 
-class GameRoom {
+class SyncedGameRoom {
     weak var delegate: GameRoomPlayerDelegate? {
         didSet {
             delegate?.gameRoomPlayersDidChange(self)
@@ -26,14 +26,12 @@ class GameRoom {
         return syncedRoom.value.players
     }
     
-    private let syncedRoom: P2PSynced<RoomServerVM>
-    private let runGameLocally: Bool
+    private let syncedRoom: P2PSynced<GameRoom>
     
-    init(runGameLocally: Bool) {
-        self.runGameLocally = runGameLocally
-        syncedRoom = P2PSynced<RoomServerVM>(
+    init() {
+        syncedRoom = P2PSynced<GameRoom>(
             name: runGameLocally ? UUID().uuidString : "SyncedRoom",
-            initial: runGameLocally ? RoomServerVM.createMock() : RoomServerVM.createEmpty(),
+            initial: runGameLocally ? GameRoom.createMock() : GameRoom.createEmpty(),
             reliable: true)
         syncedRoom.onReceiveSync = { [weak self] roomVM in
             guard let self = self else { return }
@@ -49,7 +47,7 @@ class GameRoom {
 
 // MARK: - Host Only
 
-extension GameRoom {
+extension SyncedGameRoom {
     func incrementScore(_ playerID: Peer.Identifier) {
         guard P2PNetwork.isHost || runGameLocally else { return }
         
@@ -60,9 +58,10 @@ extension GameRoom {
             if runGameLocally {
                 connectedIDs = syncedRoom.value.connectedIds
             } else {
-                connectedIDs = [P2PNetwork.myPeer.id] + P2PNetwork.connectedPeers.map { $0.id }
+                connectedIDs = [P2PNetwork.myPeer.id] 
+                + P2PNetwork.connectedPeers.map { $0.id }
             }
-            syncedRoom.value = RoomServerVM(
+            syncedRoom.value = GameRoom(
                 playerInfos: playerInfos,
                 connectedIDs: connectedIDs,
                 nextPlayerHue: syncedRoom.value.nextPlayerHue
@@ -72,7 +71,7 @@ extension GameRoom {
     }
 }
 
-extension GameRoom: P2PNetworkPeerDelegate {
+extension SyncedGameRoom: P2PNetworkPeerDelegate {
     func p2pNetwork(didUpdate peer: Peer) {
         guard P2PNetwork.isHost else { return }
         
@@ -89,7 +88,7 @@ extension GameRoom: P2PNetworkPeerDelegate {
         }
         
         let connectedIDs = [P2PNetwork.myPeer.id] + P2PNetwork.connectedPeers.map { $0.id }
-        syncedRoom.value = RoomServerVM(
+        syncedRoom.value = GameRoom(
             playerInfos: playerInfos,
             connectedIDs: connectedIDs,
             nextPlayerHue: nextHue

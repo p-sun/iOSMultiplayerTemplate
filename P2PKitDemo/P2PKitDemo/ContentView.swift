@@ -19,6 +19,8 @@
 import SwiftUI
 import P2PKit
 
+let runGameLocally = true
+
 func setupP2PKit() {
     P2PConstants.networkChannelName = "my-p2p-service"
     P2PConstants.loggerEnabled = true
