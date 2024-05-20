@@ -8,6 +8,8 @@
 import UIKit
 import P2PKit
 
+// MARK: - Model
+
 class Ball: Identifiable {
     enum Kind {
         case puck, mallet, hole
@@ -32,17 +34,21 @@ class Ball: Identifiable {
     }
 }
 
+// MARK: - View Models
+
 struct BallVM: Codable {
     let position: CGPoint
     let ownerID: Peer.Identifier?
+    let isGrabbed: Bool
     
     static func create(from ball: Ball) -> BallVM {
-        return BallVM(position: ball.position, ownerID: ball.ownerID)
+        return BallVM(position: ball.position, ownerID: ball.ownerID, isGrabbed: ball.isGrabbed)
     }
     
     func apply(on ball: Ball) {
         ball.position = position
         ball.ownerID = ownerID
+        ball.isGrabbed = isGrabbed
     }
 }
 
