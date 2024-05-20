@@ -14,8 +14,6 @@ protocol GameRoomPlayerDelegate: AnyObject {
     func gameRoomPlayersDidChange(_ gameRoom: GameRoom)
 }
 
-let useMockPlayers = true
-
 class GameRoom {
     weak var delegate: GameRoomPlayerDelegate? {
         didSet {
@@ -28,19 +26,22 @@ class GameRoom {
         return syncedRoom.value.players
     }
     
-    private let syncedRoom = P2PSynced<RoomServerVM>(
-        name: "SyncedRoom",
-        initial: useMockPlayers ? RoomServerVM.createMock() : RoomServerVM.createEmpty(),
-        reliable: true)
+    private let syncedRoom: P2PSynced<RoomServerVM>
+    private let runGameLocally: Bool
     
-    init() {
-        P2PNetwork.addPeerDelegate(self)
-        P2PNetwork.start()
-        
+    init(runGameLocally: Bool) {
+        self.runGameLocally = runGameLocally
+        syncedRoom = P2PSynced<RoomServerVM>(
+            name: runGameLocally ? UUID().uuidString : "SyncedRoom",
+            initial: runGameLocally ? RoomServerVM.createMock() : RoomServerVM.createEmpty(),
+            reliable: true)
         syncedRoom.onReceiveSync = { [weak self] roomVM in
             guard let self = self else { return }
             delegate?.gameRoomPlayersDidChange(self)
         }
+        
+        P2PNetwork.addPeerDelegate(self)
+        P2PNetwork.start()
         
         delegate?.gameRoomPlayersDidChange(self)
     }
@@ -50,14 +51,17 @@ class GameRoom {
 
 extension GameRoom {
     func incrementScore(_ playerID: Peer.Identifier) {
-        guard P2PNetwork.isHost || useMockPlayers else { return }
+        guard P2PNetwork.isHost || runGameLocally else { return }
         
         var playerInfos = syncedRoom.value.playerInfos
         if let oldPlayer = playerInfos[playerID] {
             playerInfos[playerID] = oldPlayer.incrementScore()
-            let connectedIDs = useMockPlayers
-            ? syncedRoom.value.connectedIds
-            :  [P2PNetwork.myPeer.id] + P2PNetwork.connectedPeers.map { $0.id }
+            let connectedIDs: [Peer.Identifier]
+            if runGameLocally {
+                connectedIDs = syncedRoom.value.connectedIds
+            } else {
+                connectedIDs = [P2PNetwork.myPeer.id] + P2PNetwork.connectedPeers.map { $0.id }
+            }
             syncedRoom.value = RoomServerVM(
                 playerInfos: playerInfos,
                 connectedIDs: connectedIDs,

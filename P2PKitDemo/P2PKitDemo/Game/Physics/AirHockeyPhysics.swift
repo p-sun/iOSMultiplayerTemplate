@@ -323,10 +323,13 @@ extension Ball {
         let position = CGPoint(
             x: .random(in: radius...boardSize.width-radius),
             y: .random(in: radius...boardSize.height-radius))
+        let velocity = CGPoint(
+            x: .random(in: -10...10),
+            y: .random(in: -10...10))
         return Ball(info: .mallet,
                     radius: radius,
                     mass: 10,
-                    velocity: CGPoint.zero,
+                    velocity: velocity,
                     position: position,
                     ownerID: ownerID)
     }
