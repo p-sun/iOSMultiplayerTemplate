@@ -2,6 +2,7 @@
 
 import SwiftUI
 import UIKit
+import P2PKit
 
 struct AirHockeyView: UIViewRepresentable {
     typealias UIViewType = AirHockeyRootView
@@ -138,6 +139,9 @@ class AirHockeyGameView: UIView {
             if i > parent.subviews.count - 1 {
                 let ballView = createBallView(ball, tag: i)
                 parent.addSubview(ballView)
+                if ball.kind == .mallet {
+                    addStarSubview(ballView)
+                }
             }
             
             let ballView = parent.subviews[i]
@@ -154,6 +158,10 @@ class AirHockeyGameView: UIView {
                 if let player = players.first(where: { player in player.playerID == ball.ownerID }) {
                     ballView.backgroundColor = player.color
                     ballView.layer.borderColor = ball.isGrabbed ? UIColor.black.cgColor : player.color.cgColor
+                }
+                if let starView = ballView.subviews.first {
+                    starView.tintColor = P2PNetwork.isHost ? #colorLiteral(red: 1, green: 0.9962629676, blue: 0.6918907762, alpha: 1) :  #colorLiteral(red: 0.9879724383, green: 1, blue: 1, alpha: 0.8032646937)
+                    starView.isHidden = ball.ownerID != P2PNetwork.myPeer.id
                 }
             }
         }
@@ -188,8 +196,8 @@ class AirHockeyGameView: UIView {
     }
 }
 
-extension UIView {
-    fileprivate func constrainTo(_ view: UIView, insets: UIEdgeInsets = .zero) {
+private extension UIView {
+    func constrainTo(_ view: UIView, insets: UIEdgeInsets = .zero) {
         translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: insets.left),
@@ -198,4 +206,13 @@ extension UIView {
             bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -insets.bottom),
         ])
     }
+}
+
+private func addStarSubview(_ ballView: UIView) {
+    let starImage = UIImageView(image: UIImage(systemName: "star.fill"))
+    starImage.tintColor = #colorLiteral(red: 1, green: 0.9962629676, blue: 0.6918907762, alpha: 1)
+    ballView.addSubview(starImage)
+    starImage.constrainTo(
+        ballView,
+        insets: UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12))
 }
