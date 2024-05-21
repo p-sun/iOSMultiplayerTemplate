@@ -71,25 +71,15 @@ private struct TextView: UIViewRepresentable {
     
     func updateUIView(_ uiView: UITextView, context: Context) {
         uiView.text = text
-        context.coordinator.stringDidChange = { string in
-            text = string
-        }
     }
     
-    class Coordinator: NSObject, UITextViewDelegate {
-        var stringDidChange: ((String) -> ())?
-        
+    class Coordinator: NSObject {
         lazy var textView: UITextView = {
             let textView = UITextView()
             textView.isEditable = false
             textView.font = UIFont.preferredFont(forTextStyle: .subheadline)
-            textView.delegate = self
             textView.backgroundColor = .clear
             return textView
         }()
-        
-        func textViewDidChange(_ textView: UITextView) {
-            stringDidChange?(textView.text)
-         }
     }
 }
