@@ -9,6 +9,21 @@ import SwiftUI
 import P2PKit
 import MultipeerConnectivity
 
+struct DebugDataView: View {
+    @StateObject var model = DebugDataViewModel()
+    
+    var body: some View {
+        VStack {
+            Text("Receive Data").p2pTitleStyle()
+            TextView(text: $model.text)
+        }
+    }
+}
+
+#Preview {
+    DebugDataView()
+}
+
 class DebugDataViewModel: ObservableObject {
     @Published var text = ""
     
@@ -43,21 +58,38 @@ extension DebugDataViewModel: P2PNetworkDataDelegate {
     }
 }
 
-struct DebugDataView: View {
-    @StateObject var model = DebugDataViewModel()
+private struct TextView: UIViewRepresentable {
+    @Binding var text: String
     
-    var body: some View {
-        VStack {
-            Text("Receive Data").p2pTitleStyle()
-            TextEditor(text: $model.text)
-                .font(.subheadline)
-                .scrollContentBackground(.hidden)
-                .disabled(true)
-        }
-        .background(Color.mint.opacity(0.3))
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
     }
-}
-
-#Preview {
-    DebugDataView()
+    
+    func makeUIView(context: Context) -> UITextView {
+        context.coordinator.textView
+    }
+    
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        uiView.text = text
+        context.coordinator.stringDidChange = { string in
+            text = string
+        }
+    }
+    
+    class Coordinator: NSObject, UITextViewDelegate {
+        var stringDidChange: ((String) -> ())?
+        
+        lazy var textView: UITextView = {
+            let textView = UITextView()
+            textView.isEditable = false
+            textView.font = UIFont.preferredFont(forTextStyle: .subheadline)
+            textView.delegate = self
+            textView.backgroundColor = .clear
+            return textView
+        }()
+        
+        func textViewDidChange(_ textView: UITextView) {
+            stringDidChange?(textView.text)
+         }
+    }
 }
