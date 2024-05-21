@@ -59,27 +59,38 @@ private class AirHockeyCoordinator {
         self.gameView = gameView
         self.syncedRoom = SyncedGameRoom()
         self.physics = AirHockeyPhysics(boardSize: boardSize)
-        
+        self.physics.updateMallets(for: syncedRoom.players)
+
         // Networking
-        self.syncedPhysics = P2PSynced(name: "GameState", initial: PhysicsVM.initial, reliable: false)
-        if P2PNetwork.isHost {
-            malletDraggedEvents.onReceive(eventName: "MalletDrag") { [weak self] eventInfo, malletDragEvent, json, sender in
-                guard let self = self else { return }
-                let i = malletDragEvent.tag
-                if i < physics.mallets.count {
-                    physics.mallets[i].isGrabbed = malletDragEvent.isGrabbed
-                    physics.mallets[i].position = malletDragEvent.position
-                    if let velocity = malletDragEvent.velocity {
-                        physics.mallets[i].velocity = velocity
-                    }
-                } else {
-                    print("WARN: Tried to set mallet at index \(i), but we only have \(physics.mallets.count) mallets. Ignoring")
-                }
+        self.syncedPhysics = P2PSynced(name: "SyncedPhysics", initial: PhysicsVM.initial)
+        self.syncedPhysics.onReceiveSync = { [weak self] (physicsVM: PhysicsVM) in
+            guard let self = self else { return }
+            if !P2PNetwork.isHost {
+                physicsVM.update(physics)
             }
-        } else {
-            syncedPhysics.onReceiveSync = { [weak self] gameState in
-                guard let self = self else { return }
-                gameState.update(physics)
+        }
+        
+        self.syncedRoom.onRoomSync = { [weak self] in
+            guard let self = self else { return }
+            let players = syncedRoom.players
+            scoreView.playersDidChange(players)
+            if P2PNetwork.isHost {
+                physics.updateMallets(for: players)
+            }
+        }
+        
+        self.malletDraggedEvents.onReceive(eventName: "MalletDrag") { [weak self] eventInfo, malletDragEvent, json, sender in
+            guard let self = self, P2PNetwork.isHost else { return }
+            
+            let i = malletDragEvent.tag
+            if i < physics.mallets.count {
+                physics.mallets[i].isGrabbed = malletDragEvent.isGrabbed
+                physics.mallets[i].position = malletDragEvent.position
+                if let velocity = malletDragEvent.velocity {
+                    physics.mallets[i].velocity = velocity
+                }
+            } else {
+                print("WARN: Tried to set mallet at index \(i), but we only have \(physics.mallets.count) mallets. Ignoring")
             }
         }
         
@@ -90,7 +101,6 @@ private class AirHockeyCoordinator {
         // Delegates
         gameView.gestureDelegate = self
         self.physics.delegate = self
-        syncedRoom.delegate = self
     }
     
     @objc private func update(displayLink: CADisplayLink) {
@@ -107,16 +117,6 @@ private class AirHockeyCoordinator {
     
     fileprivate func invalidate() {
         displayLink.invalidate()
-    }
-}
-
-extension AirHockeyCoordinator: GameRoomPlayerDelegate {
-    func gameRoomPlayersDidChange(_ gameRoom: SyncedGameRoom) {
-        let players = gameRoom.players
-        scoreView?.playersDidChange(players)
-        if P2PNetwork.isHost || runGameLocally {
-            self.physics.updateMallets(for: players)
-        }
     }
 }
 

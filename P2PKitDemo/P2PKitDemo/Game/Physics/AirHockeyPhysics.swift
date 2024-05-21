@@ -35,7 +35,7 @@ class AirHockeyPhysics {
         self.holes.append(Ball.createHole(boardSize: boardSize, awayFrom: self.holes.map {$0.position }))
     }
     
-    //MARK: - Update
+    // MARK: - Apply External Changes
     
     func updateMallets(for players: [Player]) {
         mallets = players.map { player in
@@ -82,8 +82,10 @@ class AirHockeyPhysics {
         }
     }
     
+    // MARK: - Per-Frame Updates
+
     func update(deltaTime: CGFloat) {
-        updatePhysics(deltaTime: deltaTime)
+        tick(deltaTime: deltaTime)
         for hole in holes {
             for puck in pucks {
                 puckIsInsideHole(puck: puck, hole: hole)
@@ -91,7 +93,7 @@ class AirHockeyPhysics {
         }
     }
     
-    private func updatePhysics(deltaTime: CGFloat) {
+    private func tick(deltaTime: CGFloat) {
         // MARK: Collisions updates velocity & position
         for puck in pucks {
             collideWithWalls(puck)
@@ -313,7 +315,7 @@ extension Ball {
         return Ball(info: .puck,
                     radius: 30,
                     mass: 1,
-                    velocity: CGPoint(x: -100, y: 300),
+                    velocity: CGPoint(x: -280, y: 300),
                     position:position,
                     ownerID: nil)
     }
