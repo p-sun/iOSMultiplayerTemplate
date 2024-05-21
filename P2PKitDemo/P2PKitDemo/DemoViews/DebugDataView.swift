@@ -25,15 +25,18 @@ class DebugDataViewModel: ObservableObject {
 
 extension DebugDataViewModel: P2PNetworkDataDelegate {
     func p2pNetwork(didReceive data: Data, dataAsJson json: [String : Any]?, from peer: MCPeerID) -> Bool {
+        
+        guard let json = json else { return false }
+        
+        let data = try! JSONSerialization.data(
+            withJSONObject: json,
+            options: [.prettyPrinted, .sortedKeys]
+        )
+        let jsonStr = String(data: data, encoding: .utf8)!
+
         DispatchQueue.main.async { [weak self] in
-            guard let self = self, let json = json else { return }
-            
-            let data = try! JSONSerialization.data(
-                withJSONObject: json,
-                options: [.prettyPrinted, .sortedKeys]
-            )
-            let jsonStr = String(data: data, encoding: .utf8)!
-            self.recentJsons = ["\(jsonStr)"] +  Array(self.recentJsons[0..<self.recentJsons.count - 1])
+            guard let self = self else { return }
+            recentJsons = ["\(jsonStr)"] +  Array(recentJsons[0..<recentJsons.count - 1])
             text = recentJsons.joined(separator: "/n")
         }
         return false
