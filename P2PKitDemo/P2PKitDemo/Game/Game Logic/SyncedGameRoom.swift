@@ -67,21 +67,28 @@ extension SyncedGameRoom: P2PNetworkPeerDelegate {
         var playerInfos = syncedRoom.value.playerInfos
         var nextHue = syncedRoom.value.nextPlayerHue
         
-        if playerInfos[peer.id] == nil {
-            let player = Player(
-                playerID: peer.id,
-                score: 0,
-                color: UIColor(hue: nextHue, saturation: 0.8, brightness: 0.8, alpha: 1))
-            playerInfos[peer.id] = player
-            nextHue = (nextHue + 0.37).truncatingRemainder(dividingBy: 1)
+        let connectedIDs = getConnectedIDs()
+        for id in connectedIDs {
+            if playerInfos[id] == nil {
+                let player = Player(
+                    playerID: id,
+                    score: 0,
+                    color: UIColor(hue: nextHue, saturation: 0.8, brightness: 0.8, alpha: 1))
+                playerInfos[id] = player
+                nextHue = (nextHue + 0.37).truncatingRemainder(dividingBy: 1)
+            }
         }
         
-        let connectedIDs = [P2PNetwork.myPeer.id] + P2PNetwork.connectedPeers.map { $0.id }
         syncedRoom.value = GameRoom(
             playerInfos: playerInfos,
             connectedIDs: connectedIDs,
             nextPlayerHue: nextHue
         )
         onRoomSync?()
+    }
+    
+    private func getConnectedIDs() -> [Peer.Identifier] {
+            return [P2PNetwork.myPeer.id]
+            + P2PNetwork.connectedPeers.map { $0.id }
     }
 }
