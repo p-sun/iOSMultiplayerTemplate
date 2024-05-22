@@ -48,7 +48,7 @@ public class P2PSynced<T: Codable> {
     let eventName: String
     let syncID = UUID().uuidString
     
-    private let _network = P2PEventNetwork<T>()
+    private let _eventService = P2PEventService<T>()
     private let _reliable: Bool
     
     private let lock = NSLock()
@@ -60,7 +60,7 @@ public class P2PSynced<T: Codable> {
         _value = initial
         _reliable = reliable
         
-        _network.onReceive(eventName: eventName) { [weak self] (eventInfo: EventInfo, payload: T, json: [String: Any]?, sender: MCPeerID) in
+        _eventService.onReceive(eventName: eventName) { [weak self] (eventInfo: EventInfo, payload: T, json: [String: Any]?, sender: MCPeerID) in
             guard let self = self else { return }
             lock.lock()
             if _lastUpdated < eventInfo.sendTime {
@@ -80,20 +80,55 @@ public class P2PSynced<T: Codable> {
         _value = payload
         lock.unlock()
         
-        P2PNetwork.send(eventName: eventName, payload: payload, senderID: syncID, sendTime: sendTime, reliable: _reliable)
+        _eventService.send(eventName: eventName, payload: payload, senderID: syncID, to: [], reliable: _reliable)
     }
 }
 
-public class P2PEventNetwork<T: Codable> {
-    private var handlers = [OnReceivedHandler]()
+// P2PEventService sends and receive Data or Codable types.
+public class P2PEventService<T: Codable> {
+    private var handlers = [DataHandler]()
     
-    public init() {}
+    public init() {
+    }
     
+    // Receive Data
+    public func onReceiveData(eventName: String, callback: @escaping (_ data: Data, _ dataAsJson: [String: Any]?, _ sender: MCPeerID) -> Void) {
+        let handler = P2PNetwork.onReceiveData(eventName: eventName, callback)
+        handlers.append(handler)
+    }
+    
+    // Receive Codable Payload
     public func onReceive(eventName: String, callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ sender: MCPeerID) -> Void) {
-        handlers.append(P2PNetwork.onReceive(eventName: eventName, callback))
+        
+        let castedCallback: DataHandler.Callback = { (data, json, fromPeerID) in
+            do {
+                let event = try JSONDecoder().decode(Event<T>.self, from: data)
+                if event.eventName == eventName {
+                    callback(event.info, event.payload, json, fromPeerID)
+                }
+            } catch {
+                fatalError("Could not decode event of type \(Event<T>.self).\nJSON: \(String(describing: json))")
+            }
+        }
+        
+        let handler = P2PNetwork.onReceiveData(eventName: eventName, castedCallback)
+        handlers.append(handler)
     }
     
     public func send(eventName: String, payload: T, senderID: String, to peers: [MCPeerID] = [], reliable: Bool) {
-        P2PNetwork.send(eventName: eventName, payload: payload, senderID: senderID, reliable: reliable)
+        let eventInfo = EventInfo(
+            senderEntityID: senderID,
+            sendTime: Date().timeIntervalSince1970)
+        P2PNetwork.send(Event(eventName: eventName,
+                              info: eventInfo,
+                              payload: payload),
+                        to: peers,
+                        reliable: reliable)
     }
+}
+
+private struct Event<T: Codable>: Codable {
+    let eventName: String
+    let info: EventInfo
+    let payload: T
 }

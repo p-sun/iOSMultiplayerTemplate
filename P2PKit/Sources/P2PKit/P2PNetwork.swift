@@ -18,10 +18,6 @@ public struct P2PConstants {
     }
 }
 
-public protocol P2PNetworkDataDelegate: AnyObject {
-    func p2pNetwork(didReceive data: Data, dataAsJson json: [String: Any]?, from peer: MCPeerID) -> Bool
-}
-
 public protocol P2PNetworkPeerDelegate: AnyObject {
     func p2pNetwork(didUpdate peer: Peer) -> Void
 }
@@ -38,9 +34,7 @@ public struct P2PNetwork {
     // MARK: - Public P2PSession Getters
     
     // TODO: Set a device as session host
-    public static var isHost: Bool = {
-        return UIDevice.current.name == "iPhone"
-    }()
+    public static var isHost: Bool = false
     
     public static var myPeer: Peer {
         return session.myPeer
@@ -85,17 +79,8 @@ public struct P2PNetwork {
         return session.makeBrowserViewController()
     }
     
-    // MARK: - Delegates
-    
-    // If eventName is nil, the data delegate recieves all events
-    public static func addDataDelegate(_ delegate: P2PNetworkDataDelegate, forEventName eventName: String = "") {
-        sessionListener.addDataDelegate(delegate, eventName: eventName)
-    }
-    
-    public static func removeDataDelegate(_ delegate: P2PNetworkDataDelegate) {
-        sessionListener.removeDataDelegate(delegate)
-    }
-    
+    // MARK: - Peer Delegates
+
     public static func addPeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
         sessionListener.addPeerDelegate(delegate)
     }
@@ -103,76 +88,47 @@ public struct P2PNetwork {
     public static func removePeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
         sessionListener.removePeerDelegate(delegate)
     }
-    
+
     // MARK: - Internal - Send and Receive Events
     
-    static func send<T: Codable>(eventName: String, payload: T, senderID: String?, sendTime: TimeInterval? = nil, to peers: [MCPeerID] = [], reliable: Bool) {
-        let eventInfo = EventInfo(
-            senderEntityID: senderID,
-            sendTime: sendTime ?? Date().timeIntervalSince1970)
-        session.send(Event(eventName: eventName,
-                           info: eventInfo,
-                           payload: payload),
-                     to: peers,
-                     reliable: reliable)
+    static func send(_ encodable: Encodable, to peers: [MCPeerID] = [], reliable: Bool) {
+        session.send(encodable, to: peers, reliable: reliable)
     }
     
-    // If eventName is empty, receive callbacks on all events
-    static func onReceive<T: Codable>(eventName: String, _ callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ fromPeerID: MCPeerID) -> Void) -> OnReceivedHandler {
-        
-        let castedCallback: OnReceivedHandler.Callback = { (data, json, fromPeerID) in
-            do {
-                let event = try JSONDecoder().decode(Event<T>.self, from: data)
-                if event.eventName == eventName {
-                    callback(event.info, event.payload, json, fromPeerID)
-                }
-            } catch {
-                fatalError("Could not decode event of type \(Event<T>.self).\nJSON: \(String(describing: json))")
-            }
-        }
-        
-        let handler = OnReceivedHandler(callback: castedCallback)
-        sessionListener.onReceivedData(handler, eventName: eventName)
-        return handler
+    static func sendData(_ data: Data, to peers: [MCPeerID] = [], reliable: Bool) {
+        session.send(data: data, to: peers, reliable: reliable)
+    }
+    
+    static func onReceiveData(eventName: String, _ callback: @escaping DataHandler.Callback) -> DataHandler {
+        sessionListener.onReceiveData(eventName: eventName, callback)
     }
 }
 
+class DataHandler {
+    typealias Callback = (_ data: Data, _ dataAsJson: [String : Any]?, _ fromPeerID: MCPeerID) -> Void
+    
+    var callback: Callback
+    
+    init(_ callback: @escaping Callback) {
+        self.callback = callback
+    }
+}
+
+// MARK: - Private
+
 private class P2PNetworkSessionListener {
     private var peerDelegates = [WeakPeerDelegate]()
+        
+    private var dataHandlers = [String: [Weak<DataHandler>]]()
     
-    private var dataDelegates = [String: [WeakDataDelegate]]()
-    
-    private var onReceiveHandlers = [String: [Weak<OnReceivedHandler>]]()
-    
-    fileprivate func onReceivedData(_ handler: OnReceivedHandler, eventName: String) {
-        let eventName = !eventName.isEmpty ? eventName : ""
-        if let handlers = onReceiveHandlers[eventName] {
-            let isInArray = handlers.contains { $0.ref === handler }
-            if !isInArray {
-                onReceiveHandlers[eventName]?.append(Weak<OnReceivedHandler>(handler))
-                onReceiveHandlers[eventName]?.removeAll(where: { $0.ref?.callback == nil })
-            }
+    fileprivate func onReceiveData(eventName: String, _ handleData: @escaping DataHandler.Callback) -> DataHandler {
+        let handler = DataHandler(handleData)
+        if let handlers = dataHandlers[eventName] {
+            dataHandlers[eventName] = handlers.filter { $0.weakRef != nil } + [Weak(handler)]
         } else {
-            onReceiveHandlers[eventName] = [Weak<OnReceivedHandler>(handler)]
+            dataHandlers[eventName] = [Weak(handler)]
         }
-    }
-    
-    fileprivate func addDataDelegate(_ delegate: P2PNetworkDataDelegate, eventName: String) {
-        let eventName = eventName ?? ""
-        if dataDelegates[eventName] != nil {
-            if !dataDelegates[eventName]!.contains(where: { $0.delegate === delegate }) {
-                dataDelegates[eventName]!.append(WeakDataDelegate(delegate))
-            }
-            dataDelegates[eventName]!.removeAll(where: { $0.delegate == nil })
-        } else {
-            dataDelegates[eventName] = [WeakDataDelegate(delegate)]
-        }
-    }
-    
-    fileprivate func removeDataDelegate(_ delegate: P2PNetworkDataDelegate) {
-        for key in dataDelegates.keys {
-            dataDelegates[key]?.removeAll(where: { $0.delegate === delegate })
-        }
+        return handler
     }
     
     fileprivate func addPeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
@@ -197,48 +153,18 @@ extension P2PNetworkSessionListener: P2PSessionDelegate {
     
     func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from peerID: MCPeerID) {
         if let eventName = json?["eventName"] as? String {
-            if let wrappers = dataDelegates[eventName] {
-                for wrapper in wrappers {
-                    wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: peerID)
-                }
-            }
-            
-            if let wrappers = onReceiveHandlers[eventName] {
-                for wrapper in wrappers {
-                    wrapper.ref?.callback(data, json, peerID)
+            if let handlers = dataHandlers[eventName] {
+                for handler in handlers {
+                    handler.weakRef?.callback(data, json, peerID)
                 }
             }
         }
         
-        if let wrappers = dataDelegates[""] {
-            for wrapper in wrappers {
-                wrapper.delegate?.p2pNetwork(didReceive: data, dataAsJson: json, from: peerID)
+        if let handlers = dataHandlers[""] {
+            for handler in handlers {
+                handler.weakRef?.callback(data, json, peerID)
             }
         }
-    }
-}
-
-class OnReceivedHandler {
-    fileprivate typealias Callback = (_ data: Data, _ dataAsJson: [String : Any]?, _ fromPeerID: MCPeerID) -> Void
-    
-    fileprivate var callback: Callback
-    
-    fileprivate init(callback: @escaping Callback) {
-        self.callback = callback
-    }
-}
-
-private struct Event<T: Codable>: Codable {
-    let eventName: String
-    let info: EventInfo
-    let payload: T
-}
-
-private class WeakDataDelegate {
-    weak var delegate: P2PNetworkDataDelegate?
-    
-    init(_ delegate: P2PNetworkDataDelegate) {
-        self.delegate = delegate
     }
 }
 
@@ -251,9 +177,9 @@ private class WeakPeerDelegate {
 }
 
 private class Weak<T: AnyObject> {
-    weak var ref: T?
+    weak var weakRef: T?
     
-    init(_ ref: T) {
-        self.ref = ref
+    init(_ weakRef: T) {
+        self.weakRef = weakRef
     }
 }

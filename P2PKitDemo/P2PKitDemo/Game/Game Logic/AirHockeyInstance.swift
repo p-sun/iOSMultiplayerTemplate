@@ -43,7 +43,7 @@ private class AirHockeyCoordinator {
     private weak var scoreView: AirHockeyScoreView?
 
     // MARK: Networked States
-    private let malletDraggedEvents = P2PEventNetwork<MalletDragEvent>()
+    private let malletDraggedEvents = P2PEventService<MalletDragEvent>()
     private let syncedRoom: SyncedGameRoom
     private let syncedPhysics: P2PSynced<PhysicsVM>
     
