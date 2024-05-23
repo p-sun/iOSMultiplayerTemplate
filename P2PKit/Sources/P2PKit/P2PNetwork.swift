@@ -117,50 +117,49 @@ class DataHandler {
 // MARK: - Private
 
 private class P2PNetworkSessionListener {
-    private var peerDelegates = [WeakPeerDelegate]()
-        
-    private var dataHandlers = [String: [Weak<DataHandler>]]()
+    private var _peerDelegates = [WeakPeerDelegate]()
+    private var _dataHandlers = [String: [Weak<DataHandler>]]()
     
     fileprivate func onReceiveData(eventName: String, _ handleData: @escaping DataHandler.Callback) -> DataHandler {
         let handler = DataHandler(handleData)
-        if let handlers = dataHandlers[eventName] {
-            dataHandlers[eventName] = handlers.filter { $0.weakRef != nil } + [Weak(handler)]
+        if let handlers = _dataHandlers[eventName] {
+            _dataHandlers[eventName] = handlers.filter { $0.weakRef != nil } + [Weak(handler)]
         } else {
-            dataHandlers[eventName] = [Weak(handler)]
+            _dataHandlers[eventName] = [Weak(handler)]
         }
         return handler
     }
     
     fileprivate func addPeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
-        if !peerDelegates.contains(where: { $0.delegate === delegate }) {
-            peerDelegates.append(WeakPeerDelegate(delegate))
+        if !_peerDelegates.contains(where: { $0.delegate === delegate }) {
+            _peerDelegates.append(WeakPeerDelegate(delegate))
         }
-        peerDelegates.removeAll(where: { $0.delegate == nil })
+        _peerDelegates.removeAll(where: { $0.delegate == nil })
         delegate.p2pNetwork(didUpdate: P2PNetwork.myPeer)
     }
     
     fileprivate func removePeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
-        peerDelegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
+        _peerDelegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
     }
 }
 
 extension P2PNetworkSessionListener: P2PSessionDelegate {
     func p2pSession(_ session: P2PSession, didUpdate peer: Peer) {
-        for peerDelegateWrapper in peerDelegates {
+        for peerDelegateWrapper in _peerDelegates {
             peerDelegateWrapper.delegate?.p2pNetwork(didUpdate: peer)
         }
     }
     
     func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from peerID: MCPeerID) {
         if let eventName = json?["eventName"] as? String {
-            if let handlers = dataHandlers[eventName] {
+            if let handlers = _dataHandlers[eventName] {
                 for handler in handlers {
                     handler.weakRef?.callback(data, json, peerID)
                 }
             }
         }
         
-        if let handlers = dataHandlers[""] {
+        if let handlers = _dataHandlers[""] {
             for handler in handlers {
                 handler.weakRef?.callback(data, json, peerID)
             }

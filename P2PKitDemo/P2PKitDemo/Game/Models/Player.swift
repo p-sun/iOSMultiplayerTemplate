@@ -28,8 +28,10 @@ struct Player: Codable {
     }
 }
 
+// MARK: - Private
+
 // Codable UIColor
-struct ColorVM: Codable {
+private struct ColorVM: Codable {
     let color: UIColor
     
     init(_ color: UIColor) {

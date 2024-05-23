@@ -7,7 +7,6 @@
 
 import MultipeerConnectivity
 
-
 public struct Peer {
     public typealias Identifier = String
 

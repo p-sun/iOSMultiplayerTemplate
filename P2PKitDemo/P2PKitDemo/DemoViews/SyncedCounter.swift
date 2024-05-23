@@ -10,7 +10,7 @@ import SwiftUI
 import P2PKit
 
 struct SyncedCounter: View {
-    @StateObject private var networking = P2PSyncedObject<Int>(name: "SyncedCounter", initial: 1)
+    @StateObject private var counter = P2PSyncedObservable<Int>(name: "SyncedCounter", initial: 1)
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -18,9 +18,9 @@ struct SyncedCounter: View {
                 .p2pTitleStyle()
             HStack {
                 Button("+ 1") {
-                    networking.value = networking.value + 1
+                    counter.value = counter.value + 1
                 }.p2pButtonStyle()
-                Text("Counter: \(networking.value)")
+                Text("Counter: \(counter.value)")
                 Spacer()
             }
         }.background(Color.yellow.opacity(0.3))
