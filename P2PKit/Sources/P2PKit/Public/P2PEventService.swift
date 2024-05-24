@@ -8,20 +8,20 @@
 import MultipeerConnectivity
 
 public class P2PEventService<T: Codable> {
-    private typealias DataHandler = (_ data: Data, _ dataAsJson: [String: Any]?, _ sender: MCPeerID) -> Void
     private var _handlers = [DataHandler]()
     
     public init() {}
     
     // Receive Data
     public func onReceiveData(eventName: String, callback: @escaping (_ data: Data, _ dataAsJson: [String: Any]?, _ sender: MCPeerID) -> Void) {
-        _handlers.append(callback)
+        let handler = P2PNetwork.onReceiveData(eventName: eventName, callback)
+        _handlers.append(handler)
     }
     
     // Receive Codable Payload
     public func onReceive(eventName: String, callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ sender: MCPeerID) -> Void) {
         
-        let castedHandler: DataHandler = { (data, json, fromPeerID) in
+        let castedHandler: DataHandler.Callback = { (data, json, fromPeerID) in
             do {
                 let event = try JSONDecoder().decode(Event<T>.self, from: data)
                 if event.eventName == eventName {
@@ -31,7 +31,8 @@ public class P2PEventService<T: Codable> {
                 fatalError("Could not decode event of type \(Event<T>.self).\nJSON: \(String(describing: json))")
             }
         }
-        _handlers.append(castedHandler)
+        let handler = P2PNetwork.onReceiveData(eventName: eventName, castedHandler)
+        _handlers.append(handler)
     }
     
     public func send(eventName: String, payload: T, senderID: String, to peers: [MCPeerID] = [], reliable: Bool) {
