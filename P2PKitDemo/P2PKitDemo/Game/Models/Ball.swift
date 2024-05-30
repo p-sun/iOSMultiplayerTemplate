@@ -24,7 +24,6 @@ class Ball: Identifiable {
     var ownerID: Peer.Identifier?
     
     init(info: Kind, radius: CGFloat, mass: CGFloat, velocity: CGPoint, position: CGPoint, ownerID: Peer.Identifier?) {
-        
         self.kind = info
         self.radius = radius
         self.mass = mass
@@ -38,15 +37,17 @@ class Ball: Identifiable {
 
 struct BallVM: Codable {
     let position: CGPoint
+    let velocity: CGPoint
     let ownerID: Peer.Identifier?
     let isGrabbed: Bool
     
     static func create(from ball: Ball) -> BallVM {
-        return BallVM(position: ball.position, ownerID: ball.ownerID, isGrabbed: ball.isGrabbed)
+        return BallVM(position: ball.position, velocity: ball.velocity, ownerID: ball.ownerID, isGrabbed: ball.isGrabbed)
     }
     
     func apply(on ball: Ball) {
         ball.position = position
+        ball.velocity = velocity
         ball.ownerID = ownerID
         ball.isGrabbed = isGrabbed
     }
