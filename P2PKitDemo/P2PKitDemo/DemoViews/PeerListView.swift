@@ -14,8 +14,8 @@ class PeerListViewModel: ObservableObject {
         
     init() {
         P2PNetwork.addPeerDelegate(self)
-        P2PNetwork.start()
         p2pNetwork(didUpdate: P2PNetwork.myPeer)
+        p2pNetwork(didUpdateHost: P2PNetwork.host)
     }
     
     deinit {
@@ -62,7 +62,7 @@ struct PeerListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Current Device").p2pTitleStyle()
-            Text(P2PNetwork.myPeer.displayName)
+            Text(peerSummaryText(P2PNetwork.myPeer))
             HStack {
                 Button("Change Name") {
                     model.changeName()
@@ -70,8 +70,12 @@ struct PeerListView: View {
                 Button("Reset Session") {
                     model.resetSession()
                 }
-            }
-            
+            }.p2pSecondaryButtonStyle()
+
+            Button("Make Me Host ⭐️") {
+                P2PNetwork.makeMeHost()
+            }.p2pSecondaryButtonStyle()
+
             Text("Found Devices").p2pTitleStyle()
             VStack(alignment: .leading, spacing: 10) {
                 if model.peerList.isEmpty {
@@ -80,12 +84,16 @@ struct PeerListView: View {
                     ForEach(model.peerList, id: \.peerID) { peer in
                         let connectionState = P2PNetwork.connectionState(for: peer.peerID)
                         let connectionStateStr = connectionState != nil ? connectionState!.debugDescription : "No Session"
-                        Text("\(peer.peerID.displayName): \(connectionStateStr)")
+                        Text("\(peerSummaryText(peer)): \(connectionStateStr)")
                     }
                 }
             }
         }
-        .p2pButtonStyle()
+    }
+    
+    private func peerSummaryText(_ peer: Peer) -> String {
+        let isHostString = model.host?.peerID == peer.peerID ? " ⭐️" : ""
+        return peer.displayName + isHostString
     }
 }
 

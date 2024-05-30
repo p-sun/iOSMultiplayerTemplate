@@ -9,7 +9,12 @@ import SwiftUI
 
 extension View {
     public func p2pButtonStyle() -> some View {
-        self.buttonStyle(.borderedProminent).tint(.mint)
+        self.buttonStyle(.borderedProminent).tint(.mint).foregroundColor(.black)
+    }
+    
+    public func p2pSecondaryButtonStyle() -> some View {
+        self.buttonStyle(.bordered)
+            .tint(.mint).foregroundColor(.black)
     }
 }
 

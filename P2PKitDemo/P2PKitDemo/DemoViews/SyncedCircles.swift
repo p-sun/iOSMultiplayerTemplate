@@ -13,14 +13,15 @@ struct SendableCircle: Codable {
 }
 
 struct SyncedCircles: View {
-    @StateObject var blueCircle = P2PSyncedObservable(name: "blue", initial: SendableCircle(point: CGPoint(x: 300, y: -58)))
-    @StateObject var greenCircle = P2PSyncedObservable(name: "green", initial: SendableCircle(point: CGPoint(x: 260, y: -30)))
+    @StateObject var blueCircle = P2PSyncedObservable(name: "blue", initial: SendableCircle(point: CGPoint(x: 300, y: -26)))
+    @StateObject var greenCircle = P2PSyncedObservable(name: "green", initial: SendableCircle(point: CGPoint(x: 260, y: -10)))
     
     var body: some View {
         VStack {
             Text("Sync Data")
                 .p2pTitleStyle()
-            ShowSyncedCirclesButton()
+            Text("Drag the circles")
+                .frame(maxWidth: .infinity, alignment: .leading)
             ZStack {
                 DraggableCircle(color: .blue, networking: blueCircle)
                 DraggableCircle(color: .green, networking: greenCircle)

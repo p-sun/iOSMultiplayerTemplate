@@ -18,7 +18,7 @@ class SyncedGameRoom {
     
     var onRoomSync: ((GameRoom) -> Void)? = nil {
         didSet {
-            p2pNetwork(didUpdate: P2PNetwork.myPeer)
+            onRoomSync?(syncedRoom.value)
         }
     }
     
@@ -36,7 +36,6 @@ class SyncedGameRoom {
         }
                 
         P2PNetwork.addPeerDelegate(self)
-        P2PNetwork.start()
         p2pNetwork(didUpdateHost: P2PNetwork.host)
     }
     

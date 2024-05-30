@@ -28,7 +28,9 @@
 		9B6E23792BF3D7E8003E600B /* AirHockeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23712BF3D7E8003E600B /* AirHockeyView.swift */; };
 		9B6E237A2BF3D7E8003E600B /* AirHockeyPhysics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6E23732BF3D7E8003E600B /* AirHockeyPhysics.swift */; };
 		9B6E237D2BF3DBD5003E600B /* P2PKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9B6E237C2BF3DBD5003E600B /* P2PKit */; };
+		9B9FC6DA2C08EB520047FBD3 /* GameTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B9FC6D92C08EB520047FBD3 /* GameTab.swift */; };
 		9BCC70DE2BFBC19E0070D417 /* GameRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BCC70DD2BFBC19E0070D417 /* GameRoom.swift */; };
+		9BD589142BFF8D8F00B66703 /* LobbyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD589132BFF8D8F00B66703 /* LobbyView.swift */; };
 		9BFCD4182BF6898D00B7F9AF /* Ball.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFCD4172BF6898D00B7F9AF /* Ball.swift */; };
 		9BFCD41A2BF6E1F600B7F9AF /* NetworkEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFCD4192BF6E1F600B7F9AF /* NetworkEvents.swift */; };
 		9BFCD41C2BF6E52C00B7F9AF /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFCD41B2BF6E52C00B7F9AF /* Player.swift */; };
@@ -76,7 +78,9 @@
 		9B6E23702BF3D7E8003E600B /* MultiGestureDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiGestureDetector.swift; sourceTree = "<group>"; };
 		9B6E23712BF3D7E8003E600B /* AirHockeyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirHockeyView.swift; sourceTree = "<group>"; };
 		9B6E23732BF3D7E8003E600B /* AirHockeyPhysics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirHockeyPhysics.swift; sourceTree = "<group>"; };
+		9B9FC6D92C08EB520047FBD3 /* GameTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTab.swift; sourceTree = "<group>"; };
 		9BCC70DD2BFBC19E0070D417 /* GameRoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRoom.swift; sourceTree = "<group>"; };
+		9BD589132BFF8D8F00B66703 /* LobbyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LobbyView.swift; sourceTree = "<group>"; };
 		9BFCD4172BF6898D00B7F9AF /* Ball.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ball.swift; sourceTree = "<group>"; };
 		9BFCD4192BF6E1F600B7F9AF /* NetworkEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkEvents.swift; sourceTree = "<group>"; };
 		9BFCD41B2BF6E52C00B7F9AF /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
@@ -183,6 +187,7 @@
 		9B6E23692BF3D7E8003E600B /* Game */ = {
 			isa = PBXGroup;
 			children = (
+				9BD589122BFF8CFC00B66703 /* Views */,
 				9BFCD4162BF6897D00B7F9AF /* Models */,
 				9B6E236A2BF3D7E8003E600B /* Game Logic */,
 				9B6E23722BF3D7E8003E600B /* Physics */,
@@ -217,6 +222,15 @@
 				9B6E23732BF3D7E8003E600B /* AirHockeyPhysics.swift */,
 			);
 			path = Physics;
+			sourceTree = "<group>";
+		};
+		9BD589122BFF8CFC00B66703 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9BD589132BFF8D8F00B66703 /* LobbyView.swift */,
+				9B9FC6D92C08EB520047FBD3 /* GameTab.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		9BFCD4162BF6897D00B7F9AF /* Models */ = {
@@ -371,6 +385,8 @@
 				9BFCD41A2BF6E1F600B7F9AF /* NetworkEvents.swift in Sources */,
 				9B6E23752BF3D7E8003E600B /* SyncedGameRoom.swift in Sources */,
 				9B6E235A2BF3D795003E600B /* ShowBrowserButton.swift in Sources */,
+				9BD589142BFF8D8F00B66703 /* LobbyView.swift in Sources */,
+				9B9FC6DA2C08EB520047FBD3 /* GameTab.swift in Sources */,
 				9BFCD4182BF6898D00B7F9AF /* Ball.swift in Sources */,
 				9B6E23572BF3D795003E600B /* PeerListView.swift in Sources */,
 				9B6E23792BF3D7E8003E600B /* AirHockeyView.swift in Sources */,
@@ -556,8 +572,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -587,8 +602,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

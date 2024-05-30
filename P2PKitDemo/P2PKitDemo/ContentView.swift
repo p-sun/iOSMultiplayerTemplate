@@ -19,28 +19,26 @@
 import SwiftUI
 import P2PKit
 
-let runGameLocally = true
-
 func setupP2PKit() {
     P2PConstants.networkChannelName = "my-p2p-service"
     P2PConstants.loggerEnabled = true
+    P2PNetwork.start()
 }
 
 struct ContentView: View {
     var body: some View {
         Group {
-            TabView(selection: .constant(1)) {
-                DebugTab
+            TabView() {
+                GameTab()
                     .tag(0)
+                    .tabItem {
+                        Label("Game", systemImage: "gamecontroller.fill")
+                    }
+                DebugTab
+                    .tag(1)
                     .safeAreaPadding()
                     .tabItem {
                         Label("Debug", systemImage: "newspaper.fill")
-                    }
-                AirHockeyView()
-                    .tag(1)
-                    .ignoresSafeArea(edges: .top)
-                    .tabItem {
-                        Label("Game", systemImage: "gamecontroller.fill")
                     }
             }
         }

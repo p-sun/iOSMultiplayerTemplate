@@ -7,10 +7,12 @@ import P2PKit
 struct AirHockeyView: UIViewRepresentable {
     typealias UIViewType = AirHockeyRootView
     
-    private let instance = AirHockeyInstance()
+    func makeCoordinator() -> AirHockeyInstance {
+        return AirHockeyInstance()
+    }
     
     func makeUIView(context: Context) -> AirHockeyRootView {
-        return instance.rootUIView
+        return context.coordinator.rootUIView
     }
     
     func updateUIView(_ uiView: AirHockeyRootView, context: Context) {
@@ -30,19 +32,18 @@ class AirHockeyRootView: UIView {
         addSubview(gameView)
         gameView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            gameView.topAnchor.constraint(equalTo: topAnchor, constant: 80),
-            gameView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            gameView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            gameView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -80),
+            gameView.widthAnchor.constraint(equalToConstant: 360),
+            gameView.heightAnchor.constraint(equalToConstant: 550),
+            gameView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            gameView.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
         
         addSubview(scoreView)
         scoreView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             scoreView.topAnchor.constraint(equalTo: gameView.bottomAnchor, constant: 8),
-            scoreView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 40),
-            scoreView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -40),
-            scoreView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            scoreView.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 0),
+            scoreView.trailingAnchor.constraint(equalTo: gameView.trailingAnchor, constant: 0),
         ])
     }
     
@@ -160,7 +161,7 @@ class AirHockeyGameView: UIView {
                     ballView.layer.borderColor = ball.isGrabbed ? UIColor.black.cgColor : player.color.cgColor
                 }
                 if let starView = ballView.subviews.first {
-                    starView.tintColor = P2PNetwork.isHost ? #colorLiteral(red: 1, green: 0.9962629676, blue: 0.6918907762, alpha: 1) :  #colorLiteral(red: 0.9879724383, green: 1, blue: 1, alpha: 0.8032646937)
+                    starView.tintColor = #colorLiteral(red: 1, green: 0.9962629676, blue: 0.6918907762, alpha: 1)// :  #colorLiteral(red: 0.9879724383, green: 1, blue: 1, alpha: 0.8032646937)
                     starView.isHidden = ball.ownerID != P2PNetwork.myPeer.id
                 }
             }
