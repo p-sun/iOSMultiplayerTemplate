@@ -108,6 +108,7 @@ class P2PSession: NSObject {
     // MARK: - Sending
     
     func send(_ encodable: Encodable, to peers: [MCPeerID] = [], reliable: Bool) {
+        
         do {
             let data = try JSONEncoder().encode(encodable)
             send(data: data, to: peers, reliable: reliable)
@@ -118,13 +119,13 @@ class P2PSession: NSObject {
     
     // Reliable is slower
     func send(data: Data, to peers: [MCPeerID] = [], reliable: Bool) {
-        let sendToPeers = peers == [] ? session.connectedPeers : peers
+        let sendToPeers = peers.isEmpty ? session.connectedPeers : peers
         guard !sendToPeers.isEmpty else {
             return
         }
         
         do {
-            try session.send(data, toPeers: session.connectedPeers, with: reliable ? .reliable : .unreliable)
+            try session.send(data, toPeers: sendToPeers, with: reliable ? .reliable : .unreliable)
         } catch {
             prettyPrint(level: .error, "error sending data to peers: \(error.localizedDescription)")
         }
