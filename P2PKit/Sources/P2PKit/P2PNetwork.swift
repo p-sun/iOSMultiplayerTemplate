@@ -57,13 +57,20 @@ public struct P2PNetwork {
     
     // Connected Peers, not including self
     public static var connectedPeers: [Peer] {
-        return session.connectedPeers
+        return soloMode ? soloModePeers : session.connectedPeers
     }
     
     // Debug only, use connectedPeers instead.
     public static var allPeers: [Peer] {
         return session.allPeers
     }
+    
+    // When true, fake connectedPeers, and disallow sending and receiving.
+    public static var soloMode = false
+    private static var soloModePeers = {
+       return [Peer(MCPeerID(displayName: "Player 1"), id: "Player 1"),
+               Peer(MCPeerID(displayName: "Player 2"), id: "Player 2")]
+    }()
     
     // MARK: - Public P2PSession Management
 
@@ -108,10 +115,12 @@ public struct P2PNetwork {
     // MARK: - Internal - Send and Receive Events
     
     static func send(_ encodable: Encodable, to peers: [MCPeerID] = [], reliable: Bool) {
+        guard !soloMode else { return }
         session.send(encodable, to: peers, reliable: reliable)
     }
     
     static func sendData(_ data: Data, to peers: [MCPeerID] = [], reliable: Bool) {
+        guard !soloMode else { return }
         session.send(data: data, to: peers, reliable: reliable)
     }
     
@@ -166,12 +175,16 @@ private class P2PNetworkSessionListener {
 
 extension P2PNetworkSessionListener: P2PSessionDelegate {
     func p2pSession(_ session: P2PSession, didUpdate peer: Peer) {
+        guard !P2PNetwork.soloMode else { return }
+
         for peerDelegateWrapper in _peerDelegates {
             peerDelegateWrapper.delegate?.p2pNetwork(didUpdate: peer)
         }
     }
     
     func p2pSession(_ session: P2PSession, didReceive data: Data, dataAsJson json: [String : Any]?, from peerID: MCPeerID) {
+        guard !P2PNetwork.soloMode else { return }
+        
         if let eventName = json?["eventName"] as? String {
             if let handlers = _dataHandlers[eventName] {
                 for handler in handlers {

@@ -28,8 +28,14 @@ struct LobbyView: View {
             }
             
             Spacer()
+            button("Single Player") {
+                P2PNetwork.soloMode = true
+                P2PNetwork.makeMeHost()
+            }
+            
             if connected.host == nil {
-                button("Start Game") {
+                Spacer()
+                button("Multiplayer") {
                     P2PNetwork.makeMeHost()
                 }
             }

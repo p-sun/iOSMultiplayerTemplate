@@ -69,7 +69,7 @@ extension SyncedGameRoom: P2PNetworkPeerDelegate {
     }
     
     func p2pNetwork(didUpdate peer: Peer) {
-        guard isHost, P2PNetwork.connectedPeers.count > 0 else {
+        guard isHost else {
             return
         }
                 
