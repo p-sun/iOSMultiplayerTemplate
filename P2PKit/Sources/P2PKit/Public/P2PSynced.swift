@@ -77,7 +77,7 @@ public class P2PSynced<T: Codable> {
         _value = initial
         _writeAccess = writeAccess
         _reliable = reliable
-
+        
         P2PNetwork.addPeerDelegate(self)
         
         _updateService.onReceive { [weak self] (eventInfo: EventInfo, payload: T, json: [String: Any]?, sender: MCPeerID) in

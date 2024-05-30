@@ -35,7 +35,6 @@ class SyncedGameRoom {
             guard let self = self else { return }
             onRoomSync?(gameRoom)
         }
-                
         P2PNetwork.addPeerDelegate(self)
         p2pNetwork(didUpdateHost: P2PNetwork.host)
     }
@@ -50,7 +49,7 @@ class SyncedGameRoom {
 extension SyncedGameRoom {
     func incrementScore(_ playerID: Peer.Identifier) {
         guard isHost else { return }
-
+        
         let prevRoom = syncedRoom.value
         if let prevPlayer = prevRoom.getPlayerByID(playerID) {
             let newRoom = prevRoom.withPlayer(prevPlayer.incrementScore())
@@ -72,19 +71,19 @@ extension SyncedGameRoom: P2PNetworkPeerDelegate {
         guard isHost else {
             return
         }
-                
+        
         var room = syncedRoom.value
         let connectedIds = (
             [P2PNetwork.myPeer.id] + P2PNetwork.connectedPeers.map { $0.id }
         ).sorted()
         for playerID in connectedIds {
             if room.getPlayerByID(playerID) == nil {
-                room = room.withNewPlayer(playerID: playerID) // TODO: custom method
+                room = room.withNewPlayer(playerID: playerID)
             }
         }
-        let newRoom = room.withConnectedIDs(connectedIds)
-        syncedRoom.value = newRoom
+        room = room.withConnectedIDs(connectedIds)
         
-        onRoomSync?(newRoom)
+        syncedRoom.value = room
+        onRoomSync?(room)
     }
 }
