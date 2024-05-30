@@ -10,10 +10,12 @@ import P2PKit
 
 class PeerListViewModel: ObservableObject {
     @Published var peerList = [Peer]()
+    @Published var host: Peer? = nil
         
     init() {
         P2PNetwork.addPeerDelegate(self)
         P2PNetwork.start()
+        p2pNetwork(didUpdate: P2PNetwork.myPeer)
     }
     
     deinit {
@@ -41,6 +43,12 @@ class PeerListViewModel: ObservableObject {
 }
 
 extension PeerListViewModel: P2PNetworkPeerDelegate {
+    func p2pNetwork(didUpdateHost host: Peer?) {
+        DispatchQueue.main.async { [weak self] in
+            self?.host = host
+        }
+    }
+    
     func p2pNetwork(didUpdate peer: Peer) {
         DispatchQueue.main.async { [weak self] in
             self?.peerList = P2PNetwork.allPeers

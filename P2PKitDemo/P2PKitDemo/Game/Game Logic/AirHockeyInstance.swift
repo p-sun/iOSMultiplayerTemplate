@@ -24,10 +24,11 @@ class AirHockeyInstance {
         gameView.didLayout = { [weak self, weak gameView, weak rootView] size in
             guard let self = self, let gameView = gameView , let rootView = rootView else { return }
             if coordinator == nil {
-                coordinator = AirHockeyCoordinator(boardSize: size,
-                                                   rootView: rootView,
-                                                   gameView: gameView,
-                                                   scoreView: scoreView)
+                coordinator = AirHockeyCoordinator(
+                    boardSize: size,
+                    rootView: rootView,
+                    gameView: gameView,
+                    scoreView: scoreView)
             }
         }
         rootView.constrainSubviews(gameView: gameView, scoreView: scoreView)
@@ -36,7 +37,6 @@ class AirHockeyInstance {
 }
 
 private class AirHockeyCoordinator {
-
     // MARK: Views
     fileprivate let rootView: AirHockeyRootView
     private let gameView: AirHockeyGameView
@@ -59,28 +59,27 @@ private class AirHockeyCoordinator {
         self.gameView = gameView
         self.syncedRoom = SyncedGameRoom()
         self.physics = AirHockeyPhysics(boardSize: boardSize)
-        self.physics.updateMallets(for: syncedRoom.players)
 
         // Networking
         self.syncedPhysics = P2PSynced(name: "SyncedPhysics", initial: PhysicsVM.initial)
         self.syncedPhysics.onReceiveSync = { [weak self] (physicsVM: PhysicsVM) in
             guard let self = self else { return }
-            if !P2PNetwork.isHost {
+            if !self.syncedRoom.isHost {
                 physicsVM.update(physics)
             }
         }
         
-        self.syncedRoom.onRoomSync = { [weak self] in
+        self.syncedRoom.onRoomSync = { [weak self] gameRoom in
             guard let self = self else { return }
-            let players = syncedRoom.players
+            let players = gameRoom.players
             scoreView.playersDidChange(players)
-            if P2PNetwork.isHost {
-                physics.updateMallets(for: players)
+            if self.syncedRoom.isHost {
+                self.physics.updateMallets(for: players)
             }
         }
         
-            guard let self = self, P2PNetwork.isHost else { return }
         self.malletDraggedEvents.onReceive { [weak self] eventInfo, malletDragEvent, json, sender in
+            guard let self = self, syncedRoom.isHost else { return }
             
             let i = malletDragEvent.tag
             if i < physics.mallets.count {
@@ -106,7 +105,7 @@ private class AirHockeyCoordinator {
     @objc private func update(displayLink: CADisplayLink) {
         frame += 1
         
-        if P2PNetwork.isHost || runGameLocally {
+        if syncedRoom.isHost {
             physics.update(deltaTime: CGFloat(displayLink.duration))
             syncedPhysics.value = PhysicsVM.create(from: physics)
         }
@@ -154,7 +153,7 @@ extension AirHockeyCoordinator: MultiGestureDetectorDelegate {
     
     private func dragMallet(tag: Int, isGrabbed: Bool, position: CGPoint, velocity: CGPoint?) {
         // TODO: Don't allow multiple people to grab the same mallet
-        if P2PNetwork.isHost || runGameLocally {
+        if syncedRoom.isHost {
             if tag < physics.mallets.count {
                 let mallet = physics.mallets[tag]
                 mallet.position = position

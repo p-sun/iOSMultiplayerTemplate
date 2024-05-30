@@ -16,28 +16,32 @@ class SyncedGameRoom {
         return syncedRoom.value.players
     }
     
-    var onRoomSync: (() -> Void)? {
+    var onRoomSync: ((GameRoom) -> Void)? = nil {
         didSet {
-            onRoomSync?()
+            p2pNetwork(didUpdate: P2PNetwork.myPeer)
         }
     }
     
-    private var syncedRoom: P2PSynced<GameRoom>
+    private(set) var isHost: Bool = false
+    private let syncedRoom: P2PSynced<GameRoom>!
     
     init() {
         syncedRoom = P2PSynced<GameRoom>(
             name: "SyncedRoom",
-            initial: runGameLocally ? GameRoom.createMock() : GameRoom.createEmpty(),
+            initial: GameRoom.initialLocalState,
             reliable: true)
-        syncedRoom.onReceiveSync = { [weak self] roomVM in
+        syncedRoom.onReceiveSync = { [weak self] gameRoom in
             guard let self = self else { return }
-            onRoomSync?()
+            onRoomSync?(gameRoom)
         }
-        
+                
         P2PNetwork.addPeerDelegate(self)
         P2PNetwork.start()
-        
-        onRoomSync?()
+        p2pNetwork(didUpdateHost: P2PNetwork.host)
+    }
+    
+    deinit {
+        P2PNetwork.removePeerDelegate(self)
     }
 }
 
@@ -45,50 +49,42 @@ class SyncedGameRoom {
 
 extension SyncedGameRoom {
     func incrementScore(_ playerID: Peer.Identifier) {
-        guard P2PNetwork.isHost || runGameLocally else { return }
-        
-        var playerInfos = syncedRoom.value.playerInfos
-        if let oldPlayer = playerInfos[playerID] {
-            playerInfos[playerID] = oldPlayer.incrementScore()
-            syncedRoom.value = GameRoom(
-                playerInfos: playerInfos,
-                connectedIDs: getConnectedIDs(),
-                nextPlayerHue: syncedRoom.value.nextPlayerHue
-            )
-            onRoomSync?()
+        guard isHost else { return }
+
+        let prevRoom = syncedRoom.value
+        if let prevPlayer = prevRoom.getPlayerByID(playerID) {
+            let newRoom = prevRoom.withPlayer(prevPlayer.incrementScore())
+            syncedRoom.value = newRoom
+            onRoomSync?(newRoom)
         }
     }
 }
 
 extension SyncedGameRoom: P2PNetworkPeerDelegate {
-    func p2pNetwork(didUpdate peer: Peer) {
-        guard P2PNetwork.isHost else { return }
-        
-        var playerInfos = syncedRoom.value.playerInfos
-        var nextHue = syncedRoom.value.nextPlayerHue
-        
-        let connectedIDs = getConnectedIDs()
-        for id in connectedIDs {
-            if playerInfos[id] == nil {
-                let player = Player(
-                    playerID: id,
-                    score: 0,
-                    color: UIColor(hue: nextHue, saturation: 0.8, brightness: 0.8, alpha: 1))
-                playerInfos[id] = player
-                nextHue = (nextHue + 0.37).truncatingRemainder(dividingBy: 1)
-            }
+    func p2pNetwork(didUpdateHost host: Peer?) {
+        isHost = host?.isMe == true
+        if isHost, let host = host {
+            p2pNetwork(didUpdate: host)
         }
-        
-        syncedRoom.value = GameRoom(
-            playerInfos: playerInfos,
-            connectedIDs: connectedIDs,
-            nextPlayerHue: nextHue
-        )
-        onRoomSync?()
     }
     
-    private func getConnectedIDs() -> [Peer.Identifier] {
-            return [P2PNetwork.myPeer.id]
-            + P2PNetwork.connectedPeers.map { $0.id }
+    func p2pNetwork(didUpdate peer: Peer) {
+        guard isHost, P2PNetwork.connectedPeers.count > 0 else {
+            return
+        }
+                
+        var room = syncedRoom.value
+        let connectedIds = (
+            [P2PNetwork.myPeer.id] + P2PNetwork.connectedPeers.map { $0.id }
+        ).sorted()
+        for playerID in connectedIds {
+            if room.getPlayerByID(playerID) == nil {
+                room = room.withNewPlayer(playerID: playerID) // TODO: custom method
+            }
+        }
+        let newRoom = room.withConnectedIDs(connectedIds)
+        syncedRoom.value = newRoom
+        
+        onRoomSync?(newRoom)
     }
 }

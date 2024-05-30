@@ -18,6 +18,10 @@ public struct Peer {
         self.id = id
         self.peerID = peerID
     }
+    
+    public var isMe: Bool {
+        return peerID == P2PNetwork.myPeer.peerID
+    }
 }
 
 extension Peer: Hashable {

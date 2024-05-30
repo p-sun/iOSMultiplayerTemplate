@@ -20,6 +20,7 @@ public struct P2PConstants {
 
 public protocol P2PNetworkPeerDelegate: AnyObject {
     func p2pNetwork(didUpdate peer: Peer) -> Void
+    func p2pNetwork(didUpdateHost host: Peer?) -> Void
 }
 
 public struct EventInfo: Codable {
@@ -30,12 +31,26 @@ public struct EventInfo: Codable {
 public struct P2PNetwork {
     private static var session = P2PSession(myPeer: Peer.getMyPeer())
     private static let sessionListener = P2PNetworkSessionListener()
+    private static let hostSelector = {
+        let hostSelector = P2PHostSelector()
+        hostSelector.didUpdateHost = { host in
+            sessionListener.notifyPeerDelegateOfHostUpdate(host)
+        }
+        return hostSelector
+    }()
+
+    // MARK: - Public P2PHostService
+    
+    public static var host: Peer? {
+        return hostSelector.host
+    }
+        
+    public static func makeMeHost() {
+        hostSelector.makeMeHost()
+    }
     
     // MARK: - Public P2PSession Getters
-    
-    // TODO: Set a device as session host
-    public static var isHost: Bool = false
-    
+
     public static var myPeer: Peer {
         return session.myPeer
     }
@@ -50,14 +65,15 @@ public struct P2PNetwork {
         return session.allPeers
     }
     
+    // MARK: - Public P2PSession Management
+
     public static func start() {
         if session.delegate == nil {
+            P2PNetwork.hostSelector
             session.delegate = sessionListener
             session.start()
         }
     }
-    
-    // MARK: - Public P2PSession Functions
     
     public static func connectionState(for peer: MCPeerID) -> MCSessionState? {
         session.connectionState(for: peer)
@@ -135,11 +151,16 @@ private class P2PNetworkSessionListener {
             _peerDelegates.append(WeakPeerDelegate(delegate))
         }
         _peerDelegates.removeAll(where: { $0.delegate == nil })
-        delegate.p2pNetwork(didUpdate: P2PNetwork.myPeer)
     }
     
     fileprivate func removePeerDelegate(_ delegate: P2PNetworkPeerDelegate) {
         _peerDelegates.removeAll(where: { $0.delegate === delegate || $0.delegate == nil })
+    }
+    
+    fileprivate func notifyPeerDelegateOfHostUpdate(_ host: Peer?) {
+        for peerDelegateWrapper in _peerDelegates {
+            peerDelegateWrapper.delegate?.p2pNetwork(didUpdateHost: host)
+        }
     }
 }
 
@@ -182,3 +203,4 @@ private class Weak<T: AnyObject> {
         self.weakRef = weakRef
     }
 }
+
