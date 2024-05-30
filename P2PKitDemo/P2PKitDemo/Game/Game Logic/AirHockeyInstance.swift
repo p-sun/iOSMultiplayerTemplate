@@ -61,7 +61,7 @@ private class AirHockeyCoordinator {
         self.physics = AirHockeyPhysics(boardSize: boardSize)
 
         // Networking
-        self.syncedPhysics = P2PSynced(name: "SyncedPhysics", initial: PhysicsVM.initial)
+        self.syncedPhysics = P2PSynced(name: "SyncedPhysics", initial: PhysicsVM.initial, writeAccess: .hostOnly)
         self.syncedPhysics.onReceiveSync = { [weak self] (physicsVM: PhysicsVM) in
             guard let self = self else { return }
             if !self.syncedRoom.isHost {

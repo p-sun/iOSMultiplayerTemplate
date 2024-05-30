@@ -28,7 +28,8 @@ class SyncedGameRoom {
     init() {
         syncedRoom = P2PSynced<GameRoom>(
             name: "SyncedRoom",
-            initial: GameRoom.initialLocalState,
+            initial: GameRoom.empty,
+            writeAccess: .hostOnly,
             reliable: true)
         syncedRoom.onReceiveSync = { [weak self] gameRoom in
             guard let self = self else { return }

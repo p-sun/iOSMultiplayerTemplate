@@ -23,8 +23,8 @@ public class P2PSyncedObservable<T: Codable>: ObservableObject {
     
     private let synced: P2PSynced<T>
     
-    public init(name: String, initial: T) {
-        self.synced = P2PSynced(name: name, initial: initial)
+    public init(name: String, initial: T, writeAccess: WriteAccess = .everyone) {
+        self.synced = P2PSynced(name: name, initial: initial, writeAccess: writeAccess)
         self.synced.onReceiveSync = { [weak self] newVal in
             DispatchQueue.main.async {
                 self?.objectWillChange.send()
@@ -33,11 +33,16 @@ public class P2PSyncedObservable<T: Codable>: ObservableObject {
     }
 }
 
+public enum WriteAccess {
+    case hostOnly, everyone
+}
+
 // When any peer send values, all other peer will receive it.
 // If isHost is set to true, this will sync the value from host when a new P2PSynced is created with the same eventName, or when the device with that P2PSynced reconnects.
 public class P2PSynced<T: Codable> {
     public var value: T {
         get {
+            _lock.lock(); defer { _lock.unlock() }
             return _value
         }
         set {
@@ -52,30 +57,39 @@ public class P2PSynced<T: Codable> {
     
     private let _updateService: P2PEventService<T>
     private let _requestUpdateService: P2PEventService<String>
+    private let _writeAccess: WriteAccess
     private let _reliable: Bool
     
     private let _lock = NSLock()
     private var _value: T
     private var _lastUpdated = Date().timeIntervalSince1970
-
-    private var _isHost: Bool = false
-
+    
+    private var _host: Peer?
+    
     deinit {
         P2PNetwork.removePeerDelegate(self)
     }
     
-    public init(name: String, initial: T, reliable: Bool = false) {
+    public init(name: String, initial: T, writeAccess: WriteAccess, reliable: Bool = false) {
         self.eventName = name
         _updateService = P2PEventService<T>(name)
         _requestUpdateService = P2PEventService<String>(name + "-RequestUpdateFromHost")
         _value = initial
+        _writeAccess = writeAccess
         _reliable = reliable
 
         P2PNetwork.addPeerDelegate(self)
         
         _updateService.onReceive { [weak self] (eventInfo: EventInfo, payload: T, json: [String: Any]?, sender: MCPeerID) in
             guard let self = self else { return }
+            
             self._lock.lock()
+            guard writeAccess == .everyone ||
+                    writeAccess == .hostOnly && sender == self._host?.peerID else {
+                self._lock.unlock()
+                return
+            }
+            
             if self._lastUpdated < eventInfo.sendTime {
                 self._value = payload
                 self._lastUpdated = eventInfo.sendTime
@@ -85,10 +99,15 @@ public class P2PSynced<T: Codable> {
         }
         
         _requestUpdateService.onReceive { [weak self] _, _, _, sender in
-            guard let self = self, self._isHost else { return }
-            self._lock.lock()
-            let payload = self._value
-            self._lock.unlock()
+            guard let self = self else { return }
+            
+            _lock.lock()
+            guard _host?.isMe == true else {
+                _lock.unlock()
+                return
+            }
+            let payload = _value
+            _lock.unlock()
             send(payload, to: [sender])
         }
         
@@ -96,10 +115,16 @@ public class P2PSynced<T: Codable> {
             p2pNetwork(didUpdateHost: host)
         }
     }
-    
+        
     private func send(_ payload: T, to peers: [MCPeerID] = []) {
-        let sendTime = Date().timeIntervalSince1970
         _lock.lock()
+        guard _writeAccess == .everyone ||
+                _writeAccess == .hostOnly && _host?.isMe == true else {
+            _lock.unlock()
+            return
+        }
+        
+        let sendTime = Date().timeIntervalSince1970
         _lastUpdated = sendTime
         _value = payload
         _lock.unlock()
@@ -110,12 +135,14 @@ public class P2PSynced<T: Codable> {
 
 extension P2PSynced: P2PNetworkPeerDelegate {
     public func p2pNetwork(didUpdateHost host: Peer?) {
-        let isHost = host?.isMe == true
-        _isHost = isHost
-        
-        if isHost {
+        _lock.lock()
+        _host = host
+        let value = _value
+        _lock.unlock()
+
+        if host?.isMe == true {
             send(value)
-        } else if !isHost, let host = host {
+        } else if let host = host {
             _requestUpdateService.send(payload: "", senderID: syncID, to: [host.peerID], reliable: _reliable)
         }
     }
