@@ -10,18 +10,21 @@ import MultipeerConnectivity
 public class P2PEventService<T: Codable> {
     private var _handlers = [DataHandler]()
     
-    public init() {}
+    let eventName: String
+    public init(_ eventName: String) {
+        self.eventName = eventName
+    }
     
     // Receive Data
-    public func onReceiveData(eventName: String, callback: @escaping (_ data: Data, _ dataAsJson: [String: Any]?, _ sender: MCPeerID) -> Void) {
+    public func onReceiveData(callback: @escaping (_ data: Data, _ dataAsJson: [String: Any]?, _ sender: MCPeerID) -> Void) {
         let handler = P2PNetwork.onReceiveData(eventName: eventName, callback)
         _handlers.append(handler)
     }
     
     // Receive Codable Payload
-    public func onReceive(eventName: String, callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ sender: MCPeerID) -> Void) {
+    public func onReceive(callback: @escaping (_ eventInfo: EventInfo, _ payload: T, _ json: [String: Any]?, _ sender: MCPeerID) -> Void) {
         
-        let castedHandler: DataHandler.Callback = { (data, json, fromPeerID) in
+        let castedHandler: DataHandler.Callback = { [eventName] (data, json, fromPeerID) in
             do {
                 let event = try JSONDecoder().decode(Event<T>.self, from: data)
                 if event.eventName == eventName {
@@ -35,7 +38,7 @@ public class P2PEventService<T: Codable> {
         _handlers.append(handler)
     }
     
-    public func send(eventName: String, payload: T, senderID: String, to peers: [MCPeerID] = [], reliable: Bool) {
+    public func send(payload: T, senderID: String? = nil, to peers: [MCPeerID] = [], reliable: Bool) {
         let eventInfo = EventInfo(
             senderEntityID: senderID,
             sendTime: Date().timeIntervalSince1970)

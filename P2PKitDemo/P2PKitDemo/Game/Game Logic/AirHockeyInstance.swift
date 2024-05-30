@@ -43,7 +43,7 @@ private class AirHockeyCoordinator {
     private weak var scoreView: AirHockeyScoreView?
 
     // MARK: Networked States
-    private let malletDraggedEvents = P2PEventService<MalletDragEvent>()
+    private let malletDraggedEvents = P2PEventService<MalletDragEvent>("MalletDrag")
     private let syncedRoom: SyncedGameRoom
     private let syncedPhysics: P2PSynced<PhysicsVM>
     
@@ -79,8 +79,8 @@ private class AirHockeyCoordinator {
             }
         }
         
-        self.malletDraggedEvents.onReceive(eventName: "MalletDrag") { [weak self] eventInfo, malletDragEvent, json, sender in
             guard let self = self, P2PNetwork.isHost else { return }
+        self.malletDraggedEvents.onReceive { [weak self] eventInfo, malletDragEvent, json, sender in
             
             let i = malletDragEvent.tag
             if i < physics.mallets.count {
@@ -164,9 +164,7 @@ extension AirHockeyCoordinator: MultiGestureDetectorDelegate {
                 }
             }
         } else {
-            malletDraggedEvents.send(
-                eventName: "MalletDrag",
-                payload: MalletDragEvent(tag: tag, isGrabbed: isGrabbed, position: position, velocity: velocity), senderID: "", reliable: false)
+            malletDraggedEvents.send(payload: MalletDragEvent(tag: tag, isGrabbed: isGrabbed, position: position, velocity: velocity), senderID: "", reliable: false)
         }
     }
 }

@@ -29,10 +29,10 @@ class DebugDataViewModel: ObservableObject {
     
     private var recentJsons = Array(repeating: "", count: 10)
     
-    private let eventHandlers = P2PEventService<Int>()
+    private let eventHandlers = P2PEventService<Int>("")
     
     init() {
-        eventHandlers.onReceiveData(eventName: "") { [weak self] data, json, sender in
+        eventHandlers.onReceiveData { [weak self] data, json, sender in
             guard let self = self, let json = json else { return }
             
             let data = try! JSONSerialization.data(
