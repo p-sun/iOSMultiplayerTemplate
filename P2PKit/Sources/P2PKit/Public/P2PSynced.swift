@@ -46,7 +46,7 @@ public class P2PSynced<T: Codable> {
             return _value
         }
         set {
-            send(newValue)
+            sendValue(newValue, reliable: _reliable)
         }
     }
     
@@ -62,8 +62,7 @@ public class P2PSynced<T: Codable> {
     
     private let _lock = NSLock()
     private var _value: T
-    private var _lastUpdated = Date().timeIntervalSince1970
-    
+    private var _lastUpdated = TimeInterval(0)
     private var _host: Peer?
     
     deinit {
@@ -90,12 +89,15 @@ public class P2PSynced<T: Codable> {
                 return
             }
             
-            if self._lastUpdated < eventInfo.sendTime {
+            let shouldUpdate = self._lastUpdated < eventInfo.sendTime
+            if shouldUpdate {
                 self._value = payload
                 self._lastUpdated = eventInfo.sendTime
             }
             self._lock.unlock()
-            self.onReceiveSync?(payload)
+            if shouldUpdate {
+                self.onReceiveSync?(payload)
+            }
         }
         
         _requestUpdateService.onReceive { [weak self] _, _, _, sender in
@@ -106,17 +108,17 @@ public class P2PSynced<T: Codable> {
                 _lock.unlock()
                 return
             }
-            let payload = _value
             _lock.unlock()
-            send(payload, to: [sender])
+            sendValue(to: [sender], reliable: true)
         }
         
         if let host = P2PNetwork.host {
             p2pNetwork(didUpdateHost: host)
         }
     }
-        
-    private func send(_ payload: T, to peers: [MCPeerID] = []) {
+    
+    // Set payload to nil to send current _value
+    private func sendValue(_ newValue: T? = nil, to peers: [MCPeerID] = [], reliable: Bool) {
         _lock.lock()
         guard _writeAccess == .everyone ||
                 _writeAccess == .hostOnly && _host?.isMe == true else {
@@ -125,11 +127,14 @@ public class P2PSynced<T: Codable> {
         }
         
         let sendTime = Date().timeIntervalSince1970
-        _lastUpdated = sendTime
-        _value = payload
+        if let newValue = newValue {
+            _lastUpdated = sendTime
+            _value = newValue
+        }
+        let playloadToSend = newValue ?? _value
         _lock.unlock()
         
-        _updateService.send(payload: payload, senderID: syncID, to: peers, reliable: _reliable)
+        _updateService.send(payload: playloadToSend, senderID: syncID, sendTime: sendTime, to: peers, reliable: reliable)
     }
 }
 
@@ -137,16 +142,16 @@ extension P2PSynced: P2PNetworkPeerDelegate {
     public func p2pNetwork(didUpdateHost host: Peer?) {
         _lock.lock()
         _host = host
-        let value = _value
         _lock.unlock()
-
+        
         if host?.isMe == true {
-            send(value)
+            sendValue(reliable: true)
         } else if let host = host {
-            _requestUpdateService.send(payload: "", senderID: syncID, to: [host.peerID], reliable: _reliable)
+            _requestUpdateService.send(payload: "", senderID: syncID, to: [host.peerID], reliable: true)
         }
     }
     
     public func p2pNetwork(didUpdate peer: Peer) {
+        // Intentionally empty because Peers must request for updates from host first, to ensure Peer is ready to receive data from to host.
     }
 }

@@ -38,10 +38,10 @@ public class P2PEventService<T: Codable> {
         _handlers.append(handler)
     }
     
-    public func send(payload: T, senderID: String? = nil, to peers: [MCPeerID] = [], reliable: Bool) {
+    public func send(payload: T, senderID: String? = nil, sendTime: TimeInterval = Date().timeIntervalSince1970, to peers: [MCPeerID] = [], reliable: Bool) {
         let eventInfo = EventInfo(
             senderEntityID: senderID,
-            sendTime: Date().timeIntervalSince1970)
+            sendTime: sendTime)
         P2PNetwork.send(Event(eventName: eventName,
                               info: eventInfo,
                               payload: payload),
