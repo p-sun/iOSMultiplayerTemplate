@@ -31,6 +31,7 @@ struct ContentView: View {
             TabView() {
                 GameTab()
                     .tag(0)
+                    .edgesIgnoringSafeArea(.top)
                     .tabItem {
                         Label("Game", systemImage: "gamecontroller.fill")
                     }

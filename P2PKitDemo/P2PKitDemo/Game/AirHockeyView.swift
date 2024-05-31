@@ -39,16 +39,19 @@ class AirHockeyRootView: UIView {
         gameView.layer.cornerRadius = 10
         
         addSubview(gameView)
+        addSubview(scoreView)
+        addSubview(instructionsLabel)
         gameView.translatesAutoresizingMaskIntoConstraints = false
+        scoreView.translatesAutoresizingMaskIntoConstraints = false
+        instructionsLabel.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             gameView.widthAnchor.constraint(equalToConstant: 360),
             gameView.heightAnchor.constraint(equalToConstant: 550),
             gameView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            gameView.centerYAnchor.constraint(equalTo: centerYAnchor)
+            gameView.centerYAnchor.constraint(equalTo: safeAreaLayoutGuide.centerYAnchor)
         ])
         
-        addSubview(scoreView)
-        scoreView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             scoreView.topAnchor.constraint(equalTo: gameView.bottomAnchor, constant: 8),
             scoreView.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 30),
@@ -56,13 +59,11 @@ class AirHockeyRootView: UIView {
             scoreView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -8)
         ])
         
-        addSubview(instructionsLabel)
-        instructionsLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             instructionsLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             instructionsLabel.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 10),
             instructionsLabel.trailingAnchor.constraint(equalTo: gameView.trailingAnchor, constant: -10),
-            instructionsLabel.bottomAnchor.constraint(equalTo: gameView.topAnchor),
+            instructionsLabel.bottomAnchor.constraint(equalTo: gameView.topAnchor, constant: -10),
         ])
     }
     
