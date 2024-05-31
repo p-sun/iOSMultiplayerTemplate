@@ -25,6 +25,15 @@ class AirHockeyRootView: UIView {
         backgroundColor = #colorLiteral(red: 0.7988162041, green: 0.868170917, blue: 0.8175464272, alpha: 1)
     }
     
+    private var instructionsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "You are the ⭐️. Change the 🔘 to your color and shoot it into the holes!"
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 18)
+        return label
+    }()
+    
     func constrainSubviews(gameView: UIView, scoreView: UIView) {
         gameView.backgroundColor = #colorLiteral(red: 0.9941810966, green: 0.9735670686, blue: 0.9148231149, alpha: 1)
         gameView.layer.cornerRadius = 10
@@ -42,8 +51,17 @@ class AirHockeyRootView: UIView {
         scoreView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             scoreView.topAnchor.constraint(equalTo: gameView.bottomAnchor, constant: 8),
-            scoreView.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 0),
-            scoreView.trailingAnchor.constraint(equalTo: gameView.trailingAnchor, constant: 0),
+            scoreView.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 30),
+            scoreView.trailingAnchor.constraint(equalTo: gameView.trailingAnchor, constant: -30),
+        ])
+        
+        addSubview(instructionsLabel)
+        instructionsLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            instructionsLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            instructionsLabel.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 10),
+            instructionsLabel.trailingAnchor.constraint(equalTo: gameView.trailingAnchor, constant: -10),
+            instructionsLabel.bottomAnchor.constraint(equalTo: gameView.topAnchor),
         ])
     }
     
