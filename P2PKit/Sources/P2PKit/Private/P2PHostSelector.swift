@@ -40,7 +40,9 @@ class P2PHostSelector {
                 let hostPeer = peers.first(where: { $0.peerID == sender })
                 if let hostPeer = hostPeer {
                     _lock.lock()
-                    if let host = _host, let myStartTime = _hostStartTime, host.isMe && myStartTime < hostAction.hostStartTime {
+                    if let host = self._host,
+                       let myStartTime = _hostStartTime,
+                       host.isMe && myStartTime > hostAction.hostStartTime {
                         _lock.unlock()
                         announceHostEvent(to: [hostPeer])
                     } else {
