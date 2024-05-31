@@ -51,15 +51,19 @@ public class P2PSynced<T: Codable> {
     }
     
     public var onReceiveSync: ((T) -> Void)? = nil
-    
+
+    // MARK: Options
     let eventName: String
     let syncID = UUID().uuidString
-    
-    private let _updateService: P2PEventService<T>
-    private let _requestUpdateService: P2PEventService<String>
     private let _writeAccess: WriteAccess
     private let _reliable: Bool
+    private let _shouldLog: Bool
     
+    // MARK: Services
+    private let _updateService: P2PEventService<T>
+    private let _requestUpdateService: P2PEventService<String>
+    
+    // MARK: Values protected by lock
     private let _lock = NSLock()
     private var _value: T
     private var _lastUpdated = TimeInterval(0)
@@ -69,13 +73,14 @@ public class P2PSynced<T: Codable> {
         P2PNetwork.removePeerDelegate(self)
     }
     
-    public init(name: String, initial: T, writeAccess: WriteAccess, reliable: Bool = false) {
+    public init(name: String, initial: T, writeAccess: WriteAccess, reliable: Bool = false, shouldLog: Bool = false) {
         self.eventName = name
         _updateService = P2PEventService<T>(name)
         _requestUpdateService = P2PEventService<String>(name + "-RequestUpdateFromHost")
         _value = initial
         _writeAccess = writeAccess
         _reliable = reliable
+        _shouldLog = shouldLog
         
         P2PNetwork.addPeerDelegate(self)
         
@@ -93,6 +98,7 @@ public class P2PSynced<T: Codable> {
             if shouldUpdate {
                 self._value = payload
                 self._lastUpdated = eventInfo.sendTime
+                if shouldLog { prettyPrint("Received value from \(sender.displayName). \(payload)") }
             }
             self._lock.unlock()
             if shouldUpdate {
@@ -109,6 +115,7 @@ public class P2PSynced<T: Codable> {
                 return
             }
             _lock.unlock()
+            if shouldLog { prettyPrint("Received update request from \(sender.displayName). Replying with value") }
             sendValue(to: [sender], reliable: true)
         }
         
@@ -128,6 +135,7 @@ public class P2PSynced<T: Codable> {
         
         let sendTime = Date().timeIntervalSince1970
         if let newValue = newValue {
+            if _shouldLog { prettyPrint("Updating value: \(newValue)") }
             _lastUpdated = sendTime
             _value = newValue
         }
