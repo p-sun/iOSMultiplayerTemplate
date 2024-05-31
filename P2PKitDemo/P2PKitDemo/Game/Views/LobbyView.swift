@@ -15,7 +15,7 @@ struct LobbyView: View {
         VStack {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Me").p2pTitleStyle()
-                Text("\(peerSummaryText(P2PNetwork.myPeer))")
+                Text(P2PNetwork.myPeer.displayName)
                 
                 if connected.peers.isEmpty {
                     Text("Searching for Players...").p2pTitleStyle()
@@ -23,7 +23,7 @@ struct LobbyView: View {
                 } else {
                     Text("Connected Players").p2pTitleStyle()
                     ForEach(connected.peers, id: \.peerID) { peer in
-                        Text(peerSummaryText(peer))
+                        Text(peer.displayName)
                     }
                 }
             }
@@ -50,11 +50,6 @@ struct LobbyView: View {
         Button(action: action, label: {
             Text(text).padding(10).font(.title)
         }).p2pButtonStyle()
-    }
-    
-    private func peerSummaryText(_ peer: Peer) -> String {
-        let isHostString = connected.host?.peerID == peer.peerID ? " ⭐️HOST⭐️" : ""
-        return peer.displayName + isHostString
     }
 }
 

@@ -72,7 +72,7 @@ struct PeerListView: View {
                 }
             }.p2pSecondaryButtonStyle()
 
-            Button("Make Me Host ⭐️") {
+            Button("Make Me Host 🚀") {
                 P2PNetwork.makeMeHost()
             }.p2pSecondaryButtonStyle()
 
@@ -92,7 +92,7 @@ struct PeerListView: View {
     }
     
     private func peerSummaryText(_ peer: Peer) -> String {
-        let isHostString = model.host?.peerID == peer.peerID ? " ⭐️" : ""
+        let isHostString = model.host?.peerID == peer.peerID ? " 🚀" : ""
         return peer.displayName + isHostString
     }
 }
