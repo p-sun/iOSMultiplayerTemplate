@@ -28,9 +28,9 @@ class AirHockeyRootView: UIView {
     private var instructionsLabel: UILabel = {
         let label = UILabel()
         label.text = "You are the ⭐️. Change the 🔘 to your color and shoot it into the holes!"
+        label.font = .systemFont(ofSize: 18)
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 18)
         return label
     }()
     
@@ -53,6 +53,7 @@ class AirHockeyRootView: UIView {
             scoreView.topAnchor.constraint(equalTo: gameView.bottomAnchor, constant: 8),
             scoreView.leadingAnchor.constraint(equalTo: gameView.leadingAnchor, constant: 30),
             scoreView.trailingAnchor.constraint(equalTo: gameView.trailingAnchor, constant: -30),
+            scoreView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -8)
         ])
         
         addSubview(instructionsLabel)
