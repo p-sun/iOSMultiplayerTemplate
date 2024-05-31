@@ -5,38 +5,48 @@
 import SwiftUI
 import P2PKit
 
+enum GameTabState {
+    case unstarted
+    case startedGame
+    case pausedGame
+}
+
 struct GameTab: View {
-    @State private var showGame = false
     @StateObject private var connected = ConnectedPeers()
-    @State private var showContinue = false
+    @State private var state: GameTabState = .unstarted
     
     var body: some View {
-        Group {
-            if showGame {
-                ZStack {
-                    AirHockeyView()
-                        .onChange(of: connected.host) {
-                            showContinue = connected.host == nil
-                        }
-                        .blur(radius: showContinue ? 10 : 0)
-                    if showContinue {
-                        ContinueButton {
+        ZStack {
+            if state == .unstarted {
+                LobbyView(connected: connected) {
+                    if connected.peers.count > 0 {
+                        BigButton("Create Room") {
                             P2PNetwork.makeMeHost()
                         }
                     }
+                    BigButton("Play Solo") {
+                        P2PNetwork.soloMode = true
+                        P2PNetwork.makeMeHost()
+                    }
                 }
             } else {
-                LobbyView(connected: connected)
-                    .onChange(of: connected.host) {
-                        showGame = connected.host != nil
-                    }
+                AirHockeyView()
+                if state == .pausedGame {
+                    LobbyView(connected: connected) {
+                        BigButton("Continue Room") {
+                            P2PNetwork.makeMeHost()
+                        }
+                    }.background(.white)
+                }
             }
+        }.onChange(of: connected.host) {
+            state = connected.host == nil ? .pausedGame : .startedGame
         }
     }
     
-    private func ContinueButton(action: @escaping () -> Void) -> some View {
+    private func BigButton(_ text: String, action: @escaping () -> Void) -> some View {
         Button(action: action, label: {
-            Text("Continue").padding(10).font(.title)
+            Text(text).padding(10).font(.title)
         }).p2pButtonStyle()
     }
 }

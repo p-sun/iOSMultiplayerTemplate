@@ -2,9 +2,11 @@
 //  P2PHostSelector.swift
 
 import Foundation
+import MultipeerConnectivity
 
 struct HostEvent: Codable {
     enum Kind: Codable {
+        case requestHost
         case announceHost
     }
     
@@ -36,6 +38,10 @@ class P2PHostSelector {
             let peers = P2PNetwork.connectedPeers
             guard let self = self else { return }
             switch hostAction.kind {
+            case .requestHost:
+                if host?.isMe == true {
+                    announceHostEvent(to: [sender])
+                }
             case .announceHost:
                 let hostPeer = peers.first(where: { $0.peerID == sender })
                 if let hostPeer = hostPeer {
@@ -44,15 +50,17 @@ class P2PHostSelector {
                        let myStartTime = _hostStartTime,
                        host.isMe && myStartTime > hostAction.hostStartTime {
                         _lock.unlock()
-                        announceHostEvent(to: [hostPeer])
+                        announceHostEvent(to: [hostPeer.peerID])
                     } else {
                         _lock.unlock()
                         setHost(hostPeer)
                     }
                 } else {
                     prettyPrint(level: .error, "Received host announcement, but I'm not fully connected to host.")
+                    Timer.scheduledTimer(withTimeInterval: 0.6, repeats: false) { [weak self] _ in
+                        self?._hostEventService.send(payload: HostEvent(kind: .requestHost, hostStartTime: 0), to: [sender], reliable: true)
+                    }.fire()
                     setHost(nil)
-                    // TODO: They're host but I can't send to host --> restart session?
                 }
             }
         }
@@ -82,11 +90,11 @@ class P2PHostSelector {
         }
     }
     
-    private func announceHostEvent(to peers: [Peer] = []) {
+    private func announceHostEvent(to peers: [MCPeerID] = []) {
         _lock.lock()
         if let hostStartTime = _hostStartTime {
             _lock.unlock()
-            _hostEventService.send(payload: HostEvent(kind: .announceHost, hostStartTime: hostStartTime), to: peers.map { $0.peerID }, reliable: true)
+            _hostEventService.send(payload: HostEvent(kind: .announceHost, hostStartTime: hostStartTime), to: peers, reliable: true)
         } else {
             _lock.unlock()
         }
@@ -102,7 +110,7 @@ extension P2PHostSelector: P2PNetworkPeerDelegate {
             if host.isMe {
                 if connectedPeers.contains(peer) {
                     // Announce to newly connected Peers that I am host
-                    announceHostEvent(to: [peer])
+                    announceHostEvent(to: [peer.peerID])
                 }
             } else if !connectedPeers.contains(where: { $0.peerID == host.peerID }) {
                 // I've lost connection to existing host

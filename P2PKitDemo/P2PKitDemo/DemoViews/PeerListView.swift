@@ -61,7 +61,7 @@ struct PeerListView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Current Device").p2pTitleStyle()
+            Text("Me").p2pTitleStyle()
             Text(peerSummaryText(P2PNetwork.myPeer))
             HStack {
                 Button("Change Name") {
@@ -76,7 +76,7 @@ struct PeerListView: View {
                 P2PNetwork.makeMeHost()
             }.p2pSecondaryButtonStyle()
 
-            Text("Found Devices").p2pTitleStyle()
+            Text("Found Players").p2pTitleStyle()
             VStack(alignment: .leading, spacing: 10) {
                 if model.peerList.isEmpty {
                     ProgressView()
