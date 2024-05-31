@@ -17,10 +17,11 @@ struct LobbyView: View {
                 Text("Me").p2pTitleStyle()
                 Text("\(peerSummaryText(P2PNetwork.myPeer))")
                 
-                Text("Connected Players").p2pTitleStyle()
                 if connected.peers.isEmpty {
+                    Text("Searching for Players...").p2pTitleStyle()
                     ProgressView()
                 } else {
+                    Text("Connected Players").p2pTitleStyle()
                     ForEach(connected.peers, id: \.peerID) { peer in
                         Text(peerSummaryText(peer))
                     }
@@ -28,21 +29,21 @@ struct LobbyView: View {
             }
             
             Spacer()
-            button("Single Player") {
+            if connected.host == nil && connected.peers.count > 0 {
+                button("Create Room") {
+                    P2PNetwork.makeMeHost()
+                }
+                Spacer().frame(height: 18)
+            }
+            
+            button("Play Solo") {
                 P2PNetwork.soloMode = true
                 P2PNetwork.makeMeHost()
             }
-            
-            if connected.host == nil {
-                Spacer()
-                button("Multiplayer") {
-                    P2PNetwork.makeMeHost()
-                }
-            }
         }
         .safeAreaPadding()
-        .padding(.top, 200)
-        .padding(.bottom, 100)
+        .padding(EdgeInsets(top: 130, leading: 20,
+                            bottom: 100, trailing: 20))
     }
     
     private func button(_ text: String, action: @escaping () -> Void) -> some View {
