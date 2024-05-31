@@ -56,7 +56,7 @@ struct ContentView: View {
             SyncedCircles()
             DebugDataView()
             Spacer()
-        }
+        }.frame(maxWidth: 480)
     }
 }
 

@@ -31,6 +31,7 @@ class AirHockeyRootView: UIView {
         label.font = .systemFont(ofSize: 18)
         label.numberOfLines = 0
         label.textAlignment = .center
+        label.textColor = .black
         return label
     }()
     
