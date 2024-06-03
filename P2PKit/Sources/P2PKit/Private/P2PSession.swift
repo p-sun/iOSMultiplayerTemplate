@@ -228,7 +228,17 @@ extension P2PSession: MCNearbyServiceBrowserDelegate {
             peersLock.lock()
             foundPeers.insert(peerID)
             
+            // Each device has one DiscoveryId. When a new MCPeerID is found, cleanly remove older MCPeerIDs from the same device.
+            for (otherPeerId, otherDiscoveryInfo) in discoveryInfos {
+                if otherDiscoveryInfo.discoveryId == discoveryId && otherPeerId != peerID {
+                    foundPeers.remove(otherPeerId)
+                    discoveryInfos[otherPeerId] = nil
+                    sessionStates[otherPeerId] = nil
+                    invitesHistory[otherPeerId] = nil
+                }
+            }
             discoveryInfos[peerID] = DiscoveryInfo(discoveryId: discoveryId)
+
             if sessionStates[peerID] == nil, session.connectedPeers.contains(peerID) {
                 startLoopbackTest(peerID)
             }
