@@ -29,6 +29,7 @@ class P2PSession: NSObject {
     private var discoveryInfos = [MCPeerID: DiscoveryInfo]() // protected with peersLock
     private var sessionStates = [MCPeerID: MCSessionState]() // protected with peersLock
     private var invitesHistory = [MCPeerID: InviteHistory]() // protected with peersLock
+    private var loopbackTestTimers = [MCPeerID: Timer]() // protected with peersLock
     
     var connectedPeers: [Peer] {
         peersLock.lock(); defer { peersLock.unlock() }
@@ -117,7 +118,7 @@ class P2PSession: NSObject {
         }
     }
     
-    // Reliable is slower
+    // Reliable maintains order and doesn't drop data but is slower.
     func send(data: Data, to peers: [MCPeerID] = [], reliable: Bool) {
         let sendToPeers = peers.isEmpty ? session.connectedPeers : peers
         guard !sendToPeers.isEmpty else {
@@ -134,9 +135,16 @@ class P2PSession: NSObject {
     // MARK: - Loopback Test
     // Test whether a connection is still alive.
     
+    // Call with within a peersLock.
     private func startLoopbackTest(_ peerID: MCPeerID) {
         prettyPrint("Sending Ping to \(peerID.displayName)")
         send(["ping": ""], to: [peerID], reliable: true)
+        
+        // If A pings B but B doesn't pong back, B disconnected or unable to respond. In that case A tells B to reset.
+        loopbackTestTimers[peerID] = Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { [weak self] timer in
+            prettyPrint("Did not receive pong from \(peerID.displayName). Asking it to reset.")
+            self?.send(["pongNotReceived": ""], to: [peerID], reliable: true)
+        })
     }
     
     private func receiveLoopbackTest(_ session: MCSession, didReceive json: [String: Any], fromPeer peerID: MCPeerID) -> Bool {
@@ -150,6 +158,8 @@ class P2PSession: NSObject {
             if sessionStates[peerID] == nil {
                 sessionStates[peerID] = .connected
             }
+            loopbackTestTimers[peerID]?.invalidate()
+            loopbackTestTimers[peerID] = nil
             let peer = peer(for: peerID)
             peersLock.unlock()
             
@@ -157,6 +167,9 @@ class P2PSession: NSObject {
                 delegate?.p2pSession(self, didUpdate: peer)
             }
             return true
+        } else if json["pongNotReceived"] as? String == "" {
+            prettyPrint("Resetting because [\(peerID.displayName)] sent ping to me but didn't receive a pong back.")
+            P2PNetwork.resetSession()
         }
         return false
     }
@@ -191,10 +204,8 @@ extension P2PSession: MCSessionDelegate {
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        if let json = json {
-            if receiveLoopbackTest(session, didReceive: json, fromPeer: peerID) {
-                return
-            }
+        if let json = json, receiveLoopbackTest(session, didReceive: json, fromPeer: peerID) {
+            return
         }
         
         // Recieving data is from different threads, so don't get Peer.Identifier here.
