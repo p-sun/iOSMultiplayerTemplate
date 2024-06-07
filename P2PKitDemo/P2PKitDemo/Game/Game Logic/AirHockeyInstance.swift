@@ -41,7 +41,7 @@ private class AirHockeyCoordinator {
     fileprivate let rootView: AirHockeyRootView
     private let gameView: AirHockeyGameView
     private weak var scoreView: AirHockeyScoreView?
-
+    
     // MARK: Networked States
     private let malletDraggedEvents = P2PEventService<MalletDragEvent>("MalletDrag")
     private let syncedRoom: SyncedGameRoom
@@ -59,13 +59,13 @@ private class AirHockeyCoordinator {
         self.gameView = gameView
         self.syncedRoom = SyncedGameRoom()
         self.physics = AirHockeyPhysics(boardSize: boardSize)
-
+        
         // Networking
         self.syncedPhysics = P2PSynced(name: "SyncedPhysics", initial: PhysicsVM.initial, writeAccess: .hostOnly)
         self.syncedPhysics.onReceiveSync = { [weak self] (physicsVM: PhysicsVM) in
             guard let self = self else { return }
             if !self.syncedRoom.isHost {
-                physicsVM.update(physics)
+                physics.apply(physicsVM: physicsVM)
             }
         }
         
@@ -80,17 +80,7 @@ private class AirHockeyCoordinator {
         
         self.malletDraggedEvents.onReceive { [weak self] eventInfo, malletDragEvent, json, sender in
             guard let self = self, syncedRoom.isHost else { return }
-            
-            let i = malletDragEvent.tag
-            if i < physics.mallets.count {
-                physics.mallets[i].isGrabbed = malletDragEvent.isGrabbed
-                physics.mallets[i].position = malletDragEvent.position
-                if let velocity = malletDragEvent.velocity {
-                    physics.mallets[i].velocity = velocity
-                }
-            } else {
-                print("WARN: Tried to set mallet at index \(i), but we only have \(physics.mallets.count) mallets. Ignoring")
-            }
+            physics.applyMalletDragEvent(malletDragEvent: malletDragEvent)
         }
         
         // Update Loop
@@ -107,11 +97,10 @@ private class AirHockeyCoordinator {
         
         if syncedRoom.isHost {
             physics.update(deltaTime: CGFloat(displayLink.duration))
-            syncedPhysics.value = PhysicsVM.create(from: physics)
+            syncedPhysics.value = physics.physicsVM()
         }
-        
         // Render
-        gameView.update(mallets: physics.mallets, pucks: physics.pucks, holes: physics.holes, players: syncedRoom.players)
+        gameView.update(physics.gameViewVM(), players: syncedRoom.players)
     }
     
     fileprivate func invalidate() {
@@ -154,14 +143,7 @@ extension AirHockeyCoordinator: MultiGestureDetectorDelegate {
     private func dragMallet(tag: Int, isGrabbed: Bool, position: CGPoint, velocity: CGPoint?) {
         // TODO: Don't allow multiple people to grab the same mallet
         if syncedRoom.isHost {
-            if tag < physics.mallets.count {
-                let mallet = physics.mallets[tag]
-                mallet.position = position
-                mallet.isGrabbed = isGrabbed
-                if let velocity {
-                    mallet.velocity = velocity
-                }
-            }
+            physics.dragMallet(tag: tag, isGrabbed: isGrabbed, position: position, velocity: velocity)
         } else {
             malletDraggedEvents.send(payload: MalletDragEvent(tag: tag, isGrabbed: isGrabbed, position: position, velocity: velocity), senderID: "", reliable: false)
         }

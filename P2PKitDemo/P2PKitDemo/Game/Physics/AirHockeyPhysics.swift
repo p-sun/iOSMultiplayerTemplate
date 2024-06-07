@@ -19,10 +19,12 @@ protocol AirHockeyPhysicsDelegate: AnyObject {
 class AirHockeyPhysics {
     weak var delegate: AirHockeyPhysicsDelegate? = nil
     
-    private(set) var pucks = [Ball]()
-    private(set) var mallets = [Ball]()
-    private(set) var holes = [Ball]()
+    private var pucks = [Ball]()
+    private var mallets = [Ball]()
+    private var holes = [Ball]()
     private let boardSize: CGSize
+    private let delegateQueue = DispatchQueue(label: "com.P2PKitDemo.AirHockeyPhysics.serial")
+    private let lock = NSLock()
     
     init(boardSize: CGSize) {
         self.boardSize = boardSize
@@ -35,9 +37,40 @@ class AirHockeyPhysics {
         self.holes.append(Ball.createHole(boardSize: boardSize, awayFrom: self.holes.map {$0.position }))
     }
     
-    // MARK: - Apply External Changes
+    // MARK: - Drag Mallet
+    
+    func dragMallet(tag: Int, isGrabbed: Bool, position: CGPoint, velocity: CGPoint?) {
+        lock.lock()
+        if tag < mallets.count {
+            let mallet = mallets[tag]
+            mallet.position = position
+            mallet.isGrabbed = isGrabbed
+            if let velocity {
+                mallet.velocity = velocity
+            }
+        }
+        lock.unlock()
+    }
+    
+    func applyMalletDragEvent(malletDragEvent: MalletDragEvent) {
+        lock.lock()
+        let i = malletDragEvent.tag
+        if i < mallets.count {
+            mallets[i].isGrabbed = malletDragEvent.isGrabbed
+            mallets[i].position = malletDragEvent.position
+            if let velocity = malletDragEvent.velocity {
+                mallets[i].velocity = velocity
+            }
+        } else {
+            print("WARN: Tried to set mallet at index \(i), but we only have \(mallets.count) mallets. Ignoring")
+        }
+        lock.unlock()
+    }
+    
+    // MARK: - Players
     
     func updateMallets(for players: [Player]) {
+        lock.lock()
         mallets = players.map { player in
             if let existing = mallets.first(where: { $0.ownerID == player.playerID }) {
                 return existing
@@ -45,9 +78,36 @@ class AirHockeyPhysics {
                 return Ball.createMallet(boardSize: boardSize, ownerID: player.playerID)
             }
         }
+        lock.unlock()
     }
     
-    func applyViewModels(ballVMs: [BallVM], kind: Ball.Kind) {
+    // MARK: - View Model for Display
+    
+    func gameViewVM() -> (mallets: [Ball], pucks: [Ball], holes: [Ball]) {
+        lock.lock(); defer { lock.unlock() }
+        return (mallets: mallets, pucks: pucks, holes: holes)
+    }
+    
+    // MARK: - Physics View Model for Syncing Physics
+    
+    func physicsVM() -> PhysicsVM {
+        lock.lock(); defer { lock.unlock() }
+        return PhysicsVM(
+            puckVMs: pucks.map { BallVM.create(from: $0) },
+            malletVMs: mallets.map { BallVM.create(from: $0) },
+            holeVMs: holes.map { BallVM.create(from: $0) }
+        )
+    }
+    
+    func apply(physicsVM: PhysicsVM) {
+        lock.lock()
+        applyViewModels(ballVMs: physicsVM.puckVMs, kind: .puck)
+        applyViewModels(ballVMs: physicsVM.malletVMs, kind: .mallet)
+        applyViewModels(ballVMs: physicsVM.holeVMs, kind: .hole)
+        lock.unlock()
+    }
+    
+    private func applyViewModels(ballVMs: [BallVM], kind: Ball.Kind) {
         func newBall() -> Ball {
             switch kind {
             case .hole:
@@ -82,15 +142,18 @@ class AirHockeyPhysics {
         }
     }
     
+    
     // MARK: - Per-Frame Updates
-
+    
     func update(deltaTime: CGFloat) {
+        lock.lock()
         tick(deltaTime: deltaTime)
         for hole in holes {
             for puck in pucks {
                 puckIsInsideHole(puck: puck, hole: hole)
             }
         }
+        lock.unlock()
     }
     
     private func tick(deltaTime: CGFloat) {
@@ -165,13 +228,21 @@ class AirHockeyPhysics {
             || b.position.x + r >= boardSize.width {
             b.velocity.x = -b.velocity.x
             
-            if b.kind == .puck { delegate?.puckDidCollideWithWall(puck: b) }
+            if b.kind == .puck {
+                delegateQueue.async { [weak self] in
+                    self?.delegate?.puckDidCollideWithWall(puck: b)
+                }
+            }
         }
         
         if b.position.y - r <= 0
             || b.position.y + r >= boardSize.height {
             b.velocity.y = -b.velocity.y
-            if b.kind == .puck { delegate?.puckDidCollideWithWall(puck: b) }
+            if b.kind == .puck {
+                delegateQueue.async { [weak self] in
+                    self?.delegate?.puckDidCollideWithWall(puck: b)
+                }
+            }
         }
     }
     
@@ -181,7 +252,9 @@ class AirHockeyPhysics {
         let distance = sqrt(dx * dx + dy * dy)
         
         if distance < hole.radius - puck.radius {
-            delegate?.puckDidEnterHole(puck: puck)
+            delegateQueue.async { [weak self] in
+                self?.delegate?.puckDidEnterHole(puck: puck)
+            }
             if let i = self.holes.firstIndex(where: {$0.id == hole.id }) {
                 self.holes[i] = Ball.createHole(boardSize: boardSize, awayFrom: self.holes.map { $0.position })
             }
@@ -212,7 +285,9 @@ class AirHockeyPhysics {
             b.velocity.y = ny * malletSpeed
             
             if b.kind == .puck {
-                delegate?.puckDidCollide(puck: b, ball: a)
+                delegateQueue.async { [weak self] in
+                    self?.delegate?.puckDidCollide(puck: b, ball: a)
+                }
             }
         }
     }
@@ -258,7 +333,9 @@ class AirHockeyPhysics {
             b.position.y += overlap * ny
             
             if b.kind == .puck {
-                delegate?.puckDidCollide(puck: b, ball: a)
+                delegateQueue.async { [weak self] in
+                    self?.delegate?.puckDidCollide(puck: b, ball: a)
+                }
             }
         }
     }

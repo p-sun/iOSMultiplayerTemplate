@@ -54,25 +54,11 @@ struct BallVM: Codable {
 }
 
 struct PhysicsVM: Codable {
-    private let puckVMs: [BallVM]
-    private let malletVMs: [BallVM]
-    private let holeVMs: [BallVM]
+    let puckVMs: [BallVM]
+    let malletVMs: [BallVM]
+    let holeVMs: [BallVM]
     
     static var initial: PhysicsVM {
         return PhysicsVM(puckVMs: [], malletVMs: [], holeVMs: [])
-    }
-    
-    static func create(from physics: AirHockeyPhysics) -> PhysicsVM {
-        return PhysicsVM(
-            puckVMs: physics.pucks.map{ BallVM.create(from: $0) },
-            malletVMs: physics.mallets.map{ BallVM.create(from: $0) },
-            holeVMs: physics.holes.map{ BallVM.create(from: $0) }
-        )
-    }
-    
-    func update(_ physics: AirHockeyPhysics) {
-        physics.applyViewModels(ballVMs: puckVMs, kind: .puck)
-        physics.applyViewModels(ballVMs: malletVMs, kind: .mallet)
-        physics.applyViewModels(ballVMs: holeVMs, kind: .hole)
     }
 }

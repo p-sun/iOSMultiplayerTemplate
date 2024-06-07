@@ -148,11 +148,11 @@ class AirHockeyGameView: UIView {
         didLayout?(frame.size)
     }
     
-    func update(mallets: [Ball], pucks: [Ball], holes: [Ball], players: [Player]) {
+    func update(_ gameViewVM: (mallets: [Ball], pucks: [Ball], holes: [Ball]), players: [Player]) {
         DispatchQueue.main.async {
-            self.updateBalls(in: self.holesView, balls: holes, players: players)
-            self.updateBalls(in: self.pucksView, balls: pucks, players: players)
-            self.updateBalls(in: self.malletsView, balls: mallets, players: players)
+            self.updateBalls(in: self.holesView, balls: gameViewVM.holes, players: players)
+            self.updateBalls(in: self.pucksView, balls: gameViewVM.pucks, players: players)
+            self.updateBalls(in: self.malletsView, balls: gameViewVM.mallets, players: players)
         }
     }
 
