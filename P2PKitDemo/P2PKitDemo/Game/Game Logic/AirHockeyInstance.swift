@@ -8,7 +8,6 @@
 import Foundation
 import QuartzCore
 import P2PKit
-import MultipeerConnectivity
 
 class AirHockeyInstance {
     private var coordinator: AirHockeyCoordinator?
