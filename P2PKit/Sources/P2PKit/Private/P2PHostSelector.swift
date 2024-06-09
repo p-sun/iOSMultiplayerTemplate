@@ -4,14 +4,9 @@
 import Foundation
 import MultipeerConnectivity
 
-struct HostEvent: Codable {
-    enum Kind: Codable {
-        case requestHost
-        case announceHost
-    }
-    
-    let kind: Kind
-    let hostStartTime: TimeInterval
+enum HostAction: Codable {
+    case requestHost
+    case announceHost(hostStartTime: TimeInterval)
 }
 
 // Decide which connected peer is the leader/host.
@@ -27,7 +22,7 @@ class P2PHostSelector {
     private var _host: Peer? = nil
     // If the current player is the host, the time that player became host.
     private var _hostStartTime: TimeInterval?
-    private let _hostEventService = P2PEventService<HostEvent>("P2PKit.P2PHostSelector")
+    private let _hostEventService = P2PEventService<HostAction>("P2PKit.HostAction")
     
     init() {
         P2PNetwork.addPeerDelegate(self)
@@ -37,18 +32,18 @@ class P2PHostSelector {
             
             let peers = P2PNetwork.connectedPeers
             guard let self = self else { return }
-            switch hostAction.kind {
+            switch hostAction {
             case .requestHost:
                 if host?.isMe == true {
                     announceHostEvent(to: [sender])
                 }
-            case .announceHost:
+            case .announceHost(let hostStartTime):
                 let hostPeer = peers.first(where: { $0.peerID == sender })
                 if let hostPeer = hostPeer {
                     _lock.lock()
                     if let host = self._host,
                        let myStartTime = _hostStartTime,
-                       host.isMe && myStartTime > hostAction.hostStartTime {
+                       host.isMe && myStartTime > hostStartTime {
                         _lock.unlock()
                         announceHostEvent(to: [hostPeer.peerID])
                     } else {
@@ -58,7 +53,7 @@ class P2PHostSelector {
                 } else {
                     prettyPrint(level: .error, "Received host announcement, but I'm not fully connected to host.")
                     Timer.scheduledTimer(withTimeInterval: 0.6, repeats: false) { [weak self] _ in
-                        self?._hostEventService.send(payload: HostEvent(kind: .requestHost, hostStartTime: 0), to: [sender], reliable: true)
+                        self?._hostEventService.send(payload: .requestHost, to: [sender], reliable: true)
                     }.fire()
                     setHost(nil)
                 }
@@ -94,7 +89,7 @@ class P2PHostSelector {
         _lock.lock()
         if let hostStartTime = _hostStartTime {
             _lock.unlock()
-            _hostEventService.send(payload: HostEvent(kind: .announceHost, hostStartTime: hostStartTime), to: peers, reliable: true)
+            _hostEventService.send(payload: .announceHost(hostStartTime: hostStartTime), to: peers, reliable: true)
         } else {
             _lock.unlock()
         }

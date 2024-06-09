@@ -5,12 +5,6 @@
 import SwiftUI
 import P2PKit
 
-enum GameTabState {
-    case unstarted
-    case startedGame
-    case pausedGame
-}
-
 struct GameTab: View {
     @StateObject private var connected = ConnectedPeers()
     @State private var state: GameTabState = .unstarted
@@ -49,4 +43,10 @@ struct GameTab: View {
             Text(text).padding(10).font(.title)
         }).p2pButtonStyle()
     }
+}
+
+private enum GameTabState {
+    case unstarted
+    case startedGame
+    case pausedGame
 }
