@@ -23,7 +23,7 @@ public class P2PSyncedObservable<T: Codable>: ObservableObject {
     
     private let synced: P2PSynced<T>
     
-    public init(name: String, initial: T, writeAccess: WriteAccess = .everyone) {
+    public init(name: String, initial: T, writeAccess: P2PSynced<T>.WriteAccess = .everyone) {
         self.synced = P2PSynced(name: name, initial: initial, writeAccess: writeAccess)
         self.synced.onReceiveSync = { [weak self] newVal in
             DispatchQueue.main.async {
@@ -33,13 +33,14 @@ public class P2PSyncedObservable<T: Codable>: ObservableObject {
     }
 }
 
-public enum WriteAccess {
-    case hostOnly, everyone
-}
-
-// When any peer send values, all other peer will receive it.
-// If isHost is set to true, this will sync the value from host when a new P2PSynced is created with the same eventName, or when the device with that P2PSynced reconnects.
+/// Syncs a value between instances of P2PSynced with the same name across devices.
+/// When a host exists, non-hosts recieve the host's data upon initial connection.
+/// Use the `WriteAccess` option to decide who can write data.
 public class P2PSynced<T: Codable> {
+    public enum WriteAccess {
+        case hostOnly, everyone
+    }
+    
     public var value: T {
         get {
             _lock.lock(); defer { _lock.unlock() }
@@ -152,14 +153,17 @@ extension P2PSynced: P2PNetworkPeerDelegate {
         _host = host
         _lock.unlock()
         
-        if host?.isMe == true {
-            sendValue(reliable: true)
-        } else if let host = host {
-            _requestUpdateService.send(payload: "", senderID: syncID, to: [host.peerID], reliable: true)
+        if let host = host {
+            if host.isMe {
+                sendValue(reliable: true)
+            } else {
+                _requestUpdateService.send(payload: "", senderID: syncID, to: [host.peerID], reliable: true)
+            }
         }
     }
     
     public func p2pNetwork(didUpdate peer: Peer) {
-        // Intentionally empty because Peers must request for updates from host first, to ensure Peer is ready to receive data from to host.
+        // Intentionally empty because non-host peers must request for updates from host first
+        // to ensure Peer is ready to receive data from the host.
     }
 }
