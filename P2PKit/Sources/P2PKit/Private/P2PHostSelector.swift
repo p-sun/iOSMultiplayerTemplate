@@ -81,7 +81,7 @@ class P2PHostSelector {
             _lock.lock()
             if let host = _host, host.isMe, host.startTime > senderHostStartTime {
                 _lock.unlock()
-                announceHost(host, to: [hostPeer.peerID])
+                announceHost(host, to: [])
             } else {
                 _lock.unlock()
                 setHost(Host(peer: hostPeer, startTime: senderHostStartTime))
@@ -115,7 +115,7 @@ extension P2PHostSelector: P2PNetworkPeerDelegate {
                     // Announce to newly connected Peers that I am host
                     announceHost(host, to: [peer.peerID])
                 }
-            } else if !connectedPeers.contains(where: { $0.peerID == host.peer.peerID }) {
+            } else if !connectedPeers.contains(host.peer) {
                 // I've lost connection to existing host
                 setHost(nil)
             }

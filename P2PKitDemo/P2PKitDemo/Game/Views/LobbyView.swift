@@ -33,6 +33,7 @@ struct LobbyView<Content: View>: View {
                 content()
             }
         }
+        .foregroundColor(.black)
         .frame(maxWidth: 480)
         .safeAreaPadding()
         .padding(EdgeInsets(top: 130, leading: 20,
