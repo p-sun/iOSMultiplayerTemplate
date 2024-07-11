@@ -1,6 +1,6 @@
 # VisionProMultiplayer
-Bluetooth or Wifi Networking with Apple's Multipeer Connectivity framework for hackathons. 
-Builds for all iOS, including Vision Pro, iPhone, and iPad.
+Bluetooth or WiFi Networking with Apple's Multipeer Connectivity framework for hackathons. 
+Builds for all iOS, including Vision Pro, iPhone, and iPad. For best performance across real devices, disable WiFi to use bluetooth connection.
 
 ### Game Demo
 You're the mallet with the star. When the white puck enters a hole, the last person to touch the white puck with their mallet scores a point!
@@ -11,7 +11,7 @@ https://github.com/p-sun/iOSMultiplayerTemplate/assets/9044578/53169d75-bbda-440
 
 https://github.com/p-sun/iOSMultiplayerTemplate/assets/9044578/5610f760-0c3c-4100-b1ca-cbcb417c72b0
 
-## Use P2PSynced to sync Coable data data
+## Use P2PSynced to sync Codable data
 P2PSynced is the easiest way to sync data across devices.
 ```swift
 let syncedRoom = P2PSynced<GameRoom>(
