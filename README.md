@@ -1,6 +1,14 @@
-# VisionProMultiplayer
-Bluetooth or WiFi Networking with Apple's Multipeer Connectivity framework for hackathons. 
-Builds for all iOS, including Vision Pro, iPhone, and iPad. For best performance across real devices, disable WiFi to use bluetooth connection.
+# iOSMultiplayerTemplate / P2PKit
+**P2PKit** is a Bluetooth or WiFi Networking framework for hackathons!
+It is uses **Apple's Multipeer Connectivity** and works for all iOS, including Vision Pro, iPhone, and iPad. 
+
+### Features
+* **Offline data passing!** For best performance across real devices, disable WiFi to use bluetooth connection.
+* [Automatic retrying](https://github.com/p-sun/iOSMultiplayerTemplate/blob/main/P2PKit/Sources/P2PKit/Private/P2PSession.swift#L304) when peers disconnect.
+* Easy APIs for sending/receiving Codable data, with callbacks or with SwiftUI.
+* Game Demo that uses P2PKit.
+* APIs for setting/observing one device as host and the rest as followers.
+* APIs for resetting session, changing the display name, and debugging.
 
 ### Game Demo
 You're the mallet with the star. When the white puck enters a hole, the last person to touch the white puck with their mallet scores a point!
